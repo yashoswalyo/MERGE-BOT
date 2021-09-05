@@ -1,4 +1,5 @@
 import asyncio
+from config import Config
 import os
 import shutil
 import string
@@ -22,9 +23,10 @@ from helpers.ffmpeg import MergeVideo
 
 mergeApp = Client(
 	session_name="merge-bot",
-	api_hash='13d3e3bd0782827987a64acb1cc1d63b',
-	api_id=1617207,
-	bot_token='1983579380:AAGOwa3unThkzmmdRKZgFfPBVPI6bUMGUgQ'
+	api_hash=Config.API_HASH,
+	api_id=Config.API_ID,
+	bot_token=Config.BOT_TOKEN,
+	workers=300
 )
 
 
