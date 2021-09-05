@@ -4,8 +4,6 @@ import os
 import shutil
 import string
 import time
-from functools import cache
-from typing import List
 
 import pyrogram
 from hachoir import metadata
@@ -18,7 +16,7 @@ from pyrogram.types import (CallbackQuery, InlineKeyboardButton,InlineKeyboardMa
 from pyromod import listen
 
 from helpers.uploader import uploadVideo
-from helpers.display_progress import humanbytes, progress_for_pyrogram
+from helpers.display_progress import progress_for_pyrogram
 from helpers.ffmpeg import MergeVideo
 
 mergeApp = Client(
