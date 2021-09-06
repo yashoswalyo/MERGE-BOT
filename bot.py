@@ -39,19 +39,25 @@ replyDB={}
 
 @mergeApp.on_message(filters.command(['start']) & filters.private & ~filters.edited)
 async def start_handler(c: Client, m: Message):
-	if int(m.from_user.id) != 589641907:
+	if int(m.from_user.id) != Config.ALD_USR:
 		res = await m.reply_text(
-			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @yashoswalyo** ",
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
 		)
 		return
 	res = await m.reply_text(
-		text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner:🈲 @yashoswalyo** ",
+		text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner:🈲 @{Config.OWNER_USERNAME}** ",
 		quote=True
 	)
 	
 @mergeApp.on_message((filters.document | filters.video) & filters.private & ~filters.edited)
 async def video_handler(c: Client, m: Message):
+	if int(m.from_user.id) != Config.ALD_USR:
+		res = await m.reply_text(
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
+			quote=True
+		)
+		return
 	media = m.video or m.document
 	if media.file_name is None:
 		await m.reply_text('File Not Found')
@@ -93,6 +99,12 @@ async def video_handler(c: Client, m: Message):
 
 @mergeApp.on_message(filters.photo & filters.private & ~filters.edited)
 async def photo_handler(c: Client,m: Message):
+	if int(m.from_user.id) != Config.ALD_USR:
+		res = await m.reply_text(
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
+			quote=True
+		)
+		return
 	thumbnail = m.photo.file_id
 	msg = await m.reply_text('Saving Thumbnail. . . .',quote=True)
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
