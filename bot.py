@@ -339,7 +339,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		return
 	video_thumbnail = f'./downloads/{cb.from_user.id}_thumb.jpg'
 	if os.path.exists(video_thumbnail) is False:
-		video_thumbnail=f""
+		video_thumbnail=f"./assets/default_thumb.jpg"
 	else: 
 		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
 		img = Image.open(video_thumbnail)
