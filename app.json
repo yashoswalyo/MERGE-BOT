@@ -1,0 +1,43 @@
+{
+    "name": "Telegram Video Merge Bot",
+    "description": "A Telegram Video Merge Bot in Pyrogram by @YashOswalYO",
+    "keywords": [
+        "telegram",
+        "video",
+        "merge",
+        "bot"
+    ],
+    "repository": "https://github.com/yashoswalyo/MERGE-BOT",
+    "website": "https://telegram.dog/yashoswalyo",
+    "env": {
+        "API_ID": {
+            "description": "Get this value from my.telegram.org "
+        },
+        "API_HASH": {
+            "description": "Get this value from my.telegram.org "
+        },
+        "BOT_TOKEN": {
+            "description": "Get this from @BotFather XD"
+        },
+        "OWNER_USERNAME": {
+            "description": "Bot Owner User Name"
+        },
+        "ALD_USR": {
+			"description": "ID of Users who can use Bot commands (for multiple users seperated by space)"
+		}
+    },
+    "buildpacks": [ 
+        {
+            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+        }, 
+        { 
+            "url": "heroku/python"
+        }
+    ],
+    "formation": {
+        "worker": {
+            "quantity": 1,
+            "size": "free"
+        }
+    }
+}
