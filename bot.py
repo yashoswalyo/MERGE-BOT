@@ -216,9 +216,10 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 				file_name=f"./downloads/{cb.from_user.id}/{i.message_id}/",
 				progress=progress_for_pyrogram,
 				progress_args=(
-				'Downloading...',
-				cb.message,
-				c_time)
+					'Downloading...',
+					cb.message,
+					c_time
+				)
 			)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
@@ -288,7 +289,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("Merged Video is corrupted")
 		return
-	video_thumbnail = f"./downloads/{str(cb.from_user.id)}-thumb.jpg"
+	video_thumbnail = f"./downloads/{str(cb.from_user.id)}_thumb.jpg"
 	Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
 	img = Image.open(video_thumbnail)
 	# img.resize(width,height)
