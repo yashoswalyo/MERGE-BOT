@@ -116,6 +116,26 @@ async def photo_handler(c: Client,m: Message):
 		text="✅ Custom Thumbnail Saved!"
 	)
 	
+@mergeApp.on_message(filters.command(['help']) & filters.private & ~filters.edited)
+async def help_msg(c: Client, m: Message):
+	await m.reply_text(
+		text='''**Follow These Steps:
+
+1) Send me the custom thumbnail (optional).
+2) Send two or more Your Videos Which you want to merge
+3) After sending all files select merge options
+4) Select the upload mode.
+5) Select rename if you want to give custom file name else press default**''',
+	quote=True,
+	reply_markup=InlineKeyboardMarkup(
+		[ 
+			[
+				InlineKeyboardButton("Close 🔐", callback_data="close")
+			]
+		]
+	)
+	
+	)
 
 @mergeApp.on_message(filters.command(['showthumbnail']) & filters.private & ~filters.edited)
 async def show_thumbnail(c:Client ,m: Message):
@@ -200,7 +220,10 @@ async def callback(c: Client, cb: CallbackQuery):
 		await cb.message.delete(True)
 		await cb.message.reply_to_message.delete(True)
 		
-			
+	elif cb.data == 'close':
+		await cb.message.delete(True)
+		await cb.message.reply_to_message.delete(True)
+
 	elif cb.data.startswith('showFileName_'):
 		m = await c.get_messages(chat_id=cb.message.chat.id,message_ids=int(cb.data.rsplit("_",1)[-1]))
 		try:
