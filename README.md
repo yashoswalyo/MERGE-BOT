@@ -73,4 +73,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 - [Me](https://github.com/yashoswalyo) for [Noting](https://github.com/yashoswalyo/MERGE-BOT) 😬
 - [Dan](https://github.com/delivrance) for [Pyrogram](https://github.com/pyrogram/pyrogram) ❤️
+- [Abir Hasan](https://github.com/AbirHasan2005) for his wonderful [code](https://github.com/AbirHasan2005/VideoMerge-Bot) ❤️
+- @Jigarvarma2005
 
