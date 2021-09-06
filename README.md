@@ -17,12 +17,10 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 - Merge Upto 10 videos  in one
 - Upload as document/video
 - Custom thumbnail support
-- Only verified users can use
+- Only allowed users can use
 
-## Deploy:
-<br>
+## Deploy :
 <p><a href="https://heroku.com/deploy?template=https://github.com/yashoswalyo/MERGE-BOT"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-blueviolet?style=for-the-badge&logo=heroku" width="200""/></a></p>
-<br>
 
 ## Config Variables :
 1. `API_ID` : User Account Telegram API_ID, get it from my.telegram.org
@@ -41,7 +39,7 @@ help - How to use Bot
 
 ## Self Host
 ```sh
-$ git clone https://github.com/yashoswalyo/MERGE-BOTt.git
+$ git clone https://github.com/yashoswalyo/MERGE-BOT.git
 $ cd MERGE-BOT
 $ sudo apt-get install python3-pip ffmpeg
 $ pip3 install -U pip
