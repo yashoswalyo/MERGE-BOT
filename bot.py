@@ -35,7 +35,6 @@ if os.path.exists('./downloads') == False:
 queueDB={}
 formatDB={}
 replyDB={}
-upload_as_doc = False
 
 
 @mergeApp.on_message(filters.command(['start']) & filters.private & ~filters.edited)
@@ -138,7 +137,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			)
 		)
 	elif cb.data == 'document':
-		upload_as_doc = True
+		Config.upload_as_doc = True
 		await cb.message.edit(
 			text='Do you want to rename? ',
 			reply_markup=InlineKeyboardMarkup(
@@ -303,7 +302,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		duration=duration,
 		video_thumbnail=video_thumbnail,
 		file_size=os.path.getsize(merged_video_path),
-		upload_mode=upload_as_doc
+		upload_mode=Config.upload_as_doc
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{cb.from_user.id}')
