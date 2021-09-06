@@ -250,7 +250,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		input_file=input_,
 		user_id=cb.from_user.id,
 		message=cb.message,
-		format_=formatDB.get(cb.from_user.id,'mkv')
+		format_='mkv'
 	)
 	if merged_video_path is None:
 		await cb.message.edit("Failed to merge viode !")
