@@ -172,7 +172,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			res: Message = await c.listen( cb.message.chat.id, timeout=300 )
 			if res.text :
 				ascii_ = e = ''.join([i if (i in string.digits or i in string.ascii_letters or i == " ") else "" for i in res.text])
-				new_file_name = f"./downloads/{str(cb.from_user.id)}/{ascii_.replace(' ', '_')}"
+				new_file_name = f"./downloads/{str(cb.from_user.id)}/{ascii_.replace(' ', '_')}.mkv"
 				await mergeNow(c,cb,new_file_name)
 		if 'NO' in cb.data:
 			await mergeNow(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@popcornmania]_merged.mkv")
