@@ -41,11 +41,13 @@ replyDB={}
 async def start_handler(c: Client, m: Message):
 	if int(m.from_user.id) != 589641907:
 		res = await m.reply_text(
-			text='You cant use me',quote=True
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @yashoswalyo** ",
+			quote=True
 		)
 		return
 	res = await m.reply_text(
-		text='I am Merge Bot',quote=True
+		text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner:🈲 @yashoswalyo** ",
+		quote=True
 	)
 	
 @mergeApp.on_message((filters.document | filters.video) & filters.private & ~filters.edited)
@@ -99,7 +101,7 @@ async def photo_handler(c: Client,m: Message):
 		file_name=LOCATION
 	)
 	await msg.edit_text(
-		text="Custom Thumbnail Saved!"
+		text="✅ Custom Thumbnail Saved!"
 	)
 	
 
@@ -107,19 +109,19 @@ async def photo_handler(c: Client,m: Message):
 async def show_thumbnail(c:Client ,m: Message):
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
 	if os.path.exists(LOCATION) is False:
-		await m.reply_text(text='Custom thumbnail not found',quote=True)
+		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 	else:
-		await m.reply_photo(photo=LOCATION, caption='Your custom thumbnail', quote=True)
+		await m.reply_photo(photo=LOCATION, caption='🖼️ Your custom thumbnail', quote=True)
 
 
 @mergeApp.on_message(filters.command(['deletethumbnail']) & filters.private & ~filters.edited)
 async def delete_thumbnail(c: Client,m: Message):
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
 	if os.path.exists(LOCATION) is False:
-		await m.reply_text(text='Custom thumbnail not found',quote=True)
+		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 	else:
 		os.remove(LOCATION)
-		await m.reply_text('Deleted Sucessfully',quote=True)
+		await m.reply_text('✅ Deleted Sucessfully',quote=True)
 		
 
 @mergeApp.on_callback_query()
@@ -130,8 +132,8 @@ async def callback(c: Client, cb: CallbackQuery):
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
-						InlineKeyboardButton('Video', callback_data='video'),
-						InlineKeyboardButton('Document', callback_data='document')
+						InlineKeyboardButton('🎞️ Video', callback_data='video'),
+						InlineKeyboardButton('📁 File', callback_data='document')
 					]
 				]
 			)
@@ -139,7 +141,7 @@ async def callback(c: Client, cb: CallbackQuery):
 	elif cb.data == 'document':
 		Config.upload_as_doc = True
 		await cb.message.edit(
-			text='Do you want to rename? ',
+			text='Do you want to rename? Default file name is **[@popcornmania]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
@@ -151,7 +153,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		)
 	elif cb.data == 'video':
 		await cb.message.edit(
-			text='Do you want to rename? ',
+			text='Do you want to rename? Default file name is **[@popcornmania]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
@@ -166,7 +168,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		if 'YES' in cb.data:
 			upload_as_doc = True
 			await cb.message.edit(
-				'Default filename: **[@popcornmania]_merged.mkv**\n\nSend me new file name: ',
+				'Current filename: **[@popcornmania]_merged.mkv**\n\nSend me new file name: ',
 				parse_mode='markdown'
 			)
 			res: Message = await c.listen( cb.message.chat.id, timeout=300 )
@@ -176,18 +178,65 @@ async def callback(c: Client, cb: CallbackQuery):
 				await mergeNow(c,cb,new_file_name)
 		if 'NO' in cb.data:
 			await mergeNow(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@popcornmania]_merged.mkv")
+
 	elif cb.data == 'cancel':
+		await delete_all(root=f"downloads/{cb.from_user.id}/")
+		queueDB.update({cb.from_user.id: []})
+		formatDB.update({cb.from_user.id: None})
+		await cb.message.edit("Sucessfully Cancelled")
+		await asyncio.sleep(5)
 		await cb.message.delete(True)
 		await cb.message.reply_to_message.delete(True)
+		
 			
 	elif cb.data.startswith('showFileName_'):
 		m = await c.get_messages(chat_id=cb.message.chat.id,message_ids=int(cb.data.rsplit("_",1)[-1]))
-		
+		try:
+			await cb.message.edit(
+				text=f"File Name: {m.video.file_name}",
+				reply_markup=InlineKeyboardMarkup(
+					[
+						[
+							InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
+							InlineKeyboardButton("Back", callback_data="back")
+						]
+					]
+				)
+			)
+		except:
+			await cb.message.edit(
+				text=f"File Name: {m.document.file_name}",
+				reply_markup=InlineKeyboardMarkup(
+					[
+						[
+							InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
+							InlineKeyboardButton("Back", callback_data="back")
+						]
+					]
+				)
+			)
+	
+	elif cb.data == 'back':
+		await showQueue(c,cb)
+
+	elif cb.data.startswith('removeFile_'):
+		queueDB.get(cb.from_user.id).remove(int(cb.data.split("_", 1)[-1]))
+		await showQueue(c,cb)
+
+async def showQueue(c:Client, cb: CallbackQuery):
+	try:
+		markup = await MakeButtons(c,cb.message,queueDB)
+		await cb.message.edit(
+			text="Okay,\nNow Send Me Next Video or Press **Merge Now** Button!",
+			reply_markup=InlineKeyboardMarkup(markup)
+		)
+	except ValueError:
+		await cb.message.edit('Send Some more videos')
 
 
 async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	vid_list = list()
-	await cb.message.edit('Processing...')
+	await cb.message.edit('⭕ Processing...')
 	duration = 0
 	list_message_ids = queueDB.get(cb.from_user.id,None)
 	list_message_ids.sort()
@@ -201,10 +250,10 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
 		try:
-			await cb.message.edit(f'Downloading...{media.file_name}',)
+			await cb.message.edit(f'📥 Downloading...{media.file_name}',)
 		except MessageNotModified :
 			queueDB.get(cb.from_user.id).remove(i.message_id)
-			await cb.message.edit("File Skipped!")
+			await cb.message.edit("❗ File Skipped!")
 			await asyncio.sleep(3)
 			continue
 		file_dl_path = None
@@ -215,7 +264,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 				file_name=f"./downloads/{cb.from_user.id}/{i.message_id}/",
 				progress=progress_for_pyrogram,
 				progress_args=(
-					'Downloading...',
+					'🚀 Downloading...',
 					cb.message,
 					c_time
 				)
@@ -223,7 +272,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id).remove(i.message_id)
-			await cb.message.edit("File Skipped!")
+			await cb.message.edit("❗File Skipped!")
 			await asyncio.sleep(3)
 			continue
 		metadata = extractMetadata(createParser(file_dl_path))
@@ -235,14 +284,14 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			await delete_all(root=f'./downloads/{cb.from_user.id}')
 			queueDB.update({cb.from_user.id: []})
 			formatDB.update({cb.from_user.id: None})
-			await cb.message.edit('Video is corrupted')
+			await cb.message.edit('⚠️ Video is corrupted')
 			return
 	_cache = list()
 	for i in range(len(vid_list)):
 		if vid_list[i] not in _cache:
 			_cache.append(vid_list[i])
 	vid_list = _cache
-	await cb.message.edit(f"trying to merge videos ...")
+	await cb.message.edit(f"🔀 Trying to merge videos ...")
 	with open(input_,'w') as _list:
 		_list.write("\n".join(vid_list))
 	merged_video_path = await MergeVideo(
@@ -252,12 +301,12 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		format_='mkv'
 	)
 	if merged_video_path is None:
-		await cb.message.edit("Failed to merge viode !")
+		await cb.message.edit("❌ Failed to merge video !")
 		await delete_all(root=f'./downloads/{cb.from_user.id}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
-	await cb.message.edit("Sucessfully Merged Video !")
+	await cb.message.edit("✅ Sucessfully Merged Video !")
 	await asyncio.sleep(3)
 	file_size = os.path.getsize(merged_video_path)
 	if file_size > 2097152000:
@@ -266,11 +315,11 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
-	await cb.message.edit(f"Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
+	await cb.message.edit(f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
 	os.rename(merged_video_path,new_file_name)
 	await asyncio.sleep(1)
 	merged_video_path = new_file_name
-	await cb.message.edit("Extracting Video Data ...")
+	await cb.message.edit("🎥 Extracting Video Data ...")
 	duration = 1
 	width = 100
 	height = 100
@@ -286,13 +335,16 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		await delete_all(root=f'./downloads/{cb.from_user.id}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
-		await cb.message.edit("Merged Video is corrupted")
+		await cb.message.edit("⭕ Merged Video is corrupted")
 		return
 	video_thumbnail = f'./downloads/{cb.from_user.id}_thumb.jpg'
-	Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
-	img = Image.open(video_thumbnail)
-	# img.resize(width,height)
-	img.save(video_thumbnail,"JPEG")
+	if os.path.exists(video_thumbnail) is False:
+		video_thumbnail=f""
+	else: 
+		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
+		img = Image.open(video_thumbnail)
+		# img.resize(width,height)
+		img.save(video_thumbnail,"JPEG")
 	await uploadVideo(
 		c=c,
 		cb=cb,
@@ -324,8 +376,8 @@ async def MakeButtons(bot: Client, m: Message, db: dict):
 			continue
 		else:
 			markup.append([InlineKeyboardButton(f"{media.file_name}", callback_data=f"showFileName_{str(i.message_id)}")])
-	markup.append([InlineKeyboardButton("Merge Now", callback_data="merge")])
-	markup.append([InlineKeyboardButton("Clear Files", callback_data="cancel")])
+	markup.append([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
+	markup.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
 	return markup
 
 
