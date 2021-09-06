@@ -39,7 +39,7 @@ replyDB={}
 
 @mergeApp.on_message(filters.command(['start']) & filters.private & ~filters.edited)
 async def start_handler(c: Client, m: Message):
-	if int(m.from_user.id) != Config.ALD_USR:
+	if str(m.from_user.id) not in Config.ALD_USR:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
@@ -52,7 +52,7 @@ async def start_handler(c: Client, m: Message):
 	
 @mergeApp.on_message((filters.document | filters.video) & filters.private & ~filters.edited)
 async def video_handler(c: Client, m: Message):
-	if int(m.from_user.id) != Config.ALD_USR:
+	if str(m.from_user.id) not in Config.ALD_USR:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
@@ -99,7 +99,7 @@ async def video_handler(c: Client, m: Message):
 
 @mergeApp.on_message(filters.photo & filters.private & ~filters.edited)
 async def photo_handler(c: Client,m: Message):
-	if int(m.from_user.id) != Config.ALD_USR:
+	if str(m.from_user.id) not in Config.ALD_USR:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
