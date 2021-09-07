@@ -16,10 +16,10 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 ## Features:
 ```diff
 + Merge video preserve audio streams from first 
-- Merge Upto 10 videos in one
-- Upload as document/video
-- Custom thumbnail support
-! Only allowed users can use
++ Merge Upto 10 videos in one 
++ Upload as document/video 
++ Custom thumbnail support
++ Only allowed users can use
 ```
 
 ## Deploy :
