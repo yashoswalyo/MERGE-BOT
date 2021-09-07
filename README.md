@@ -16,7 +16,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 ## Features:
 ```diff
 ADDED:
-+ Merge video preserve audio streams from first 
++ Merge video preserve audio track of first video
 HAVE:
 ! Merge Upto 10 videos in one 
 ! Upload as document/video 
