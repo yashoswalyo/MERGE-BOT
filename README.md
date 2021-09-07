@@ -15,12 +15,17 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 
 ```diff
 - WHAT'S NEW:
-+ Merge video preserve audio track of first video
++ Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
+
 - FEATURES:
 + Merge Upto 10 videos in one 
 + Upload as document/video 
 + Custom thumbnail support
 + Only allowed users can use
+
+- TO DO:
+! Option to add metadata to the merged video
+! Using concat filter instead of concat protocol :: This will enable merging of videos with different codecs
 ```
 
 ## Deploy :
@@ -49,7 +54,7 @@ $ sudo apt-get install python3-pip ffmpeg
 $ pip3 install -U pip
 $ pip3 install -U -r requirements.txt
 # <create .env variables appropriately>
-$ python3 main.py
+$ python3 bot.py
 ```
 
 ## License
@@ -73,8 +78,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 ## Credits
 
-- [Me](https://github.com/yashoswalyo) for [Noting](https://github.com/yashoswalyo/MERGE-BOT) 😬
+- [Me](https://github.com/yashoswalyo) for [Nothing](https://github.com/yashoswalyo/MERGE-BOT) 😬
 - [Dan](https://github.com/delivrance) for [Pyrogram](https://github.com/pyrogram/pyrogram) ❤️
 - [Abir Hasan](https://github.com/AbirHasan2005) for his wonderful [code](https://github.com/AbirHasan2005/VideoMerge-Bot) ❤️
-- @Jigarvarma2005
-
+- [Jigarvarma2005](https://github.com/Jigarvarma2005) for helping me to fix bugs 🤓
