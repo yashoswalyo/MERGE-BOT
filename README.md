@@ -13,12 +13,11 @@
 
 An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Videos in Telegram into single video.
 
-## Features:
 ```diff
-- NEW:
+- WHAT'S NEW:
 + Merge video preserve audio track of first video
-- HAS:
-+! Merge Upto 10 videos in one 
+- FEATURES:
++ Merge Upto 10 videos in one 
 + Upload as document/video 
 + Custom thumbnail support
 + Only allowed users can use
