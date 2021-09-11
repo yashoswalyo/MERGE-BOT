@@ -14,22 +14,37 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 	:param format_: Pass File Extension.
 	:return: This will return Merged Video File Path
 	"""
-
 	output_vid = f"downloads/{str(user_id)}/[@popcornmania].{format_.lower()}"
-	file_generator_command = [
-		"ffmpeg",
-		"-f",
-		"concat",
-		"-safe",
-		"0",
-		"-i",
-		input_file,
-		"-map",
-		"0",
-		"-c",
-		"copy",
-		output_vid
-	]
+	if Config.FLAG == 0:
+		file_generator_command = [
+			"ffmpeg",
+			"-f",
+			"concat",
+			"-safe",
+			"0",
+			"-i",
+			input_file,
+			"-map",
+			"0",
+			"-c",
+			"copy",
+			output_vid
+		]
+	else:
+		input_files = ''
+		filter_options = ''
+		k=0
+		vid = open(input_file,'r')
+		for i in vid:
+			j = i.strip().split(" ")[1]
+			input_files +=f"-i {j} "
+			filter_options += f"[{k}:v:0][{k}:a:0]"
+			k += 1
+		filter = f"{input_files}-filter_complex '{filter_options}concat=n={k}:v=1:a=1[outv][outa]' -map '[outv]' -map '[outa]' {output_vid}"
+		file_generator_command = [ 
+			"ffmpeg",
+			filter
+		]
 	process = None
 	try:
 		process = await asyncio.create_subprocess_exec(
