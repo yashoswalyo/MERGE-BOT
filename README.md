@@ -28,7 +28,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 ! Using concat filter instead of concat protocol :: This will enable merging of videos with different codecs
 ```
 
-## Deploy :
+## Deploy(at your own risk) :
 <p><a href="https://heroku.com/deploy?template=https://github.com/yashoswalyo/MERGE-BOT"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-blueviolet?style=for-the-badge&logo=heroku" width="200""/></a></p>
 
 ## Config Variables :
