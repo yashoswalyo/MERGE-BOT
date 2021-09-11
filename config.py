@@ -7,7 +7,7 @@ class Config(object):
 	upload_as_doc = False
 	ALD_USR = os.getenv('ALD_USR','')
 	OWNER_USERNAME = os.getenv('OWNER_USERNAME')
-	
+	FLAG = int(os.getenv('FLAG',1))
 	PROGRESS = """
 Percentage : {0}%
 Done: {1}

@@ -43,5 +43,3 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 	except Exception as err:
 		print(err)
 		await cb.message.edit("Failed to upload")
-
-	a=1
