@@ -43,7 +43,9 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 		input_files = input_files.rsplit('-i',1)[0]
 		filter = f"{input_files}-filter_complex '{filter_options}concat=n={k}:v=1:a=1[outv][outa]' -map '[outv]' -map '[outa]' '{output_vid}'"
 		file_generator_command = [ 
-			"ffmpeg", "-i",filter
+			"ffmpeg", 
+			"-i",
+			filter
 		]
 	process = None
 	try:
