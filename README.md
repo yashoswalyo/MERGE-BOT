@@ -1,5 +1,5 @@
 # MERGE-BOT
-
+### Since Maxx Merge bot is now paid, I bring you Maxx Merger Bot(Clone). Deploy Your Own!!
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/yashoswalyo/MERGE-BOT?color=blue&style=flat)
 ![GitHub forks](https://img.shields.io/github/forks/yashoswalyo/MERGE-BOT?color=green&style=flat)
