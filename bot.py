@@ -41,7 +41,7 @@ async def addUser(c:Client, m: Message):
 	a=2
 	passwd = m.text.split()[-1]
 	if passwd == Config.PASSWORD:
-		os.environ['ALD_USR'] += f" {m.from_user.id}"
+		Config.ALD_USR += " "+str(m.from_user.id)
 		await m.reply_text(
 			text=f"**Login passed,\nNow you can you me!!**",
 			quote=True
