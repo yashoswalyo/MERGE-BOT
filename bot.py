@@ -36,6 +36,23 @@ queueDB={}
 formatDB={}
 replyDB={}
 
+@mergeApp.on_message( filters.command(['login']) & filters.private & ~filters.edited )
+async def addUser(c:Client, m: Message):
+	a=2
+	passwd = m.text.split()[-1]
+	if passwd == Config.PASSWORD:
+		os.environ['ALD_USR'] += f" {m.from_user.id}"
+		await m.reply_text(
+			text=f"**Login passed,\nNow you can you me!!**",
+			quote=True
+		)
+	else:
+		await m.reply_text(
+			text=f"**Login failed,\n🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}**",
+			quote=True
+		)
+
+
 
 @mergeApp.on_message(filters.command(['start']) & filters.private & ~filters.edited)
 async def start_handler(c: Client, m: Message):

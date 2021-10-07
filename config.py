@@ -7,7 +7,7 @@ class Config(object):
 	upload_as_doc = False
 	ALD_USR = os.getenv('ALD_USR','')
 	OWNER_USERNAME = os.getenv('OWNER_USERNAME')
-	FLAG = int(os.getenv('FLAG',1))
+	FLAG = int(os.getenv('FLAG',1))		# Dont Change this(unfinished feature!!) or else bot will stop working
 	PROGRESS = """
 Percentage : {0}%
 Done: {1}
@@ -15,3 +15,4 @@ Total: {2}
 Speed: {3}/s
 ETA: {4}
 """
+	PASSWORD = os.getenv('PASSWORD','mergebot')
