@@ -43,14 +43,15 @@ async def addUser(c:Client, m: Message):
 	if passwd == Config.PASSWORD:
 		Config.ALD_USR += " "+str(m.from_user.id)
 		await m.reply_text(
-			text=f"**Login passed,\nNow you can you me!!**",
+			text=f"**Login passed ✅,**\n  ⚡ Now you can you me!!",
 			quote=True
 		)
 	else:
 		await m.reply_text(
-			text=f"**Login failed,\n🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}**",
+			text=f"**Login failed,**\n  🛡️ Unfortunately you can't use me\n\nContact: 🈲 @{Config.OWNER_USERNAME}",
 			quote=True
 		)
+	return
 
 
 
@@ -58,12 +59,12 @@ async def addUser(c:Client, m: Message):
 async def start_handler(c: Client, m: Message):
 	if str(m.from_user.id) not in Config.ALD_USR:
 		res = await m.reply_text(
-			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
 		)
 		return
 	res = await m.reply_text(
-		text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner:🈲 @{Config.OWNER_USERNAME}** ",
+		text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file/video merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner: 🈲 @{Config.OWNER_USERNAME}** ",
 		quote=True
 	)
 	
@@ -71,7 +72,7 @@ async def start_handler(c: Client, m: Message):
 async def video_handler(c: Client, m: Message):
 	if str(m.from_user.id) not in Config.ALD_USR:
 		res = await m.reply_text(
-			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
 		)
 		return
@@ -118,7 +119,7 @@ async def video_handler(c: Client, m: Message):
 async def photo_handler(c: Client,m: Message):
 	if str(m.from_user.id) not in Config.ALD_USR:
 		res = await m.reply_text(
-			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact:🈲 @{Config.OWNER_USERNAME}** ",
+			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
 		)
 		return
