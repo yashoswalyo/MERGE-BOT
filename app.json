@@ -19,11 +19,17 @@
         "BOT_TOKEN": {
             "description": "Get this from @BotFather XD"
         },
+		"OWNER": {
+			"description": "Enter bot owner's ID"
+		},
         "OWNER_USERNAME": {
             "description": "Bot Owner User Name"
         },
-        "ALD_USR": {
-			"description": "ID of Users who can use Bot commands (for multiple users seperated by space)"
+		"DATABASE_URL": {
+			"description": "Enter your mongodb URI"
+		},
+		"PASSWORD": {
+			"description": "Enter password to login bot"
 		}
     },
     "buildpacks": [ 

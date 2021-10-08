@@ -1,4 +1,6 @@
 import asyncio
+
+from pyrogram.errors.exceptions.flood_420 import FloodWait
 from config import Config
 import os
 import shutil
@@ -18,6 +20,7 @@ from pyromod import listen
 from helpers.uploader import uploadVideo
 from helpers.display_progress import progress_for_pyrogram
 from helpers.ffmpeg import MergeVideo
+from helpers import database
 
 mergeApp = Client(
 	session_name="merge-bot",
@@ -37,27 +40,47 @@ formatDB={}
 replyDB={}
 
 @mergeApp.on_message( filters.command(['login']) & filters.private & ~filters.edited )
-async def addUser(c:Client, m: Message):
-	a=2
+async def allowUser(c:Client, m: Message):
 	passwd = m.text.split()[-1]
 	if passwd == Config.PASSWORD:
 		Config.ALD_USR += " "+str(m.from_user.id)
+		await database.allowUser(uid=m.from_user.id)
 		await m.reply_text(
 			text=f"**Login passed ✅,**\n  ⚡ Now you can you me!!",
 			quote=True
 		)
 	else:
 		await m.reply_text(
-			text=f"**Login failed,**\n  🛡️ Unfortunately you can't use me\n\nContact: 🈲 @{Config.OWNER_USERNAME}",
+			text=f"**Login failed ❌,**\n  🛡️ Unfortunately you can't use me\n\nContact: 🈲 @{Config.OWNER_USERNAME}",
 			quote=True
 		)
 	return
 
-
+@mergeApp.on_message(filters.command(['broadcast']) & filters.private & filters.user(Config.OWNER))
+async def broadcast_handler(c:Client, m:Message):
+	msg = m.reply_to_message
+	userList = await database.broadcast()
+	len = userList.collection.count_documents({})
+	for i in range(len):
+		try:
+			await msg.copy(chat_id=userList[i]['_id'])
+		except FloodWait as e:
+			await asyncio.sleep(e.x)
+			await msg.copy(chat_id=userList[i]['_id'])
+		except Exception:
+			await database.deleteUser(userList[i]['_id'])
+			pass
+		print(f"Message sent to {userList[i]['name']} ")
+		await asyncio.sleep(2)
+	await m.reply_text(
+		text="🤓 __Broadcast completed sucessfully__",
+		quote=True
+	)
 
 @mergeApp.on_message(filters.command(['start']) & filters.private & ~filters.edited)
 async def start_handler(c: Client, m: Message):
-	if str(m.from_user.id) not in Config.ALD_USR:
+	await database.addUser(uid=m.from_user.id,fname=m.from_user.first_name, lname=m.from_user.last_name)
+	if await database.allowedUser(uid=m.from_user.id) is False:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
@@ -67,10 +90,11 @@ async def start_handler(c: Client, m: Message):
 		text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file/video merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner: 🈲 @{Config.OWNER_USERNAME}** ",
 		quote=True
 	)
+
 	
 @mergeApp.on_message((filters.document | filters.video) & filters.private & ~filters.edited)
 async def video_handler(c: Client, m: Message):
-	if str(m.from_user.id) not in Config.ALD_USR:
+	if await database.allowedUser(uid=m.from_user.id) is False:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
@@ -117,7 +141,7 @@ async def video_handler(c: Client, m: Message):
 
 @mergeApp.on_message(filters.photo & filters.private & ~filters.edited)
 async def photo_handler(c: Client,m: Message):
-	if str(m.from_user.id) not in Config.ALD_USR:
+	if await database.allowedUser(uid=m.from_user.id) is False:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True

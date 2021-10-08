@@ -35,8 +35,10 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 1. `API_ID` : User Account Telegram API_ID, get it from my.telegram.org
 2. `API_HASH` : User Account Telegram API_HASH, get it from my.telegram.org
 3. `BOT_TOKEN` : Your Telegram Bot Token, get it from @Botfather XD
-4. `ALD_USR`: ID of Users who can use Bot commands (for multiple users seperated by space).
+4. `OWNER`: Enter bot owner's ID
 5. `OWNER_USERNAME`: User name of bot owner
+6. `DATABASE_URL`: Enter your mongodb URI
+7. `PASSWORD`: Enter password to login bot
 
 ## Commands (add via @botfather) :
 ```sh
@@ -44,6 +46,8 @@ start - Start The Bot
 showthumbnail - Shows your thumbnail
 deletethumbnail - Delete your thumbnail
 help - How to use Bot
+login - Access bot
+broadcast - (admin) Broadcast message to bot users
 ```
 
 ## Self Host
@@ -53,7 +57,7 @@ $ cd MERGE-BOT
 $ sudo apt-get install python3-pip ffmpeg
 $ pip3 install -U pip
 $ pip3 install -U -r requirements.txt
-# <create .env variables appropriately>
+# <fill config.py correctly>
 $ python3 bot.py
 ```
 
