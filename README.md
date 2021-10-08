@@ -21,7 +21,8 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Merge Upto 10 videos in one 
 + Upload as document/video 
 + Custom thumbnail support
-+ Only allowed users can use
++ Users can login to bot using password
++ Owner can broadcast message to all users
 
 - TO DO:
 ! Option to add metadata to the merged video
