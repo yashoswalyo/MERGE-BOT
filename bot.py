@@ -43,7 +43,6 @@ replyDB={}
 async def allowUser(c:Client, m: Message):
 	passwd = m.text.split()[-1]
 	if passwd == Config.PASSWORD:
-		Config.ALD_USR += " "+str(m.from_user.id)
 		await database.allowUser(uid=m.from_user.id)
 		await m.reply_text(
 			text=f"**Login passed ✅,**\n  ⚡ Now you can you me!!",
