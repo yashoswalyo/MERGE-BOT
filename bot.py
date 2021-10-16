@@ -1,7 +1,4 @@
 import asyncio
-
-from pyrogram.errors.exceptions.flood_420 import FloodWait
-from config import Config
 import os
 import shutil
 import string
@@ -14,13 +11,15 @@ from hachoir.parser import createParser
 from PIL import Image
 from pyrogram import Client, filters
 from pyrogram.errors import MessageNotModified
+from pyrogram.errors.exceptions.flood_420 import FloodWait
 from pyrogram.types import (CallbackQuery, InlineKeyboardButton,InlineKeyboardMarkup, Message)
 from pyromod import listen
 
-from helpers.uploader import uploadVideo
+from config import Config
+from helpers import database
 from helpers.display_progress import progress_for_pyrogram
 from helpers.ffmpeg import MergeVideo
-from helpers import database
+from helpers.uploader import uploadVideo
 
 mergeApp = Client(
 	session_name="merge-bot",
@@ -214,24 +213,25 @@ async def callback(c: Client, cb: CallbackQuery):
 	elif cb.data == 'document':
 		Config.upload_as_doc = True
 		await cb.message.edit(
-			text='Do you want to rename? Default file name is **[@popcornmania]_merged.mkv**',
+			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
-						InlineKeyboardButton('Default', callback_data='rename_NO'),
-						InlineKeyboardButton('Rename', callback_data='rename_YES')
+						InlineKeyboardButton('👆 Default', callback_data='rename_NO'),
+						InlineKeyboardButton('✍️ Rename', callback_data='rename_YES')
 					]
 				]
 			)
 		)
 	elif cb.data == 'video':
+		Config.upload_as_doc = False
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@popcornmania]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
-						InlineKeyboardButton('Default', callback_data='rename_NO'),
-						InlineKeyboardButton('Rename', callback_data='rename_YES')
+						InlineKeyboardButton('👆 Default', callback_data='rename_NO'),
+						InlineKeyboardButton('✍️ Rename', callback_data='rename_YES')
 					]
 				]
 			)
@@ -239,7 +239,6 @@ async def callback(c: Client, cb: CallbackQuery):
 	
 	elif cb.data.startswith('rename_'):
 		if 'YES' in cb.data:
-			upload_as_doc = True
 			await cb.message.edit(
 				'Current filename: **[@popcornmania]_merged.mkv**\n\nSend me new file name: ',
 				parse_mode='markdown'
@@ -383,6 +382,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		formatDB.update({cb.from_user.id: None})
 		return
 	await cb.message.edit("✅ Sucessfully Merged Video !")
+	print(f"Video merged for: {cb.message.from_user.first_name} ")
 	await asyncio.sleep(3)
 	file_size = os.path.getsize(merged_video_path)
 	if file_size > 2097152000:
