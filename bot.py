@@ -147,6 +147,7 @@ async def photo_handler(c: Client,m: Message):
 		return
 	thumbnail = m.photo.file_id
 	msg = await m.reply_text('Saving Thumbnail. . . .',quote=True)
+	await database.saveThumb(m.from_user.id,thumbnail)
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
 	await c.download_media(
 		message=m,
@@ -179,7 +180,11 @@ async def help_msg(c: Client, m: Message):
 
 @mergeApp.on_message(filters.command(['showthumbnail']) & filters.private & ~filters.edited)
 async def show_thumbnail(c:Client ,m: Message):
+	thumb_id = await database.getThumb(m.from_user.id)
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
+
+	await c.download_media(message=str(thumb_id),file_name=LOCATION)
+
 	if os.path.exists(LOCATION) is False:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 	else:
@@ -189,6 +194,7 @@ async def show_thumbnail(c:Client ,m: Message):
 @mergeApp.on_message(filters.command(['deletethumbnail']) & filters.private & ~filters.edited)
 async def delete_thumbnail(c: Client,m: Message):
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
+	await database.delThumb(m.from_user.id)
 	if os.path.exists(LOCATION) is False:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 	else:

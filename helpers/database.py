@@ -36,6 +36,21 @@ async def allowedUser(uid):
 	except TypeError:	
 		return False
 
+async def saveThumb(uid,fid):
+	db.mergebot.thumbnail.insert_one({
+		'uid':uid,
+		'thumbid':fid
+	})
+
+async def delThumb(uid):
+	db.mergebot.thumbnail.delete_many({
+		'uid':uid
+	})
+
+async def getThumb(uid):
+	res = db.mergebot.thumbnail.find_one({"uid":uid})
+	return res['thumbid']
+
 async def deleteUser(uid):
 	db.mergebot.allowedUsers.delete_many({'_id':uid})
 	db.mergebot.users.delete_many({'_id':uid})
