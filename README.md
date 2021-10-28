@@ -25,7 +25,6 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Owner can broadcast message to all users
 
 - TO DO:
-! Option to add metadata to the merged video
 ! Using concat filter instead of concat protocol :: This will enable merging of videos with different codecs
 ```
 
