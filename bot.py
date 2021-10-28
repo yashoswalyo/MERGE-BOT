@@ -167,24 +167,21 @@ async def help_msg(c: Client, m: Message):
 3) After sending all files select merge options
 4) Select the upload mode.
 5) Select rename if you want to give custom file name else press default**''',
-	quote=True,
-	reply_markup=InlineKeyboardMarkup(
-		[ 
-			[
-				InlineKeyboardButton("Close 🔐", callback_data="close")
+		quote=True,
+		reply_markup=InlineKeyboardMarkup(
+			[ 
+				[
+					InlineKeyboardButton("Close 🔐", callback_data="close")
+				]
 			]
-		]
-	)
-	
+		)
 	)
 
 @mergeApp.on_message(filters.command(['showthumbnail']) & filters.private & ~filters.edited)
 async def show_thumbnail(c:Client ,m: Message):
 	thumb_id = await database.getThumb(m.from_user.id)
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
-
 	await c.download_media(message=str(thumb_id),file_name=LOCATION)
-
 	if os.path.exists(LOCATION) is False:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 	else:
@@ -193,11 +190,13 @@ async def show_thumbnail(c:Client ,m: Message):
 
 @mergeApp.on_message(filters.command(['deletethumbnail']) & filters.private & ~filters.edited)
 async def delete_thumbnail(c: Client,m: Message):
+	thumb_id = await database.getThumb(m.from_user.id)
 	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
-	await database.delThumb(m.from_user.id)
+	await c.download_media(message=str(thumb_id),file_name=LOCATION)
 	if os.path.exists(LOCATION) is False:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 	else:
+		await database.delThumb(m.from_user.id)
 		os.remove(LOCATION)
 		await m.reply_text('✅ Deleted Sucessfully',quote=True)
 		

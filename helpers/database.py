@@ -37,18 +37,24 @@ async def allowedUser(uid):
 		return False
 
 async def saveThumb(uid,fid):
-	db.mergebot.thumbnail.insert_one({
-		'uid':uid,
-		'thumbid':fid
-	})
+	try:
+		db.mergebot.thumbnail.insert_one({
+			'_id':uid,
+			'thumbid':fid
+		})
+	except DuplicateKeyError:
+		db.mergebot.thumbnail.replace_one(
+			{'_id':uid},
+			{'thumbid':fid}
+		)
 
 async def delThumb(uid):
 	db.mergebot.thumbnail.delete_many({
-		'uid':uid
+		'_id':uid
 	})
 
 async def getThumb(uid):
-	res = db.mergebot.thumbnail.find_one({"uid":uid})
+	res = db.mergebot.thumbnail.find_one({"_id":uid})
 	return res['thumbid']
 
 async def deleteUser(uid):
