@@ -49,6 +49,7 @@ deletethumbnail - Delete your thumbnail
 help - How to use Bot
 login - Access bot
 broadcast - (admin) Broadcast message to bot users
+stats - check bots stats
 ```
 
 ## Self Host

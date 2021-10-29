@@ -3,6 +3,7 @@ import os
 import shutil
 import string
 import time
+import shutil, psutil
 
 import pyrogram
 from hachoir import metadata
@@ -20,6 +21,9 @@ from helpers import database
 from helpers.display_progress import progress_for_pyrogram
 from helpers.ffmpeg import MergeVideo
 from helpers.uploader import uploadVideo
+from helpers.utils import get_readable_time, get_readable_file_size
+
+botStartTime = time.time()
 
 mergeApp = Client(
 	session_name="merge-bot",
@@ -53,6 +57,31 @@ async def allowUser(c:Client, m: Message):
 			quote=True
 		)
 	return
+
+@mergeApp.on_message(filters.command(['stats']) & filters.private & filters.user(Config.OWNER))
+async def stats_handler(c:Client, m:Message):
+    currentTime = get_readable_time(time.time() - botStartTime)
+    total, used, free = shutil.disk_usage('.')
+    total = get_readable_file_size(total)
+    used = get_readable_file_size(used)
+    free = get_readable_file_size(free)
+    sent = get_readable_file_size(psutil.net_io_counters().bytes_sent)
+    recv = get_readable_file_size(psutil.net_io_counters().bytes_recv)
+    cpuUsage = psutil.cpu_percent(interval=0.5)
+    memory = psutil.virtual_memory().percent
+    disk = psutil.disk_usage('/').percent
+    stats = f'<b>「 💠 BOT STATISTICS 」</b>\n' \
+            f'<b></b>\n' \
+            f'<b>⏳ Bot Uptime : {currentTime}</b>\n' \
+            f'<b>💾 Total Disk Space : {total}</b>\n' \
+            f'<b>📀 Total Used Space : {used}</b>\n' \
+            f'<b>💿 Total Free Space : {free}</b>\n' \
+            f'<b>🔺 Total Upload : {sent}</b>\n' \
+            f'<b>🔻 Total Download : {recv}</b>\n' \
+            f'<b>🖥 CPU : {cpuUsage}%</b>\n' \
+            f'<b>⚙️ RAM : {memory}%</b>\n' \
+            f'<b>💿 DISK : {disk}%</b>'
+    await m.reply_text(stats,quote=True)
 
 @mergeApp.on_message(filters.command(['broadcast']) & filters.private & filters.user(Config.OWNER))
 async def broadcast_handler(c:Client, m:Message):
