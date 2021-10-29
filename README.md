@@ -1,5 +1,6 @@
 # MERGE-BOT
-### Since Maxx Merge bot is now paid, I bring you Maxx Merger Bot(Clone). Deploy Your Own!!
+### PR's welcomed
+<br>
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/yashoswalyo/MERGE-BOT?color=blue&style=flat)
 ![GitHub forks](https://img.shields.io/github/forks/yashoswalyo/MERGE-BOT?color=green&style=flat)
@@ -24,8 +25,8 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Users can login to bot using password
 + Owner can broadcast message to all users
 
-- TO DO:
-! Using concat filter instead of concat protocol :: This will enable merging of videos with different codecs
+-	TO DO:
++ Upload Files to Drive
 ```
 
 ## Deploy(at your own risk) :
