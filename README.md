@@ -1,5 +1,5 @@
 # MERGE-BOT
-### PR's welcomed
+### PR's welcomed [Beta Branch]
 <br>
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/yashoswalyo/MERGE-BOT?color=blue&style=flat)
