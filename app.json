@@ -9,6 +9,7 @@
     ],
     "repository": "https://github.com/yashoswalyo/MERGE-BOT",
     "website": "https://telegram.dog/yashoswalyo",
+    "stack": "container",
     "env": {
         "API_ID": {
             "description": "Get this value from my.telegram.org "
