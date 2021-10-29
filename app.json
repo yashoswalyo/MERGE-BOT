@@ -31,20 +31,20 @@
 		},
 		"PASSWORD": {
 			"description": "Enter password to login bot"
+		}
+	},
+	"buildpacks": [
+		{
+			"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
 		},
-		"buildpacks": [
-			{
-				"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
-			},
-			{
-				"url": "heroku/python"
-			}
-		],
-		"formation": {
-			"worker": {
-				"quantity": 1,
-				"size": "free"
-			}
+		{
+			"url": "heroku/python"
+		}
+	],
+	"formation": {
+		"worker": {
+			"quantity": 1,
+			"size": "free"
 		}
 	}
 }
