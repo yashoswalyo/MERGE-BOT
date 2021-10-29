@@ -30,7 +30,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 ```
 
 ## Deploy(at your own risk) :
-<p><a href="https://heroku.com/deploy?template=https://github.com/xdwtf/MERGE-BOT"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-blueviolet?style=for-the-badge&logo=heroku" width="200""/></a></p>
+<p><a href="https://heroku.com/deploy?template=https://github.com/yashoswalyo/MERGE-BOT"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-blueviolet?style=for-the-badge&logo=heroku" width="200""/></a></p>
 
 ## Config Variables :
 1. `API_ID` : User Account Telegram API_ID, get it from my.telegram.org
@@ -49,6 +49,7 @@ deletethumbnail - Delete your thumbnail
 help - How to use Bot
 login - Access bot
 broadcast - (admin) Broadcast message to bot users
+stats - check bots stats
 ```
 
 ## Self Host
