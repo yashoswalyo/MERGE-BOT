@@ -1,50 +1,50 @@
 {
-    "name": "Telegram Video Merge Bot",
-    "description": "A Telegram Video Merge Bot in Pyrogram by @YashOswalYO",
-    "keywords": [
-        "telegram",
-        "video",
-        "merge",
-        "bot"
-    ],
-    "repository": "https://github.com/yashoswalyo/MERGE-BOT",
-    "website": "https://telegram.dog/yashoswalyo",
-    "stack": "container",
-    "env": {
-        "API_ID": {
-            "description": "Get this value from my.telegram.org "
-        },
-        "API_HASH": {
-            "description": "Get this value from my.telegram.org "
-        },
-        "BOT_TOKEN": {
-            "description": "Get this from @BotFather XD"
-        },
+	"name": "Telegram Video Merge Bot",
+	"description": "A Telegram Video Merge Bot in Pyrogram by @YashOswalYO",
+	"keywords": [
+		"telegram",
+		"video",
+		"merge",
+		"bot"
+	],
+	"repository": "https://github.com/yashoswalyo/MERGE-BOT",
+	"website": "https://telegram.dog/yashoswalyo",
+	"stack": "heroku-20",
+	"env": {
+		"API_ID": {
+			"description": "Get this value from my.telegram.org "
+		},
+		"API_HASH": {
+			"description": "Get this value from my.telegram.org "
+		},
+		"BOT_TOKEN": {
+			"description": "Get this from @BotFather XD"
+		},
 		"OWNER": {
 			"description": "Enter bot owner's ID"
 		},
-        "OWNER_USERNAME": {
-            "description": "Bot Owner User Name"
-        },
+		"OWNER_USERNAME": {
+			"description": "Bot Owner User Name"
+		},
 		"DATABASE_URL": {
 			"description": "Enter your mongodb URI"
 		},
 		"PASSWORD": {
 			"description": "Enter password to login bot"
 		}
-    },
-    "buildpacks": [ 
-        {
-            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
-        }, 
-        { 
-            "url": "heroku/python"
-        }
-    ],
-    "formation": {
-        "workers": {
-            "quantity": 1,
-            "size": "free"
-        }
-    }
+	},
+	"buildpacks": [
+		{
+			"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+		},
+		{
+			"url": "heroku/python"
+		}
+	],
+	"formation": {
+		"workers": {
+			"quantity": 1,
+			"size": "free"
+		}
+	}
 }
