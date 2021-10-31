@@ -1,8 +1,8 @@
-hachoir==3.1.2
-Pyrogram==1.2.9
-pyromod==1.5
-pymongo==3.12.0
-Pillow==8.3.2
-TgCrypto==1.2.2
+hachoir
+Pyrogram
+pyromod
+pymongo
+Pillow
+TgCrypto
 dnspython
 psutil
