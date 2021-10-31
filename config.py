@@ -4,7 +4,6 @@ class Config(object):
 	API_HASH = os.getenv('API_HASH','')
 	BOT_TOKEN = os.getenv('BOT_TOKEN','')
 	API_ID = int(os.getenv('API_ID',''))
-	upload_as_doc = False
 	OWNER = int(os.environ.get('OWNER','589641907'))
 	OWNER_USERNAME = os.getenv('OWNER_USERNAME','yashoswalyo')
 	PASSWORD = os.getenv('PASSWORD','mergebot')
@@ -17,3 +16,7 @@ Total: {2}
 Speed: {3}/s
 ETA: {4}
 """
+
+	'''Some Constants'''
+	upload_as_doc = {}	#Maintain each user ul_type
+	upload_to_drive = {} #Maintain each user drive_choice
