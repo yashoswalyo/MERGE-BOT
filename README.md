@@ -16,7 +16,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 
 ```diff
 - WHAT'S NEW:
-+ Upload Files to Drive
++ Upload Files to Drive (send your rclone config to bot it will automatically detect)
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 
 - FEATURES:
@@ -48,7 +48,8 @@ start - Start The Bot
 showthumbnail - Shows your thumbnail
 deletethumbnail - Delete your thumbnail
 help - How to use Bot
-login - Access bot
+about - About bot
+login - Access bot using password
 broadcast - (admin) Broadcast message to bot users
 stats - check bots stats
 ```
@@ -88,7 +89,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 ## Credits
 
-- [Me](https://github.com/yashoswalyo) for [Nothing](https://github.com/yashoswalyo/MERGE-BOT) 😬
+- [Me](https://github.com/yashoswalyo) for [Nothing](https://github.com/yashoswalyo/MERGE-BOT) 🤓
 - [Dan](https://github.com/delivrance) for [Pyrogram](https://github.com/pyrogram/pyrogram) ❤️
 - [Abir Hasan](https://github.com/AbirHasan2005) for his wonderful [code](https://github.com/AbirHasan2005/VideoMerge-Bot) ❤️
-- [Jigarvarma2005](https://github.com/Jigarvarma2005) for helping me to fix bugs 🤓
+- [Jigarvarma2005](https://github.com/Jigarvarma2005) | [SpechIde](https://github.com/SpEcHiDe) for helping me to fix bugs 😬
