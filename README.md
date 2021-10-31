@@ -1,5 +1,5 @@
 # MERGE-BOT
-### PR's welcomed [Beta Branch]
+### PR's welcomed
 <br>
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/yashoswalyo/MERGE-BOT?color=blue&style=flat)
@@ -16,6 +16,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 
 ```diff
 - WHAT'S NEW:
++ Upload Files to Drive
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 
 - FEATURES:
@@ -26,7 +27,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Owner can broadcast message to all users
 
 - TO DO:
-+ Upload Files to Drive
++ Option to add subtitles to telegram video
 ```
 
 ## Deploy(at your own risk) :
