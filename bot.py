@@ -22,6 +22,7 @@ from helpers.display_progress import progress_for_pyrogram
 from helpers.ffmpeg import MergeVideo
 from helpers.uploader import uploadVideo
 from helpers.utils import get_readable_time, get_readable_file_size
+from helpers.rclone_upload import rclone_driver, rclone_upload
 
 botStartTime = time.time()
 
@@ -131,6 +132,20 @@ async def video_handler(c: Client, m: Message):
 	if media.file_name is None:
 		await m.reply_text('File Not Found')
 		return
+	if media.file_name.rsplit(sep='.')[-1].lower() in 'conf':
+		await m.reply_text(
+			text="**Config file found, Do you want to save it?**",
+			reply_markup = InlineKeyboardMarkup(
+				[
+					[
+						InlineKeyboardButton("✅ Yes", callback_data=f"rclone_save"),
+						InlineKeyboardButton("❌ No", callback_data='rclone_discard')
+					]
+				]
+			),
+			quote=True
+		)
+		return
 	if media.file_name.split(sep='.')[-1].lower() not in ['mkv','mp4','webm']:
 		await m.reply_text("This Video Format not Allowed!\nOnly send MP4 or MKV or WEBM.", quote=True)
 		return
@@ -156,7 +171,8 @@ async def video_handler(c: Client, m: Message):
 		markup = await MakeButtons(c, m, queueDB)
 		reply_ = await m.reply_text(
 			text=MessageText,
-			reply_markup=InlineKeyboardMarkup(markup)
+			reply_markup=InlineKeyboardMarkup(markup),
+			quote=True
 		)
 		replyDB.update({m.from_user.id: reply_.message_id})
 	elif len(queueDB.get(m.from_user.id)) > 10:
@@ -206,33 +222,106 @@ async def help_msg(c: Client, m: Message):
 		)
 	)
 
+@mergeApp.on_message( filters.command(['about']) & filters.private & ~filters.edited )
+async def about_handler(c:Client,m:Message):
+	await m.reply_text(
+		text='''
+- **WHAT'S NEW:**
++ Upload to drive using your own rclone config
++ Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
+- **FEATURES:**
++ Merge Upto 10 videos in one 
++ Upload as document/video 
++ Custom thumbnail support
++ Users can login to bot using password
++ Owner can broadcast message to all users	
+		''',
+		quote=True,
+		reply_markup=InlineKeyboardMarkup(
+			[ 
+				[ 
+					InlineKeyboardButton("Developer", url="https://t.me/yashoswalyo")
+				],
+				[ 
+					InlineKeyboardButton("Source Code", url="https://github.com/yashoswalyo/MERGE-BOT"),
+					InlineKeyboardButton("Deployed By", url=f"https://t.me/{Config.OWNER_USERNAME}")
+				]
+			]
+		)
+	)
+
 @mergeApp.on_message(filters.command(['showthumbnail']) & filters.private & ~filters.edited)
 async def show_thumbnail(c:Client ,m: Message):
-	thumb_id = await database.getThumb(m.from_user.id)
-	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
-	await c.download_media(message=str(thumb_id),file_name=LOCATION)
-	if os.path.exists(LOCATION) is False:
+	try:
+		thumb_id = await database.getThumb(m.from_user.id)
+		LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
+		await c.download_media(message=str(thumb_id),file_name=LOCATION)
+		if os.path.exists(LOCATION) is False:
+			await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
+		else:
+			await m.reply_photo(photo=LOCATION, caption='🖼️ Your custom thumbnail', quote=True)
+	except Exception as err:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
-	else:
-		await m.reply_photo(photo=LOCATION, caption='🖼️ Your custom thumbnail', quote=True)
 
 
 @mergeApp.on_message(filters.command(['deletethumbnail']) & filters.private & ~filters.edited)
 async def delete_thumbnail(c: Client,m: Message):
-	thumb_id = await database.getThumb(m.from_user.id)
-	LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
-	await c.download_media(message=str(thumb_id),file_name=LOCATION)
-	if os.path.exists(LOCATION) is False:
+	try:
+		thumb_id = await database.getThumb(m.from_user.id)
+		LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
+		await c.download_media(message=str(thumb_id),file_name=LOCATION)
+		if os.path.exists(LOCATION) is False:
+			await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
+		else:
+			await database.delThumb(m.from_user.id)
+			os.remove(LOCATION)
+			await m.reply_text('✅ Deleted Sucessfully',quote=True)
+	except Exception as err:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
-	else:
-		await database.delThumb(m.from_user.id)
-		os.remove(LOCATION)
-		await m.reply_text('✅ Deleted Sucessfully',quote=True)
 		
 
 @mergeApp.on_callback_query()
 async def callback(c: Client, cb: CallbackQuery):
+	
 	if cb.data == 'merge':
+		await cb.message.edit(
+			text='Where do you want to upload?',
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[
+						InlineKeyboardButton('📤 To Telegram', callback_data = 'to_telegram'),
+						InlineKeyboardButton('🌫️ To Drive', callback_data = 'to_drive')
+					]
+				]
+			)
+		)
+
+	elif cb.data == 'to_drive':
+		try:
+			urc = await database.getUserRcloneConfig(cb.from_user.id)
+			await c.download_media(message=urc,file_name=f"userdata/{cb.from_user.id}/rclone.conf")
+		except Exception as err:
+			await cb.message.reply_text("Rclone not Found, Unable to upload to drive")
+		if os.path.exists(f"userdata/{cb.from_user.id}/rclone.conf") is False:
+			await cb.message.delete()
+			await delete_all(root=f"downloads/{cb.from_user.id}/")
+			queueDB.update({cb.from_user.id: []})
+			formatDB.update({cb.from_user.id: None})
+			return 
+		Config.upload_to_drive.update({f'{cb.from_user.id}':True})
+		await cb.message.edit(
+			text="Okay I'll upload to drive\nDo you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**",
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[
+						InlineKeyboardButton('👆 Default', callback_data='rename_NO'),
+						InlineKeyboardButton('✍️ Rename', callback_data='rename_YES')
+					]
+				]
+			)
+		)
+	elif cb.data == 'to_telegram':
+		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='How do yo want to upload file',
 			reply_markup=InlineKeyboardMarkup(
@@ -245,7 +334,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			)
 		)
 	elif cb.data == 'document':
-		Config.upload_as_doc = True
+		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -258,9 +347,9 @@ async def callback(c: Client, cb: CallbackQuery):
 			)
 		)
 	elif cb.data == 'video':
-		Config.upload_as_doc = False
+		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
-			text='Do you want to rename? Default file name is **[@popcornmania]_merged.mkv**',
+			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
@@ -271,19 +360,31 @@ async def callback(c: Client, cb: CallbackQuery):
 			)
 		)
 	
+	elif cb.data.startswith('rclone_'):
+		if 'save' in cb.data:
+			fileId = cb.message.reply_to_message.document.file_id
+			print(fileId)
+			await c.download_media(
+				message=cb.message.reply_to_message,
+				file_name=f"./userdata/{cb.from_user.id}/rclone.conf"
+			)
+			await database.addUserRcloneConfig(cb, fileId)
+		else:
+			await cb.message.delete()
+
 	elif cb.data.startswith('rename_'):
 		if 'YES' in cb.data:
 			await cb.message.edit(
-				'Current filename: **[@popcornmania]_merged.mkv**\n\nSend me new file name: ',
+				'Current filename: **[@yashoswalyo]_merged.mkv**\n\nSend me new file name without extension: ',
 				parse_mode='markdown'
 			)
 			res: Message = await c.listen( cb.message.chat.id, timeout=300 )
 			if res.text :
-				ascii_ = e = ''.join([i if (i in string.digits or i in string.ascii_letters or i == " ") else "" for i in res.text])
+				ascii_ = e = ''.join([i if (i in string.digits or i in string.ascii_letters or i == " ") else " " for i in res.text])
 				new_file_name = f"./downloads/{str(cb.from_user.id)}/{ascii_.replace(' ', '_')}.mkv"
 				await mergeNow(c,cb,new_file_name)
 		if 'NO' in cb.data:
-			await mergeNow(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@popcornmania]_merged.mkv")
+			await mergeNow(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv")
 
 	elif cb.data == 'cancel':
 		await delete_all(root=f"downloads/{cb.from_user.id}/")
@@ -292,11 +393,10 @@ async def callback(c: Client, cb: CallbackQuery):
 		await cb.message.edit("Sucessfully Cancelled")
 		await asyncio.sleep(5)
 		await cb.message.delete(True)
-		await cb.message.reply_to_message.delete(True)
+		return
 		
 	elif cb.data == 'close':
 		await cb.message.delete(True)
-		await cb.message.reply_to_message.delete(True)
 
 	elif cb.data.startswith('showFileName_'):
 		m = await c.get_messages(chat_id=cb.message.chat.id,message_ids=int(cb.data.rsplit("_",1)[-1]))
@@ -344,6 +444,8 @@ async def showQueue(c:Client, cb: CallbackQuery):
 
 
 async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
+	omess = cb.message.reply_to_message
+	# print(omess.message_id)
 	vid_list = list()
 	await cb.message.edit('⭕ Processing...')
 	duration = 0
@@ -359,7 +461,8 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
 		try:
-			await cb.message.edit(f'📥 Downloading...{media.file_name}',)
+			await cb.message.edit(f'📥 Downloading...{media.file_name}')
+			asyncio.sleep(2)
 		except MessageNotModified :
 			queueDB.get(cb.from_user.id).remove(i.message_id)
 			await cb.message.edit("❗ File Skipped!")
@@ -419,16 +522,23 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	print(f"Video merged for: {cb.message.from_user.first_name} ")
 	await asyncio.sleep(3)
 	file_size = os.path.getsize(merged_video_path)
-	if file_size > 2097152000:
+	os.rename(merged_video_path,new_file_name)
+	await cb.message.edit(f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
+	await asyncio.sleep(1)
+	merged_video_path = new_file_name
+	if Config.upload_to_drive[f'{cb.from_user.id}']:
+		await rclone_driver(omess,cb,merged_video_path)
+		await delete_all(root=f'./downloads/{cb.from_user.id}')
+		queueDB.update({cb.from_user.id: []})
+		formatDB.update({cb.from_user.id: None})
+		return
+	if file_size > 2044723200:
 		await cb.message.edit("Video is Larger than 2GB Can't Upload")
 		await delete_all(root=f'./downloads/{cb.from_user.id}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
-	await cb.message.edit(f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
-	os.rename(merged_video_path,new_file_name)
-	await asyncio.sleep(1)
-	merged_video_path = new_file_name
+	
 	await cb.message.edit("🎥 Extracting Video Data ...")
 	duration = 1
 	width = 100
@@ -464,7 +574,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		duration=duration,
 		video_thumbnail=video_thumbnail,
 		file_size=os.path.getsize(merged_video_path),
-		upload_mode=Config.upload_as_doc
+		upload_mode=Config.upload_as_doc[f'{cb.from_user.id}']
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{cb.from_user.id}')
