@@ -6,7 +6,7 @@ from helpers.display_progress import progress_for_pyrogram,humanbytes
 from config import Config
 
 
-async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height,duration,video_thumbnail,file_size,upload_mode):
+async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height,duration,video_thumbnail,file_size,upload_mode:bool):
 	try:
 		sent_ = None
 		if upload_mode is False:
