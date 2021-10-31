@@ -57,11 +57,14 @@ stats - check bots stats
 ```sh
 $ git clone https://github.com/yashoswalyo/MERGE-BOT.git
 $ cd MERGE-BOT
-$ sudo apt-get install python3-pip ffmpeg
-$ pip3 install -U pip
+$ sudo apt-get install python3-pip ffmpeg aria2
+$ curl https://rclone.org/install.sh | sudo bash
+$ pip3 install -U pip #skip if installed
 $ pip3 install -U -r requirements.txt
+$ chmod +x ./start.sh
 # <fill config.py correctly>
-$ python3 bot.py
+$ ./start.sh
+
 ```
 
 ## License
