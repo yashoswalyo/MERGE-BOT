@@ -462,7 +462,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		media = i.video or i.document
 		try:
 			await cb.message.edit(f'📥 Downloading...{media.file_name}')
-			asyncio.sleep(2)
+			await asyncio.sleep(2)
 		except MessageNotModified :
 			queueDB.get(cb.from_user.id).remove(i.message_id)
 			await cb.message.edit("❗ File Skipped!")
@@ -519,7 +519,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		formatDB.update({cb.from_user.id: None})
 		return
 	await cb.message.edit("✅ Sucessfully Merged Video !")
-	print(f"Video merged for: {cb.message.from_user.first_name} ")
+	print(f"Video merged for: {cb.from_user.first_name} ")
 	await asyncio.sleep(3)
 	file_size = os.path.getsize(merged_video_path)
 	os.rename(merged_video_path,new_file_name)
