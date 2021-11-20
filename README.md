@@ -16,7 +16,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 
 ```diff
 - WHAT'S NEW:
-+ Upload Files to Drive
++ Upload Files to Drive (Send your rclone config to bot)
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 
 - FEATURES:
