@@ -451,13 +451,13 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	duration = 0
 	list_message_ids = queueDB.get(cb.from_user.id,None)
 	list_message_ids.sort()
-	input_ = f"./downloads/{cb.from_user.id}/input.txt"
+	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
 	if list_message_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
 		await cb.message.delete(True)
 		return
-	if not os.path.exists(f'./downloads/{cb.from_user.id}/'):
-		os.makedirs(f'./downloads/{cb.from_user.id}/')
+	if not os.path.exists(f'./downloads/{str(cb.from_user.id)}/'):
+		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
 		try:
@@ -473,7 +473,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			c_time = time.time()
 			file_dl_path = await c.download_media(
 				message=i,
-				file_name=f"./downloads/{cb.from_user.id}/{i.message_id}/",
+				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
 				progress=progress_for_pyrogram,
 				progress_args=(
 					'🚀 Downloading...',
@@ -493,7 +493,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 				duration += metadata.get('duration').seconds
 			vid_list.append(f"file '{file_dl_path}'")
 		except:
-			await delete_all(root=f'./downloads/{cb.from_user.id}')
+			await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 			queueDB.update({cb.from_user.id: []})
 			formatDB.update({cb.from_user.id: None})
 			await cb.message.edit('⚠️ Video is corrupted')
@@ -514,7 +514,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	)
 	if merged_video_path is None:
 		await cb.message.edit("❌ Failed to merge video !")
-		await delete_all(root=f'./downloads/{cb.from_user.id}')
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
@@ -528,13 +528,13 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	merged_video_path = new_file_name
 	if Config.upload_to_drive[f'{cb.from_user.id}']:
 		await rclone_driver(omess,cb,merged_video_path)
-		await delete_all(root=f'./downloads/{cb.from_user.id}')
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
 	if file_size > 2044723200:
 		await cb.message.edit("Video is Larger than 2GB Can't Upload")
-		await delete_all(root=f'./downloads/{cb.from_user.id}')
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
@@ -552,12 +552,12 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		if metadata.has("height"):
 			height = metadata.get("height")
 	except:
-		await delete_all(root=f'./downloads/{cb.from_user.id}')
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("⭕ Merged Video is corrupted")
 		return
-	video_thumbnail = f'./downloads/{cb.from_user.id}_thumb.jpg'
+	video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
 	if os.path.exists(video_thumbnail) is False:
 		video_thumbnail=f"./assets/default_thumb.jpg"
 	else: 
@@ -577,7 +577,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		upload_mode=Config.upload_as_doc[f'{cb.from_user.id}']
 	)
 	await cb.message.delete(True)
-	await delete_all(root=f'./downloads/{cb.from_user.id}')
+	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 	queueDB.update({cb.from_user.id: []})
 	formatDB.update({cb.from_user.id: None})
 	return
