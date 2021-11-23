@@ -16,7 +16,14 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 
 ```diff
 - WHAT'S NEW:
+
++ Option to add subtitles to telegram video
+#  1. First send video.
+#  2. Then send subtitle in .srt format only.
+#  3. Tap Merge Subtitle button.
 + Upload Files to Drive (Send your rclone config to bot)
+#  1. Send your rclone config to bot.
+#  2. Then send videos to merge, after you tap "Merge Now", upload to drive option will available.
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 
 - FEATURES:
@@ -48,6 +55,7 @@ start - Start The Bot
 showthumbnail - Shows your thumbnail
 deletethumbnail - Delete your thumbnail
 help - How to use Bot
+about - About the bot
 login - Access bot
 broadcast - (admin) Broadcast message to bot users
 stats - check bots stats
@@ -88,4 +96,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 - [Me](https://github.com/yashoswalyo) for [Nothing](https://github.com/yashoswalyo/MERGE-BOT) 😬
 - [Dan](https://github.com/delivrance) for [Pyrogram](https://github.com/pyrogram/pyrogram) ❤️
 - [Abir Hasan](https://github.com/AbirHasan2005) for his wonderful [code](https://github.com/AbirHasan2005/VideoMerge-Bot) ❤️
-- [Jigarvarma2005](https://github.com/Jigarvarma2005) for helping me to fix bugs 🤓
+- [Jigarvarma2005](https://github.com/Jigarvarma2005) and [SpechIDE](https://t.me/spechide) for helping me to fix bugs 🤓
