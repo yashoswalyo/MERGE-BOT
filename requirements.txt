@@ -6,4 +6,4 @@ Pillow
 TgCrypto
 dnspython
 psutil
-ffmpeg
+ffmpeg-python
