@@ -1,6 +1,9 @@
 import asyncio
+import subprocess
 import os
 import time
+import ffmpeg
+from pyrogram.types.bots_and_keyboards.callback_query import CallbackQuery
 from config import Config
 from pyrogram.types import Message
 
@@ -52,6 +55,18 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 		return output_vid
 	else:
 		return None
+
+async def MergeSub(filePath:str, subPath:str, user_id):
+	print("Sub muxing")
+	videoData = ffmpeg.probe(filename=filePath)
+	videoStreamsData = videoData.get('streams')
+	nextSubTrack=1
+	for i in range(len(videoStreamsData)):
+		if videoStreamsData[i]['codec_type'] == 'subtitle':
+			nextSubTrack+=1
+	subprocess.call(f"ffmpeg -i '{filePath}' -i '{subPath}' -map 0 -map 1 -metadata:s:{str(len(videoStreamsData))} title='Track {str(nextSubTrack)} - tg@yashoswalyo' -c copy './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",shell=True)
+	return f'./downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'
+
 
 
 async def cult_small_video(video_file, output_directory, start_time, end_time, format_):

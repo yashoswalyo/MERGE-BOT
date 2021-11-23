@@ -19,7 +19,7 @@ from pyromod import listen
 from config import Config
 from helpers import database
 from helpers.display_progress import progress_for_pyrogram
-from helpers.ffmpeg import MergeVideo
+from helpers.ffmpeg import MergeSub, MergeVideo
 from helpers.uploader import uploadVideo
 from helpers.utils import get_readable_time, get_readable_file_size
 from helpers.rclone_upload import rclone_driver, rclone_upload
@@ -146,6 +146,26 @@ async def video_handler(c: Client, m: Message):
 			quote=True
 		)
 		return
+	if media.file_name.rsplit(sep='.')[-1].lower() == 'srt':
+		if len(queueDB.get(m.from_user.id)) == 1:
+			queueDB.get(m.from_user.id).append(m.message_id)
+			button = await MakeButtons(c,m,queueDB)
+			button.remove([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
+			button.remove([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
+			
+			button.append([InlineKeyboardButton("🔗 Merge Subtitles", callback_data="mergeSubtitles")])
+			button.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
+			await m.reply_text(
+				text="You send a subtitle file. Do you want to merge it?",
+				quote=True,
+				reply_markup= InlineKeyboardMarkup(button)
+			)
+			return
+		await m.reply_text(
+			text="Idiot why are you send subtitile file without sending a video!!",
+			quote=True,
+		)
+		return
 	if media.file_name.split(sep='.')[-1].lower() not in ['mkv','mp4','webm']:
 		await m.reply_text("This Video Format not Allowed!\nOnly send MP4 or MKV or WEBM.", quote=True)
 		return
@@ -169,10 +189,9 @@ async def video_handler(c: Client, m: Message):
 		if len(queueDB.get(m.from_user.id)) == 10:
 			MessageText = "Okay Unkil, Now Just Press **Merge Now** Button Plox!"
 		markup = await MakeButtons(c, m, queueDB)
-		reply_ = await m.reply_text(
+		reply_ = await editable.edit(
 			text=MessageText,
-			reply_markup=InlineKeyboardMarkup(markup),
-			quote=True
+			reply_markup=InlineKeyboardMarkup(markup)
 		)
 		replyDB.update({m.from_user.id: reply_.message_id})
 	elif len(queueDB.get(m.from_user.id)) > 10:
@@ -296,6 +315,20 @@ async def callback(c: Client, cb: CallbackQuery):
 			)
 		)
 
+	elif cb.data == "mergeSubtitles":
+		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
+		await cb.message.edit(
+			text='How do yo want to upload file',
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[
+						InlineKeyboardButton('🎞️ Video', callback_data='videoS'),
+						InlineKeyboardButton('📁 File', callback_data='documentS')
+					]
+				]
+			)
+		)
+
 	elif cb.data == 'to_drive':
 		try:
 			urc = await database.getUserRcloneConfig(cb.from_user.id)
@@ -359,6 +392,32 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+	elif cb.data == 'documentS':
+		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
+		await cb.message.edit(
+			text='Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**',
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[
+						InlineKeyboardButton('👆 Default', callback_data='renameS_NO'),
+						InlineKeyboardButton('✍️ Rename', callback_data='renameS_YES')
+					]
+				]
+			)
+		)
+	elif cb.data == 'videoS':
+		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
+		await cb.message.edit(
+			text='Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**',
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[
+						InlineKeyboardButton('👆 Default', callback_data='renameS_NO'),
+						InlineKeyboardButton('✍️ Rename', callback_data='renameS_YES')
+					]
+				]
+			)
+		)
 	
 	elif cb.data.startswith('rclone_'):
 		if 'save' in cb.data:
@@ -385,6 +444,20 @@ async def callback(c: Client, cb: CallbackQuery):
 				await mergeNow(c,cb,new_file_name)
 		if 'NO' in cb.data:
 			await mergeNow(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv")
+
+	elif cb.data.startswith('renameS_'):
+		if 'YES' in cb.data:
+			await cb.message.edit(
+				'Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: ',
+				parse_mode='markdown'
+			)
+			res: Message = await c.listen( cb.message.chat.id, timeout=300 )
+			if res.text :
+				ascii_ = e = ''.join([i if (i in string.digits or i in string.ascii_letters or i == " ") else " " for i in res.text])
+				new_file_name = f"./downloads/{str(cb.from_user.id)}/{ascii_.replace(' ', '_')}.mkv"
+				await mergeSub(c,cb,new_file_name)
+		if 'NO' in cb.data:
+			await mergeSub(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_softmuxed_video.mkv")
 
 	elif cb.data == 'cancel':
 		await delete_all(root=f"downloads/{cb.from_user.id}/")
@@ -442,6 +515,116 @@ async def showQueue(c:Client, cb: CallbackQuery):
 	except ValueError:
 		await cb.message.edit('Send Some more videos')
 
+async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
+	print()
+	omess = cb.message.reply_to_message
+	vid_list = list()
+	await cb.message.edit('⭕ Processing...')
+	duration = 0
+	list_message_ids = queueDB.get(cb.from_user.id,None)
+	list_message_ids.sort()
+	if list_message_ids is None:
+		await cb.answer("Queue Empty",show_alert=True)
+		await cb.message.delete(True)
+		return
+	if not os.path.exists(f'./downloads/{str(cb.from_user.id)}/'):
+		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
+	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
+		media = i.video or i.document
+		try:
+			await cb.message.edit(f'📥 Downloading...{media.file_name}')
+			await asyncio.sleep(3)
+		except MessageNotModified :
+			queueDB.get(cb.from_user.id).remove(i.message_id)
+			await cb.message.edit("❗ File Skipped!")
+			await asyncio.sleep(3)
+			continue
+		file_dl_path = None
+		try:
+			c_time = time.time()
+			file_dl_path = await c.download_media(
+				message=i,
+				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
+				progress=progress_for_pyrogram,
+				progress_args=(
+					'🚀 Downloading...',
+					cb.message,
+					c_time
+				)
+			)
+		except Exception as downloadErr:
+			print(f"Failed to download Error: {downloadErr}")
+			queueDB.get(cb.from_user.id).remove(i.message_id)
+			await cb.message.edit("❗File Skipped!")
+			await asyncio.sleep(3)
+			continue
+		vid_list.append(f"{file_dl_path}")
+	
+	subbed_video = await MergeSub(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id)
+	_cache = list()
+	if subbed_video is None:
+		await cb.message.edit("❌ Failed to add subs video !")
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
+		queueDB.update({cb.from_user.id: []})
+		formatDB.update({cb.from_user.id: None})
+		return
+	await cb.message.edit("✅ Sucessfully Muxed Video !")
+	print(f"Video muxed for: {cb.from_user.first_name} ")
+	await asyncio.sleep(3)
+	file_size = os.path.getsize(subbed_video)
+	os.rename(subbed_video,new_file_name)
+	await cb.message.edit(f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
+	await asyncio.sleep(2)
+	merged_video_path = new_file_name
+	if file_size > 2044723200:
+		await cb.message.edit("Video is Larger than 2GB Can't Upload")
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
+		queueDB.update({cb.from_user.id: []})
+		formatDB.update({cb.from_user.id: None})
+		return
+	await cb.message.edit("🎥 Extracting Video Data ...")
+	duration = 1
+	width = 100
+	height = 100
+	try:
+		metadata = extractMetadata(createParser(merged_video_path))
+		if metadata.has("duration"):
+			duration = metadata.get("duration").seconds
+		if metadata.has("width"):
+			width = metadata.get("width")
+		if metadata.has("height"):
+			height = metadata.get("height")
+	except:
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
+		queueDB.update({cb.from_user.id: []})
+		formatDB.update({cb.from_user.id: None})
+		await cb.message.edit("⭕ Merged Video is corrupted")
+		return
+	video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
+	if os.path.exists(video_thumbnail) is False:
+		video_thumbnail=f"./assets/default_thumb.jpg"
+	else: 
+		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
+		img = Image.open(video_thumbnail)
+		# img.resize(width,height)
+		img.save(video_thumbnail,"JPEG")
+	await uploadVideo(
+		c=c,
+		cb=cb,
+		merged_video_path=merged_video_path,
+		width=width,
+		height=height,
+		duration=duration,
+		video_thumbnail=video_thumbnail,
+		file_size=os.path.getsize(merged_video_path),
+		upload_mode=Config.upload_as_doc[f'{cb.from_user.id}']
+	)
+	await cb.message.delete(True)
+	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
+	queueDB.update({cb.from_user.id: []})
+	formatDB.update({cb.from_user.id: None})
+	return
+
 
 async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	omess = cb.message.reply_to_message
@@ -462,7 +645,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		media = i.video or i.document
 		try:
 			await cb.message.edit(f'📥 Downloading...{media.file_name}')
-			await asyncio.sleep(2)
+			await asyncio.sleep(5)
 		except MessageNotModified :
 			queueDB.get(cb.from_user.id).remove(i.message_id)
 			await cb.message.edit("❗ File Skipped!")
