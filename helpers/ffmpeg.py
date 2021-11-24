@@ -64,7 +64,7 @@ async def MergeSub(filePath:str, subPath:str, user_id):
 	for i in range(len(videoStreamsData)):
 		if videoStreamsData[i]['codec_type'] == 'subtitle':
 			nextSubTrack+=1
-	subprocess.call(f"ffmpeg -i '{filePath}' -i '{subPath}' -map 0 -map 1 -metadata:s:{str(len(videoStreamsData))} title='Track {str(nextSubTrack)} - tg@yashoswalyo' -c copy './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",shell=True)
+	subprocess.call(f"ffmpeg -i '{filePath}' -i '{subPath}' -map 0:v:0 -map 0:a -map 0:s? -map 1:s -metadata:s:{str(len(videoStreamsData))} title='Track {str(nextSubTrack)} - tg@yashoswalyo' -c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",shell=True)
 	return f'./downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'
 
 
