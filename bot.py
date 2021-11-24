@@ -531,14 +531,8 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
-		try:
-			await cb.message.edit(f'📥 Downloading...{media.file_name}')
-			await asyncio.sleep(3)
-		except MessageNotModified :
-			queueDB.get(cb.from_user.id).remove(i.message_id)
-			await cb.message.edit("❗ File Skipped!")
-			await asyncio.sleep(3)
-			continue
+		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
+		await asyncio.sleep(5)
 		file_dl_path = None
 		try:
 			c_time = time.time()
@@ -552,11 +546,13 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 					c_time
 				)
 			)
+			await cb.message.edit(f"{media.file_name} downloaded sucessfully")
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id).remove(i.message_id)
 			await cb.message.edit("❗File Skipped!")
 			await asyncio.sleep(3)
+			await cb.message.delete(True)
 			continue
 		vid_list.append(f"{file_dl_path}")
 	
