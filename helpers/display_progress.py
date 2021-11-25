@@ -1,6 +1,6 @@
 import time
 import math
-
+import asyncio
 from pyrogram.types import Message
 from config import Config
 import pyrogram
@@ -56,6 +56,7 @@ async def progress_for_pyrogram(current: int, total: int, ud_type: str, message:
 		)
 		try:
 			await message.edit(text=f'**{ud_type}**\n\n{tmp}',parse_mode='markdown')
+			await asyncio.sleep(4)
 		except:
 			pass
 		
