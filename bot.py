@@ -31,7 +31,8 @@ mergeApp = Client(
 	api_hash=Config.API_HASH,
 	api_id=Config.API_ID,
 	bot_token=Config.BOT_TOKEN,
-	workers=300
+	workers=300,
+	app_version="2.0+yash-multiSubsSupport"
 )
 
 
@@ -119,7 +120,7 @@ async def start_handler(c: Client, m: Message):
 		quote=True
 	)
 
-	
+
 @mergeApp.on_message((filters.document | filters.video) & filters.private & ~filters.edited)
 async def video_handler(c: Client, m: Message):
 	if await database.allowedUser(uid=m.from_user.id) is False:
@@ -128,7 +129,12 @@ async def video_handler(c: Client, m: Message):
 			quote=True
 		)
 		return
+	input_ = f"downloads/{str(m.from_user.id)}/input.txt"
+	if os.path.exists(input_):
+		await m.reply_text("Sorry Bro,\nAlready One process in Progress!\nDon't Spam.")
+		return
 	media = m.video or m.document
+	currentFileNameExt = media.file_name.rsplit(sep='.')[-1].lower()
 	if media.file_name is None:
 		await m.reply_text('File Not Found')
 		return
@@ -146,31 +152,31 @@ async def video_handler(c: Client, m: Message):
 			quote=True
 		)
 		return
-	if media.file_name.rsplit(sep='.')[-1].lower() == 'srt':
-		if len(queueDB.get(m.from_user.id)) == 1:
-			queueDB.get(m.from_user.id).append(m.message_id)
-			button = await MakeButtons(c,m,queueDB)
-			button.remove([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
-			button.remove([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
-			
-			button.append([InlineKeyboardButton("🔗 Merge Subtitles", callback_data="mergeSubtitles")])
-			button.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
-			await m.reply_text(
-				text="You send a subtitle file. Do you want to merge it?",
-				quote=True,
-				reply_markup= InlineKeyboardMarkup(button)
-			)
-			return
+
+	if currentFileNameExt == 'srt':
+		queueDB.get(m.from_user.id).append(m.message_id)
+		button = await MakeButtons(c,m,queueDB)
+		button.remove([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
+		button.remove([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
+
+		button.append([InlineKeyboardButton("🔗 Merge Subtitles", callback_data="mergeSubtitles")])
+		button.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
 		await m.reply_text(
-			text="Idiot why are you send subtitile file without sending a video!!",
+			text="You send a subtitle file. Do you want to merge it?",
 			quote=True,
+			reply_markup= InlineKeyboardMarkup(button)
 		)
+		formatDB.update({m.from_user.id: currentFileNameExt})
 		return
-	if media.file_name.split(sep='.')[-1].lower() not in ['mkv','mp4','webm']:
+
+	if queueDB.get(m.from_user.id, None) is None:
+		formatDB.update({m.from_user.id: currentFileNameExt})
+	if (formatDB.get(m.from_user.id, None) is not None) and (currentFileNameExt != formatDB.get(m.from_user.id)):
+		await m.reply_text(f"First you sent a {formatDB.get(m.from_user.id).upper()} file so now send only that type of file.", quote=True)
+		return
+	if currentFileNameExt not in ['mkv','mp4','webm']:
 		await m.reply_text("This Video Format not Allowed!\nOnly send MP4 or MKV or WEBM.", quote=True)
 		return
-	if queueDB.get(m.from_user.id, None) is None:
-		formatDB.update({m.from_user.id: media.file_name.rsplit(".", 1)[-1].lower()})
 	editable = await m.reply_text("Please Wait ...", quote=True)
 	MessageText = "Okay,\nNow Send Me Next Video or Press **Merge Now** Button!"
 	if queueDB.get(m.from_user.id, None) is None:
@@ -220,7 +226,7 @@ async def photo_handler(c: Client,m: Message):
 	await msg.edit_text(
 		text="✅ Custom Thumbnail Saved!"
 	)
-	
+
 @mergeApp.on_message(filters.command(['help']) & filters.private & ~filters.edited)
 async def help_msg(c: Client, m: Message):
 	await m.reply_text(
@@ -233,7 +239,7 @@ async def help_msg(c: Client, m: Message):
 5) Select rename if you want to give custom file name else press default**''',
 		quote=True,
 		reply_markup=InlineKeyboardMarkup(
-			[ 
+			[
 				[
 					InlineKeyboardButton("Close 🔐", callback_data="close")
 				]
@@ -249,19 +255,19 @@ async def about_handler(c:Client,m:Message):
 + Upload to drive using your own rclone config
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 - **FEATURES:**
-+ Merge Upto 10 videos in one 
-+ Upload as document/video 
++ Merge Upto 10 videos in one
++ Upload as document/video
 + Custom thumbnail support
 + Users can login to bot using password
-+ Owner can broadcast message to all users	
++ Owner can broadcast message to all users
 		''',
 		quote=True,
 		reply_markup=InlineKeyboardMarkup(
-			[ 
-				[ 
+			[
+				[
 					InlineKeyboardButton("Developer", url="https://t.me/yashoswalyo")
 				],
-				[ 
+				[
 					InlineKeyboardButton("Source Code", url="https://github.com/yashoswalyo/MERGE-BOT"),
 					InlineKeyboardButton("Deployed By", url=f"https://t.me/{Config.OWNER_USERNAME}")
 				]
@@ -297,11 +303,11 @@ async def delete_thumbnail(c: Client,m: Message):
 			await m.reply_text('✅ Deleted Sucessfully',quote=True)
 	except Exception as err:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
-		
+
 
 @mergeApp.on_callback_query()
 async def callback(c: Client, cb: CallbackQuery):
-	
+
 	if cb.data == 'merge':
 		await cb.message.edit(
 			text='Where do you want to upload?',
@@ -340,7 +346,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			await delete_all(root=f"downloads/{cb.from_user.id}/")
 			queueDB.update({cb.from_user.id: []})
 			formatDB.update({cb.from_user.id: None})
-			return 
+			return
 		Config.upload_to_drive.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text="Okay I'll upload to drive\nDo you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**",
@@ -408,7 +414,7 @@ async def callback(c: Client, cb: CallbackQuery):
 	elif cb.data == 'videoS':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
-			text='Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**',
+			text=f"Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
 			reply_markup=InlineKeyboardMarkup(
 				[
 					[
@@ -418,7 +424,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
-	
+
 	elif cb.data.startswith('rclone_'):
 		if 'save' in cb.data:
 			fileId = cb.message.reply_to_message.document.file_id
@@ -467,7 +473,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		await asyncio.sleep(5)
 		await cb.message.delete(True)
 		return
-		
+
 	elif cb.data == 'close':
 		await cb.message.delete(True)
 
@@ -497,7 +503,7 @@ async def callback(c: Client, cb: CallbackQuery):
 					]
 				)
 			)
-	
+
 	elif cb.data == 'back':
 		await showQueue(c,cb)
 
@@ -532,6 +538,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
 		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
+		print(f'📥 Starting Download of ... {media.file_name}')
 		await asyncio.sleep(5)
 		file_dl_path = None
 		try:
@@ -547,6 +554,8 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 				)
 			)
 			await cb.message.edit(f"{media.file_name} downloaded sucessfully")
+			print(f"{media.file_name} downloaded sucessfully")
+			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id).remove(i.message_id)
@@ -555,8 +564,8 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			await cb.message.delete(True)
 			continue
 		vid_list.append(f"{file_dl_path}")
-	
-	subbed_video = await MergeSub(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id)
+
+	subbed_video = await MergeSub(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id, vid_list=vid_list)
 	_cache = list()
 	if subbed_video is None:
 		await cb.message.edit("❌ Failed to add subs video !")
@@ -599,7 +608,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
 	if os.path.exists(video_thumbnail) is False:
 		video_thumbnail=f"./assets/default_thumb.jpg"
-	else: 
+	else:
 		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
 		img = Image.open(video_thumbnail)
 		# img.resize(width,height)
@@ -639,14 +648,9 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
-		try:
-			await cb.message.edit(f'📥 Downloading...{media.file_name}')
-			await asyncio.sleep(5)
-		except MessageNotModified :
-			queueDB.get(cb.from_user.id).remove(i.message_id)
-			await cb.message.edit("❗ File Skipped!")
-			await asyncio.sleep(3)
-			continue
+		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
+		print(f'📥 Starting Download of ... {media.file_name}')
+		await asyncio.sleep(5)
 		file_dl_path = None
 		try:
 			c_time = time.time()
@@ -660,6 +664,9 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 					c_time
 				)
 			)
+			await cb.message.edit(f"{media.file_name} downloaded sucessfully")
+			print(f"{media.file_name} downloaded sucessfully")
+			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id).remove(i.message_id)
@@ -717,7 +724,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		queueDB.update({cb.from_user.id: []})
 		formatDB.update({cb.from_user.id: None})
 		return
-	
+
 	await cb.message.edit("🎥 Extracting Video Data ...")
 	duration = 1
 	width = 100
@@ -739,7 +746,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
 	if os.path.exists(video_thumbnail) is False:
 		video_thumbnail=f"./assets/default_thumb.jpg"
-	else: 
+	else:
 		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
 		img = Image.open(video_thumbnail)
 		# img.resize(width,height)
