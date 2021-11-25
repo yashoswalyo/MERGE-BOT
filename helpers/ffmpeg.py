@@ -56,7 +56,7 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 	else:
 		return None
 
-async def MergeSub(filePath:str, subPath:str, user_id, vid_list:List):
+async def MergeSub(filePath:str, subPath:str, user_id, vid_list):
 	print("Generating mux command")
 	input_files = ""
 	maps = ""
