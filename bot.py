@@ -32,7 +32,7 @@ mergeApp = Client(
 	api_id=Config.API_ID,
 	bot_token=Config.BOT_TOKEN,
 	workers=300,
-	app_version="2.0+yash-multiSubsSupport"
+	app_version="3.0+yash-multiSubsSupport"
 )
 
 
@@ -154,7 +154,9 @@ async def video_handler(c: Client, m: Message):
 		return
 
 	if currentFileNameExt == 'srt':
-		queueDB.get(m.from_user.id).append(m.message_id)
+		queueDB.get(m.from_user.id)['videos'].append(m.message_id)
+		queueDB.get(m.from_user.id)['subtitles'].append(None)
+
 		button = await MakeButtons(c,m,queueDB)
 		button.remove([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
 		button.remove([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
@@ -180,19 +182,21 @@ async def video_handler(c: Client, m: Message):
 	editable = await m.reply_text("Please Wait ...", quote=True)
 	MessageText = "Okay,\nNow Send Me Next Video or Press **Merge Now** Button!"
 	if queueDB.get(m.from_user.id, None) is None:
-		queueDB.update({m.from_user.id: []})
-	if (len(queueDB.get(m.from_user.id)) >= 0) and (len(queueDB.get(m.from_user.id))<10 ):
-		queueDB.get(m.from_user.id).append(m.message_id)
-		if len(queueDB.get(m.from_user.id)) == 1:
+		queueDB.update({m.from_user.id: {'videos':[],'subtitles':[]}})
+	if (len(queueDB.get(m.from_user.id)['videos']) >= 0) and (len(queueDB.get(m.from_user.id)['videos'])<10 ):
+		queueDB.get(m.from_user.id)['videos'].append(m.message_id)
+		queueDB.get(m.from_user.id)['subtitles'].append(None)
+		print(queueDB.get(m.from_user.id)['videos'], queueDB.get(m.from_user.id)['subtitles'])
+		if len(queueDB.get(m.from_user.id)['videos']) == 1:
 			await editable.edit(
 				'**Send me some more videos to merge them into single file**',parse_mode='markdown'
 			)
 			return
-		if queueDB.get(m.from_user.id, None) is None:
+		if queueDB.get(m.from_user.id, None)['videos'] is None:
 			formatDB.update({m.from_user.id: media.file_name.split(sep='.')[-1].lower()})
 		if replyDB.get(m.from_user.id, None) is not None:
 			await c.delete_messages(chat_id=m.chat.id, message_ids=replyDB.get(m.from_user.id))
-		if len(queueDB.get(m.from_user.id)) == 10:
+		if len(queueDB.get(m.from_user.id)['videos']) == 10:
 			MessageText = "Okay Unkil, Now Just Press **Merge Now** Button Plox!"
 		markup = await MakeButtons(c, m, queueDB)
 		reply_ = await editable.edit(
@@ -200,7 +204,7 @@ async def video_handler(c: Client, m: Message):
 			reply_markup=InlineKeyboardMarkup(markup)
 		)
 		replyDB.update({m.from_user.id: reply_.message_id})
-	elif len(queueDB.get(m.from_user.id)) > 10:
+	elif len(queueDB.get(m.from_user.id)['videos']) > 10:
 		markup = await MakeButtons(c,m,queueDB)
 		await editable.text(
 			"Max 10 videos allowed",
@@ -344,7 +348,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		if os.path.exists(f"userdata/{cb.from_user.id}/rclone.conf") is False:
 			await cb.message.delete()
 			await delete_all(root=f"downloads/{cb.from_user.id}/")
-			queueDB.update({cb.from_user.id: []})
+			queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 			formatDB.update({cb.from_user.id: None})
 			return
 		Config.upload_to_drive.update({f'{cb.from_user.id}':True})
@@ -359,6 +363,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+	
 	elif cb.data == 'to_telegram':
 		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
@@ -372,6 +377,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+	
 	elif cb.data == 'document':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
@@ -385,6 +391,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+	
 	elif cb.data == 'video':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
@@ -398,6 +405,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+	
 	elif cb.data == 'documentS':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
@@ -411,6 +419,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+	
 	elif cb.data == 'videoS':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
@@ -466,8 +475,9 @@ async def callback(c: Client, cb: CallbackQuery):
 			await mergeSub(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_softmuxed_video.mkv")
 
 	elif cb.data == 'cancel':
+		print("beta branch")
 		await delete_all(root=f"downloads/{cb.from_user.id}/")
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("Sucessfully Cancelled")
 		await asyncio.sleep(5)
@@ -478,37 +488,123 @@ async def callback(c: Client, cb: CallbackQuery):
 		await cb.message.delete(True)
 
 	elif cb.data.startswith('showFileName_'):
-		m = await c.get_messages(chat_id=cb.message.chat.id,message_ids=int(cb.data.rsplit("_",1)[-1]))
-		try:
-			await cb.message.edit(
-				text=f"File Name: {m.video.file_name}",
+		id = int(cb.data.rsplit("_",1)[-1])
+		print(queueDB.get(cb.from_user.id)['videos'])
+		sIndex = queueDB.get(cb.from_user.id)['videos'].index(id)
+		m = await c.get_messages(chat_id=cb.message.chat.id,message_ids=id)
+		if queueDB.get(cb.from_user.id)['subtitles'][sIndex] is None:
+			try:
+				await cb.message.edit(
+					text=f"File Name: {m.video.file_name}",
+					reply_markup=InlineKeyboardMarkup(
+						[
+							[
+								InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("Add Subtitle", callback_data=f"addSub_{str(sIndex)}")
+							],
+							[InlineKeyboardButton("Back", callback_data="back")]
+						]
+					)
+				)
+			except:
+				await cb.message.edit(
+					text=f"File Name: {m.document.file_name}",
+					reply_markup=InlineKeyboardMarkup(
+						[
+							[
+								InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("Add Subtitle", callback_data=f"addSub_{str(sIndex)}")
+							],
+							[InlineKeyboardButton("Back", callback_data="back")]
+						]
+					)
+				)
+		else:
+			sMessId = queueDB.get(cb.from_user.id)['subtitles'][sIndex]
+			s = await c.get_messages(chat_id=cb.message.chat.id,message_ids=sMessId)
+			try:
+				await cb.message.edit(
+					text=f"File Name: {m.video.file_name}\n\nSubtitles: {s.document.file_name}",
+					reply_markup=InlineKeyboardMarkup(
+						[
+							[
+								InlineKeyboardButton("Remove File",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("Remove Subtitle", callback_data=f"removeSub_{str(sIndex)}")
+							],
+							[InlineKeyboardButton("Back", callback_data="back")]
+						]
+					)
+				)
+			except:
+				await cb.message.edit(
+					text=f"File Name: {m.document.file_name}\n\nSubtitles: {s.document.file_name}",
+					reply_markup=InlineKeyboardMarkup(
+						[
+							[
+								InlineKeyboardButton("Remove File",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("Remove Subtitle", callback_data=f"removeSub_{str(sIndex)}")
+							],
+							[InlineKeyboardButton("Back", callback_data="back")]
+						]
+					)
+				)
+		return
+	
+	elif cb.data.startswith('addSub_'):
+		sIndex = int(cb.data.split(sep="_")[1])
+		vMessId = queueDB.get(cb.from_user.id)["videos"][sIndex]
+		rmess = await cb.message.edit(text=f"Send me a subtitle file, you have 1 minute",
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+				]
+			)
+		)
+		subs:Message = await c.listen(cb.message.chat.id,filters="filters.document",timeout=60)
+		if subs is not None:
+			media = subs.document or subs.video
+			if media.file_name.rsplit(".")[-1] not in "srt":
+				await subs.reply_text(text=f"Please go back first",
+					reply_markup=InlineKeyboardMarkup(
+						[
+							[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+						]
+					),
+					quote=True
+				)
+				return
+			queueDB.get(cb.from_user.id)["subtitles"][sIndex] = subs.message_id
+			await subs.reply_text(f"Added {subs.document.file_name}",
 				reply_markup=InlineKeyboardMarkup(
 					[
-						[
-							InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
-							InlineKeyboardButton("Back", callback_data="back")
-						]
+						[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
 					]
-				)
+				),
+				quote=True
 			)
-		except:
-			await cb.message.edit(
-				text=f"File Name: {m.document.file_name}",
-				reply_markup=InlineKeyboardMarkup(
-					[
-						[
-							InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
-							InlineKeyboardButton("Back", callback_data="back")
-						]
-					]
-				)
-			)
+			await rmess.delete(True)
+			print("Added sub to list")
+		return
 
+	elif cb.data.startswith('removeSub_'):
+		sIndex = int(cb.data.rsplit("_")[-1])
+		vMessId = queueDB.get(cb.from_user.id)["videos"][sIndex]
+		queueDB.get(cb.from_user.id)["subtitles"][sIndex] = None
+		await cb.message.edit(text=f"Subtitle Removed Now go back or send next video",
+			reply_markup=InlineKeyboardMarkup(
+				[
+					[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+				]
+			)
+		)
+		print('Sub removed from list')
+		return
+	
 	elif cb.data == 'back':
 		await showQueue(c,cb)
 
 	elif cb.data.startswith('removeFile_'):
-		queueDB.get(cb.from_user.id).remove(int(cb.data.split("_", 1)[-1]))
+		queueDB.get(cb.from_user.id)['videos'].remove(int(cb.data.split("_", 1)[-1]))
 		await showQueue(c,cb)
 
 async def showQueue(c:Client, cb: CallbackQuery):
@@ -527,7 +623,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	vid_list = list()
 	await cb.message.edit('⭕ Processing...')
 	duration = 0
-	list_message_ids = queueDB.get(cb.from_user.id,None)
+	list_message_ids = queueDB.get(cb.from_user.id)["videos"]
 	list_message_ids.sort()
 	if list_message_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
@@ -635,23 +731,37 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	omess = cb.message.reply_to_message
 	# print(omess.message_id)
 	vid_list = list()
+	sub_list = list()
+	sIndex = 0
 	await cb.message.edit('⭕ Processing...')
 	duration = 0
-	list_message_ids = queueDB.get(cb.from_user.id,None)
-	list_message_ids.sort()
+	list_message_ids = queueDB.get(cb.from_user.id)["videos"]
+	# list_message_ids.sort()
+	list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
+	print(list_message_ids,list_subtitle_ids)
+	# list_subtitle_ids.sort()
 	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
-	if list_message_ids is None:
+	if list_message_ids is None or list_subtitle_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
 		await cb.message.delete(True)
 		return
 	if not os.path.exists(f'./downloads/{str(cb.from_user.id)}/'):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
+
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
 		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
 		print(f'📥 Starting Download of ... {media.file_name}')
 		await asyncio.sleep(5)
 		file_dl_path = None
+		sub_dl_path = None
+		if list_subtitle_ids[sIndex] is not None:
+			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
+			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
+			print("Got sub",a.document.file_name)
+			sub_list.append(f"{sub_dl_path}")
+		else:
+			sub_list.append(None)
 		try:
 			c_time = time.time()
 			file_dl_path = await c.download_media(
@@ -673,6 +783,8 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			await cb.message.edit("❗File Skipped!")
 			await asyncio.sleep(3)
 			continue
+		sIndex += 1
+
 		metadata = extractMetadata(createParser(file_dl_path))
 		try:
 			if metadata.has("duration"):
@@ -684,6 +796,8 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			formatDB.update({cb.from_user.id: None})
 			await cb.message.edit('⚠️ Video is corrupted')
 			return
+	
+
 	_cache = list()
 	for i in range(len(vid_list)):
 		if vid_list[i] not in _cache:
@@ -776,12 +890,12 @@ async def delete_all(root):
 
 async def MakeButtons(bot: Client, m: Message, db: dict):
 	markup = []
-	for i in (await bot.get_messages(chat_id=m.chat.id, message_ids=db.get(m.chat.id))):
+	for i in (await bot.get_messages(chat_id=m.chat.id, message_ids=db.get(m.chat.id)['videos'])):
 		media = i.video or i.document or None
 		if media is None:
 			continue
 		else:
-			markup.append([InlineKeyboardButton(f"{media.file_name}", callback_data=f"showFileName_{str(i.message_id)}")])
+			markup.append([InlineKeyboardButton(f"{media.file_name}", callback_data=f"showFileName_{i.message_id}")])
 	markup.append([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
 	markup.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
 	return markup
