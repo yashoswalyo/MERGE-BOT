@@ -19,7 +19,7 @@ from pyromod import listen
 from config import Config
 from helpers import database
 from helpers.display_progress import progress_for_pyrogram
-from helpers.ffmpeg import MergeSub, MergeVideo
+from helpers.ffmpeg import MergeSub, MergeVideo, MergeSubNew
 from helpers.uploader import uploadVideo
 from helpers.utils import get_readable_time, get_readable_file_size
 from helpers.rclone_upload import rclone_driver, rclone_upload
@@ -661,7 +661,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			continue
 		vid_list.append(f"{file_dl_path}")
 
-	subbed_video = await MergeSub(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id, vid_list=vid_list)
+	subbed_video = await MergeSubNew(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id, vid_list=vid_list)
 	_cache = list()
 	if subbed_video is None:
 		await cb.message.edit("❌ Failed to add subs video !")
@@ -755,13 +755,6 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		await asyncio.sleep(5)
 		file_dl_path = None
 		sub_dl_path = None
-		if list_subtitle_ids[sIndex] is not None:
-			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
-			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
-			print("Got sub",a.document.file_name)
-			sub_list.append(f"{sub_dl_path}")
-		else:
-			sub_list.append(None)
 		try:
 			c_time = time.time()
 			file_dl_path = await c.download_media(
@@ -779,10 +772,15 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
-			queueDB.get(cb.from_user.id).remove(i.message_id)
+			queueDB.get(cb.from_user.id)["video"].remove(i.message_id)
 			await cb.message.edit("❗File Skipped!")
 			await asyncio.sleep(3)
 			continue
+		if list_subtitle_ids[sIndex] is not None:
+			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
+			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
+			print("Got sub",a.document.file_name)
+			file_dl_path = await MergeSub(file_dl_path,sub_dl_path,cb.from_user.id)
 		sIndex += 1
 
 		metadata = extractMetadata(createParser(file_dl_path))
@@ -792,7 +790,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			vid_list.append(f"file '{file_dl_path}'")
 		except:
 			await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-			queueDB.update({cb.from_user.id: []})
+			queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 			formatDB.update({cb.from_user.id: None})
 			await cb.message.edit('⚠️ Video is corrupted')
 			return
@@ -815,7 +813,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	if merged_video_path is None:
 		await cb.message.edit("❌ Failed to merge video !")
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
 	await cb.message.edit("✅ Sucessfully Merged Video !")
@@ -829,13 +827,13 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	if Config.upload_to_drive[f'{cb.from_user.id}']:
 		await rclone_driver(omess,cb,merged_video_path)
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
 	if file_size > 2044723200:
 		await cb.message.edit("Video is Larger than 2GB Can't Upload")
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
 
@@ -853,7 +851,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			height = metadata.get("height")
 	except:
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("⭕ Merged Video is corrupted")
 		return
@@ -878,7 +876,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-	queueDB.update({cb.from_user.id: []})
+	queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 	formatDB.update({cb.from_user.id: None})
 	return
 
