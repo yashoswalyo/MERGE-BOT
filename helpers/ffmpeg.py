@@ -56,15 +56,25 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 	else:
 		return None
 
-async def MergeSub(filePath:str, subPath:str, user_id):
-	print("Sub muxing")
+async def MergeSub(filePath:str, subPath:str, user_id, vid_list:List):
+	print("Generating mux command")
+	input_files = ""
+	maps = ""
+	metadata = ""
 	videoData = ffmpeg.probe(filename=filePath)
 	videoStreamsData = videoData.get('streams')
-	nextSubTrack=1
+	subTrack=0
 	for i in range(len(videoStreamsData)):
 		if videoStreamsData[i]['codec_type'] == 'subtitle':
-			nextSubTrack+=1
-	subprocess.call(f"ffmpeg -i '{filePath}' -i '{subPath}' -map 0:v:0 -map 0:a -map 0:s? -map 1:s -metadata:s:{str(len(videoStreamsData))} title='Track {str(nextSubTrack)} - tg@yashoswalyo' -c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",shell=True)
+			subTrack+=1
+	for i in vid_list:
+		input_files += f"-i '{i}' "
+	for j in range(1,(len(vid_list))):
+		maps += f"-map {j}:s "
+		metadata += f"-metadata:s:s:{subTrack} title='Track {subTrack+1} - tg@yashoswalyo' "
+		subTrack +=1
+	print("Sub muxing")
+	subprocess.call(f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a -map 0:s? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",shell=True)
 	return f'./downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'
 
 
