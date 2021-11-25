@@ -449,27 +449,28 @@ async def callback(c: Client, cb: CallbackQuery):
 	elif cb.data.startswith('rename_'):
 		if 'YES' in cb.data:
 			await cb.message.edit(
-				'Current filename: **[@yashoswalyo]_merged.mkv**\n\nSend me new file name without extension: ',
+				'Current filename: **[@yashoswalyo]_merged.mkv**\n\nSend me new file name without extension: You have 1 minute',
 				parse_mode='markdown'
 			)
-			res: Message = await c.listen( cb.message.chat.id, timeout=300 )
+			res: Message = await c.listen( cb.message.chat.id,filters=filters.text, timeout=60 )
 			if res.text :
-				ascii_ = e = ''.join([i if (i in string.digits or i in string.ascii_letters or i == " ") else " " for i in res.text])
-				new_file_name = f"./downloads/{str(cb.from_user.id)}/{ascii_.replace(' ', '_')}.mkv"
+				new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','.')}.mkv"
+				await res.delete(True)
 				await mergeNow(c,cb,new_file_name)
+			return
 		if 'NO' in cb.data:
 			await mergeNow(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv")
 
 	elif cb.data.startswith('renameS_'):
 		if 'YES' in cb.data:
 			await cb.message.edit(
-				'Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: ',
+				'Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: You have 1 minute ',
 				parse_mode='markdown'
 			)
-			res: Message = await c.listen( cb.message.chat.id, timeout=300 )
+			res: Message = await c.listen( cb.message.chat.id,filters=filters.text, timeout=300 )
 			if res.text :
-				ascii_ = e = ''.join([i if (i in string.digits or i in string.ascii_letters or i == " ") else " " for i in res.text])
-				new_file_name = f"./downloads/{str(cb.from_user.id)}/{ascii_.replace(' ', '_')}.mkv"
+				new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','.')}.mkv"
+				await res.delete(True)
 				await mergeSub(c,cb,new_file_name)
 		if 'NO' in cb.data:
 			await mergeSub(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_softmuxed_video.mkv")
