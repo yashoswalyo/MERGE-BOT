@@ -1,5 +1,6 @@
 import asyncio
 import subprocess
+import shutil
 import os
 import time
 import ffmpeg
@@ -56,7 +57,28 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 	else:
 		return None
 
-async def MergeSub(filePath:str, subPath:str, user_id, vid_list):
+async def MergeSub(filePath:str, subPath:str, user_id):
+	print("Generating mux command")
+	input_files = ""
+	maps = ""
+	metadata = ""
+	videoData = ffmpeg.probe(filename=filePath)
+	videoStreamsData = videoData.get('streams')
+	subTrack=0
+	for i in range(len(videoStreamsData)):
+		if videoStreamsData[i]['codec_type'] == 'subtitle':
+			subTrack+=1
+	input_files += f"-i '{filePath}' -i '{subPath}' "
+	maps += f"-map 1:s "
+	metadata += f"-metadata:s:s:{subTrack} title='Track {subTrack+1} - tg@yashoswalyo' "
+	subTrack +=1
+	print("Sub muxing")
+	subprocess.call(f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a -map 0:s? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv' ",shell=True)
+	orgFilePath = shutil.move(f"./downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv",filePath)
+	return orgFilePath
+
+
+async def MergeSubNew(filePath:str, subPath:str, user_id, vid_list):
 	print("Generating mux command")
 	input_files = ""
 	maps = ""
