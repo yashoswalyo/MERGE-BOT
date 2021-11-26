@@ -140,7 +140,7 @@ async def video_handler(c: Client, m: Message):
 		return
 	if media.file_name.rsplit(sep='.')[-1].lower() in 'conf':
 		await m.reply_text(
-			text="**Config file found, Do you want to save it?**",
+			text="**💾 Config file found, Do you want to save it?**",
 			reply_markup = InlineKeyboardMarkup(
 				[
 					[
@@ -500,10 +500,10 @@ async def callback(c: Client, cb: CallbackQuery):
 					reply_markup=InlineKeyboardMarkup(
 						[
 							[
-								InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
-								InlineKeyboardButton("Add Subtitle", callback_data=f"addSub_{str(sIndex)}")
+								InlineKeyboardButton("❌ Remove",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("📜 Add Subtitle", callback_data=f"addSub_{str(sIndex)}")
 							],
-							[InlineKeyboardButton("Back", callback_data="back")]
+							[InlineKeyboardButton("🔙 Back", callback_data="back")]
 						]
 					)
 				)
@@ -513,13 +513,14 @@ async def callback(c: Client, cb: CallbackQuery):
 					reply_markup=InlineKeyboardMarkup(
 						[
 							[
-								InlineKeyboardButton("Remove",callback_data=f"removeFile_{str(m.message_id)}"),
-								InlineKeyboardButton("Add Subtitle", callback_data=f"addSub_{str(sIndex)}")
+								InlineKeyboardButton("❌ Remove",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("📜 Add Subtitle", callback_data=f"addSub_{str(sIndex)}")
 							],
-							[InlineKeyboardButton("Back", callback_data="back")]
+							[InlineKeyboardButton("🔙 Back", callback_data="back")]
 						]
 					)
 				)
+			return
 		else:
 			sMessId = queueDB.get(cb.from_user.id)['subtitles'][sIndex]
 			s = await c.get_messages(chat_id=cb.message.chat.id,message_ids=sMessId)
@@ -529,10 +530,10 @@ async def callback(c: Client, cb: CallbackQuery):
 					reply_markup=InlineKeyboardMarkup(
 						[
 							[
-								InlineKeyboardButton("Remove File",callback_data=f"removeFile_{str(m.message_id)}"),
-								InlineKeyboardButton("Remove Subtitle", callback_data=f"removeSub_{str(sIndex)}")
+								InlineKeyboardButton("❌ Remove File",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("❌ Remove Subtitle", callback_data=f"removeSub_{str(sIndex)}")
 							],
-							[InlineKeyboardButton("Back", callback_data="back")]
+							[InlineKeyboardButton("🔙 Back", callback_data="back")]
 						]
 					)
 				)
@@ -542,10 +543,10 @@ async def callback(c: Client, cb: CallbackQuery):
 					reply_markup=InlineKeyboardMarkup(
 						[
 							[
-								InlineKeyboardButton("Remove File",callback_data=f"removeFile_{str(m.message_id)}"),
-								InlineKeyboardButton("Remove Subtitle", callback_data=f"removeSub_{str(sIndex)}")
+								InlineKeyboardButton("❌ Remove File",callback_data=f"removeFile_{str(m.message_id)}"),
+								InlineKeyboardButton("❌ Remove Subtitle", callback_data=f"removeSub_{str(sIndex)}")
 							],
-							[InlineKeyboardButton("Back", callback_data="back")]
+							[InlineKeyboardButton("🔙 Back", callback_data="back")]
 						]
 					)
 				)
@@ -557,7 +558,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		rmess = await cb.message.edit(text=f"Send me a subtitle file, you have 1 minute",
 			reply_markup=InlineKeyboardMarkup(
 				[
-					[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+					[InlineKeyboardButton("🔙 Back", callback_data=f"showFileName_{vMessId}")]
 				]
 			)
 		)
@@ -568,7 +569,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				await subs.reply_text(text=f"Please go back first",
 					reply_markup=InlineKeyboardMarkup(
 						[
-							[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+							[InlineKeyboardButton("🔙 Back", callback_data=f"showFileName_{vMessId}")]
 						]
 					),
 					quote=True
@@ -578,7 +579,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			await subs.reply_text(f"Added {subs.document.file_name}",
 				reply_markup=InlineKeyboardMarkup(
 					[
-						[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+						[InlineKeyboardButton("🔙 Back", callback_data=f"showFileName_{vMessId}")]
 					]
 				),
 				quote=True
@@ -594,7 +595,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		await cb.message.edit(text=f"Subtitle Removed Now go back or send next video",
 			reply_markup=InlineKeyboardMarkup(
 				[
-					[InlineKeyboardButton("Back", callback_data=f"showFileName_{vMessId}")]
+					[InlineKeyboardButton("🔙 Back", callback_data=f"showFileName_{vMessId}")]
 				]
 			)
 		)
@@ -782,6 +783,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
 			print("Got sub",a.document.file_name)
 			file_dl_path = await MergeSub(file_dl_path,sub_dl_path,cb.from_user.id)
+			print("Added subs")
 		sIndex += 1
 
 		metadata = extractMetadata(createParser(file_dl_path))
