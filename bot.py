@@ -559,7 +559,7 @@ async def callback(c: Client, cb: CallbackQuery):
 						]
 					)
 				)
-		return
+			return
 	
 	elif cb.data.startswith('addSub_'):
 		sIndex = int(cb.data.split(sep="_")[1])
@@ -754,14 +754,15 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
 	print(list_message_ids,list_subtitle_ids)
 	# list_subtitle_ids.sort()
-	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
-	_list = open(input_, 'w')
 	if list_message_ids is None or list_subtitle_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
 		await cb.message.delete(True)
 		return
 	if not os.path.exists(f'./downloads/{str(cb.from_user.id)}/'):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
+	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
+	_list = open(input_, 'a+')
+	_list.truncate(0)
 
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
