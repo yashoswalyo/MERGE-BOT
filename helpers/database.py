@@ -17,7 +17,7 @@ async def addUser(uid,fname,lname):
 		db.mergebot.users.insert_one(userDetails)
 		print(f"New user added id={uid}\n{fname} {lname} \n")
 	except DuplicateKeyError:
-		print(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
+		print(f"Duplicate Entry Found for id True={uid}\n{fname} {lname} \n")
 	return
 
 async def broadcast():
