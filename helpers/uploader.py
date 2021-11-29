@@ -1,3 +1,4 @@
+import os
 import time
 import asyncio
 from pyrogram import Client
@@ -21,7 +22,7 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 				caption=f"**File Name: {merged_video_path.rsplit('/',1)[-1]}**",
 				progress=progress_for_pyrogram,
 				progress_args=(
-					"Uploading file as video",
+					f"Uploading: {merged_video_path.rsplit('/',1)[-1]}",
 					cb.message,
 					c_time
 				)
@@ -35,7 +36,7 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 				caption=f"**File Name: {merged_video_path.rsplit('/',1)[-1]}**",
 				progress=progress_for_pyrogram,
 				progress_args=(
-					"Uploading file as document",
+					f"Uploading: {merged_video_path.rsplit('/',1)[-1]}",
 					cb.message,
 					c_time
 				)

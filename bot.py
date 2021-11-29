@@ -324,6 +324,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 
 	elif cb.data == "mergeSubtitles":
 		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
@@ -338,6 +339,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 
 	elif cb.data == 'to_drive':
 		try:
@@ -363,6 +365,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 	
 	elif cb.data == 'to_telegram':
 		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
@@ -377,6 +380,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 	
 	elif cb.data == 'document':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
@@ -391,6 +395,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 	
 	elif cb.data == 'video':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
@@ -405,6 +410,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 	
 	elif cb.data == 'documentS':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
@@ -419,6 +425,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 	
 	elif cb.data == 'videoS':
 		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
@@ -433,6 +440,7 @@ async def callback(c: Client, cb: CallbackQuery):
 				]
 			)
 		)
+		return
 
 	elif cb.data.startswith('rclone_'):
 		if 'save' in cb.data:
@@ -445,6 +453,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			await database.addUserRcloneConfig(cb, fileId)
 		else:
 			await cb.message.delete()
+		return
 
 	elif cb.data.startswith('rename_'):
 		if 'YES' in cb.data:
@@ -604,10 +613,12 @@ async def callback(c: Client, cb: CallbackQuery):
 	
 	elif cb.data == 'back':
 		await showQueue(c,cb)
+		return
 
 	elif cb.data.startswith('removeFile_'):
 		queueDB.get(cb.from_user.id)['videos'].remove(int(cb.data.split("_", 1)[-1]))
 		await showQueue(c,cb)
+		return
 
 async def showQueue(c:Client, cb: CallbackQuery):
 	try:
@@ -618,6 +629,7 @@ async def showQueue(c:Client, cb: CallbackQuery):
 		)
 	except ValueError:
 		await cb.message.edit('Send Some more videos')
+	return
 
 async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	print()
@@ -646,13 +658,13 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
 				progress=progress_for_pyrogram,
 				progress_args=(
-					'🚀 Downloading...',
+					f"🚀 Downloading: {media.file_name}",
 					cb.message,
 					c_time
 				)
 			)
-			await cb.message.edit(f"{media.file_name} downloaded sucessfully")
-			print(f"{media.file_name} downloaded sucessfully")
+			await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
+			print(f"Downloaded Sucessfully:- {media.file_name}")
 			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
@@ -743,6 +755,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	print(list_message_ids,list_subtitle_ids)
 	# list_subtitle_ids.sort()
 	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
+	_list = open(input_, 'w')
 	if list_message_ids is None or list_subtitle_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
 		await cb.message.delete(True)
@@ -769,8 +782,8 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 					c_time
 				)
 			)
-			await cb.message.edit(f"{media.file_name} downloaded sucessfully")
-			print(f"{media.file_name} downloaded sucessfully")
+			await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
+			print(f"Downloaded Sucessfully:- {media.file_name}")
 			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
@@ -805,8 +818,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			_cache.append(vid_list[i])
 	vid_list = _cache
 	await cb.message.edit(f"🔀 Trying to merge videos ...")
-	with open(input_,'w') as _list:
-		_list.write("\n".join(vid_list))
+	_list.write("\n".join(vid_list))
 	merged_video_path = await MergeVideo(
 		input_file=input_,
 		user_id=cb.from_user.id,
