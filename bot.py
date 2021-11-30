@@ -499,7 +499,7 @@ async def callback(c: Client, cb: CallbackQuery):
 
 	elif cb.data.startswith('showFileName_'):
 		id = int(cb.data.rsplit("_",1)[-1])
-		print(queueDB.get(cb.from_user.id)['videos'])
+		print(queueDB.get(cb.from_user.id)['videos'],queueDB.get(cb.from_user.id)['subtitles'])
 		sIndex = queueDB.get(cb.from_user.id)['videos'].index(id)
 		m = await c.get_messages(chat_id=cb.message.chat.id,message_ids=id)
 		if queueDB.get(cb.from_user.id)['subtitles'][sIndex] is None:
@@ -751,10 +751,10 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	await cb.message.edit('⭕ Processing...')
 	duration = 0
 	list_message_ids = queueDB.get(cb.from_user.id)["videos"]
-	# list_message_ids.sort()
+	list_message_ids.sort()
 	list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
+	list_subtitle_ids.sort()
 	print(list_message_ids,list_subtitle_ids)
-	# list_subtitle_ids.sort()
 	if list_message_ids is None or list_subtitle_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
 		await cb.message.delete(True)
@@ -762,8 +762,6 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	if not os.path.exists(f'./downloads/{str(cb.from_user.id)}/'):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
 	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
-	_list = open(input_, 'a+')
-	_list.truncate(0)
 
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
@@ -812,7 +810,6 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			formatDB.update({cb.from_user.id: None})
 			await cb.message.edit('⚠️ Video is corrupted')
 			return
-	
 
 	_cache = list()
 	for i in range(len(vid_list)):
@@ -820,7 +817,8 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			_cache.append(vid_list[i])
 	vid_list = _cache
 	await cb.message.edit(f"🔀 Trying to merge videos ...")
-	_list.write("\n".join(vid_list))
+	with open(input_,'w') as _list:
+		_list.write("\n".join(vid_list))
 	merged_video_path = await MergeVideo(
 		input_file=input_,
 		user_id=cb.from_user.id,
