@@ -2,33 +2,9 @@ import time
 import math
 import asyncio
 from pyrogram.types import Message
+from pyrogram.errors.exceptions import FloodWait
 from config import Config
 import pyrogram
-
-def timeFormatter(milliseconds: int) -> str:
-	seconds, milliseconds = divmod(int(milliseconds),1000)
-	minutes, seconds = divmod(seconds,60)
-	hours, minutes = divmod(minutes,60)
-	days,hours = divmod(hours,24)
-	tmp = ((str(days) + "d, ") if days else "")+\
-		((str(hours) + "h, ") if hours else "") + \
-			((str(minutes) + "m, ") if minutes else "") + \
-				((str(seconds) + "s, ") if seconds else "") + \
-					((str(milliseconds) + "ms, ") if milliseconds else "")
-	return tmp[:-2]
-
-def humanbytes(size):
-	# https://stackoverflow.com/a/49361727/4723940
-    # 2**10 = 1024
-	if not size:
-		return ''
-	power = 2**10
-	n = 0
-	power_dict = {0: ' ', 1: 'Ki', 2: 'Mi', 3: 'Gi', 4: 'Ti'}
-	while size > power:
-		size /= power
-		n+=1
-	return str(round(size,2)) + " " + power_dict[n] + 'B'
 
 async def progress_for_pyrogram(current: int, total: int, ud_type: str, message: Message, start):
 	now = time.time()
@@ -57,6 +33,32 @@ async def progress_for_pyrogram(current: int, total: int, ud_type: str, message:
 		try:
 			await message.edit(text=f'**{ud_type}**\n\n{tmp}',parse_mode='markdown')
 			await asyncio.sleep(4)
+		except FloodWait as f_e:
+			time.sleep(f_e.x)
 		except:
 			pass
-		
+
+def timeFormatter(milliseconds: int) -> str:
+	seconds, milliseconds = divmod(int(milliseconds),1000)
+	minutes, seconds = divmod(seconds,60)
+	hours, minutes = divmod(minutes,60)
+	days,hours = divmod(hours,24)
+	tmp = ((str(days) + "d, ") if days else "")+\
+		((str(hours) + "h, ") if hours else "") + \
+			((str(minutes) + "m, ") if minutes else "") + \
+				((str(seconds) + "s, ") if seconds else "") + \
+					((str(milliseconds) + "ms, ") if milliseconds else "")
+	return tmp[:-2]
+
+def humanbytes(size):
+	# https://stackoverflow.com/a/49361727/4723940
+    # 2**10 = 1024
+	if not size:
+		return ''
+	power = 2**10
+	n = 0
+	power_dict = {0: ' ', 1: 'Ki', 2: 'Mi', 3: 'Gi', 4: 'Ti'}
+	while size > power:
+		size /= power
+		n+=1
+	return str(round(size,2)) + " " + power_dict[n] + 'B'

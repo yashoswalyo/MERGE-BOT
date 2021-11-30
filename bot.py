@@ -616,6 +616,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 
 	elif cb.data.startswith('removeFile_'):
+		sIndex = queueDB.get(cb.from_user.id)['videos'].index(int(cb.data.split("_", 1)[-1]))
 		queueDB.get(cb.from_user.id)['videos'].remove(int(cb.data.split("_", 1)[-1]))
 		await showQueue(c,cb)
 		return
@@ -654,7 +655,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		try:
 			c_time = time.time()
 			file_dl_path = await c.download_media(
-				message=i,
+				message=i.document,
 				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
 				progress=progress_for_pyrogram,
 				progress_args=(
