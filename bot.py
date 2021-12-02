@@ -754,7 +754,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	list_message_ids = queueDB.get(cb.from_user.id)["videos"]
 	list_message_ids.sort()
 	list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
-	list_subtitle_ids.sort()
+	# list_subtitle_ids.sort()
 	print(list_message_ids,list_subtitle_ids)
 	if list_message_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
