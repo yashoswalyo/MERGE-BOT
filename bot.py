@@ -12,6 +12,7 @@ from hachoir.parser import createParser
 from PIL import Image
 from pyrogram import Client, filters
 from pyrogram.errors import MessageNotModified
+from pyrogram.errors.rpc_error import UnknownError
 from pyrogram.errors.exceptions.flood_420 import FloodWait
 from pyrogram.types import (CallbackQuery, InlineKeyboardButton,InlineKeyboardMarkup, Message)
 from pyromod import listen
@@ -669,7 +670,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
-			queueDB.get(cb.from_user.id).remove(i.message_id)
+			queueDB.get(cb.from_user.id)['videos'].remove(i.message_id)
 			await cb.message.edit("❗File Skipped!")
 			await asyncio.sleep(3)
 			await cb.message.delete(True)
@@ -681,7 +682,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	if subbed_video is None:
 		await cb.message.edit("❌ Failed to add subs video !")
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
 	await cb.message.edit("✅ Sucessfully Muxed Video !")
@@ -695,7 +696,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	if file_size > 2044723200:
 		await cb.message.edit("Video is Larger than 2GB Can't Upload")
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
 	await cb.message.edit("🎥 Extracting Video Data ...")
@@ -712,7 +713,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			height = metadata.get("height")
 	except:
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-		queueDB.update({cb.from_user.id: []})
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("⭕ Merged Video is corrupted")
 		return
@@ -737,7 +738,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
-	queueDB.update({cb.from_user.id: []})
+	queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 	formatDB.update({cb.from_user.id: None})
 	return
 
@@ -755,19 +756,18 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
 	list_subtitle_ids.sort()
 	print(list_message_ids,list_subtitle_ids)
-	if list_message_ids is None or list_subtitle_ids is None:
+	if list_message_ids is None:
 		await cb.answer("Queue Empty",show_alert=True)
 		await cb.message.delete(True)
 		return
 	if not os.path.exists(f'./downloads/{str(cb.from_user.id)}/'):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
 	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
-
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
 		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
 		print(f'📥 Starting Download of ... {media.file_name}')
-		await asyncio.sleep(5)
+		time.sleep(5)
 		file_dl_path = None
 		sub_dl_path = None
 		try:
@@ -782,15 +782,18 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 					c_time
 				)
 			)
-			await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
-			print(f"Downloaded Sucessfully:- {media.file_name}")
-			await asyncio.sleep(3)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id)["video"].remove(i.message_id)
 			await cb.message.edit("❗File Skipped!")
-			await asyncio.sleep(3)
+			time.sleep(4)
 			continue
+		except UnknownError as e:
+			print("e")
+			pass
+		await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
+		print(f"Downloaded Sucessfully:- {media.file_name}")
+		time.sleep(4)
 		if list_subtitle_ids[sIndex] is not None:
 			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
 			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
