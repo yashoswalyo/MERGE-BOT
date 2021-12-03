@@ -773,11 +773,11 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		try:
 			c_time = time.time()
 			file_dl_path = await c.download_media(
-				message=i,
+				message=media,
 				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
 				progress=progress_for_pyrogram,
 				progress_args=(
-					'🚀 Downloading...',
+					f"🚀 Downloading: {media.file_name}",
 					cb.message,
 					c_time
 				)
@@ -793,7 +793,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			pass
 		await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
 		print(f"Downloaded Sucessfully:- {media.file_name}")
-		time.sleep(4)
+		time.sleep(5)
 		if list_subtitle_ids[sIndex] is not None:
 			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
 			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
