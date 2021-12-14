@@ -651,7 +651,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		media = i.video or i.document
 		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
 		print(f'📥 Starting Download of ... {media.file_name}')
-		await asyncio.sleep(5)
+		time.sleep(5)
 		file_dl_path = None
 		try:
 			c_time = time.time()
@@ -667,12 +667,12 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			)
 			await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
 			print(f"Downloaded Sucessfully:- {media.file_name}")
-			await asyncio.sleep(3)
+			time.sleep(4)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id)['videos'].remove(i.message_id)
 			await cb.message.edit("❗File Skipped!")
-			await asyncio.sleep(3)
+			time.sleep(4)
 			await cb.message.delete(True)
 			continue
 		vid_list.append(f"{file_dl_path}")
@@ -857,16 +857,16 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 
 	await cb.message.edit("🎥 Extracting Video Data ...")
 	duration = 1
-	width = 100
-	height = 100
+	width = 1280
+	height = 720
 	try:
 		metadata = extractMetadata(createParser(merged_video_path))
 		if metadata.has("duration"):
 			duration = metadata.get("duration").seconds
-		if metadata.has("width"):
-			width = metadata.get("width")
-		if metadata.has("height"):
-			height = metadata.get("height")
+		# if metadata.has("width"):
+		# 	width = metadata.get("width")
+		# if metadata.has("height"):
+		# 	height = metadata.get("height")
 	except:
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
