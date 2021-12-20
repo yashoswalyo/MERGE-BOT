@@ -134,33 +134,33 @@ async def cult_small_video(video_file, output_directory, start_time, end_time, f
 		return None
 
 
-async def generate_screen_shots(video_file, output_directory, no_of_photos, duration):
-	images = list()
-	ttl_step = duration // no_of_photos
-	current_ttl = ttl_step
-	for looper in range(no_of_photos):
-		await asyncio.sleep(1)
-		video_thumbnail = f"{output_directory}/{str(time.time())}.jpg"
-		file_generator_command = [
+async def take_screen_shot(video_file, output_directory, ttl):
+	# https://stackoverflow.com/a/13891070/4723940
+	out_put_file_name = os.path.join(output_directory, str(time.time()) + ".jpg")
+	if video_file.upper().endswith(("MKV", "MP4", "WEBM", "AVI", "MOV", "OGG", "WMV", "M4V", "TS", "MPG", "MTS", "M2TS", "3GP")):
+		file_genertor_command = [
 			"ffmpeg",
 			"-ss",
-			str(round(current_ttl)),
+			str(ttl),
 			"-i",
 			video_file,
 			"-vframes",
 			"1",
-			video_thumbnail
+			out_put_file_name,
 		]
+		# width = "90"
 		process = await asyncio.create_subprocess_exec(
-			*file_generator_command,
+			*file_genertor_command,
+			# stdout must a pipe to be accessible as process.stdout
 			stdout=asyncio.subprocess.PIPE,
 			stderr=asyncio.subprocess.PIPE,
 		)
+		# Wait for the subprocess to finish
 		stdout, stderr = await process.communicate()
 		e_response = stderr.decode().strip()
 		t_response = stdout.decode().strip()
-		print(e_response)
-		print(t_response)
-		current_ttl += ttl_step
-		images.append(video_thumbnail)
-	return images
+	#
+	if os.path.lexists(out_put_file_name):
+		return out_put_file_name
+	else:
+		return None

@@ -20,7 +20,7 @@ from pyromod import listen
 from config import Config
 from helpers import database
 from helpers.display_progress import progress_for_pyrogram
-from helpers.ffmpeg import MergeSub, MergeVideo, MergeSubNew
+from helpers.ffmpeg import MergeSub, MergeVideo, MergeSubNew, take_screen_shot
 from helpers.uploader import uploadVideo
 from helpers.utils import get_readable_time, get_readable_file_size
 from helpers.rclone_upload import rclone_driver, rclone_upload
@@ -700,31 +700,44 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		formatDB.update({cb.from_user.id: None})
 		return
 	await cb.message.edit("🎥 Extracting Video Data ...")
+
 	duration = 1
-	width = 100
-	height = 100
 	try:
 		metadata = extractMetadata(createParser(merged_video_path))
 		if metadata.has("duration"):
 			duration = metadata.get("duration").seconds
-		if metadata.has("width"):
-			width = metadata.get("width")
-		if metadata.has("height"):
-			height = metadata.get("height")
+	except Exception as er:
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
+		formatDB.update({cb.from_user.id: None})
+		await cb.message.edit("⭕ Merged Video is corrupted")
+		return
+	try:
+		thumb_id = await database.getThumb(cb.from_user.id)
+		LOCATION = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
+		await c.download_media(message=str(thumb_id),file_name=LOCATION)
+	except Exception as err:
+		print("Generating thumb")
+		video_thumbnail = take_screen_shot(merged_video_path,f"downloads/{str(cb.from_user.id)}",(duration / 2))
+	width = 1280
+	height = 720
+	try:
+		thumb = extractMetadata(createParser(video_thumbnail))
+		height = thumb.get("height")
+		width = thumb.get("width")
+		img = Image.open(video_thumbnail)
+		if width > height:
+			img.resize((320, height))
+		elif height > width:
+			img.resize((width,320))
+		img.save(video_thumbnail)
+		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail,"JPEG")
 	except:
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("⭕ Merged Video is corrupted")
 		return
-	video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
-	if os.path.exists(video_thumbnail) is False:
-		video_thumbnail=f"./assets/default_thumb.jpg"
-	else:
-		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
-		img = Image.open(video_thumbnail)
-		# img.resize(width,height)
-		img.save(video_thumbnail,"JPEG")
 	await uploadVideo(
 		c=c,
 		cb=cb,
@@ -857,30 +870,42 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 
 	await cb.message.edit("🎥 Extracting Video Data ...")
 	duration = 1
-	width = 1280
-	height = 720
 	try:
 		metadata = extractMetadata(createParser(merged_video_path))
 		if metadata.has("duration"):
 			duration = metadata.get("duration").seconds
-		# if metadata.has("width"):
-		# 	width = metadata.get("width")
-		# if metadata.has("height"):
-		# 	height = metadata.get("height")
+	except Exception as er:
+		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
+		formatDB.update({cb.from_user.id: None})
+		await cb.message.edit("⭕ Merged Video is corrupted")
+		return
+	try:
+		thumb_id = await database.getThumb(cb.from_user.id)
+		LOCATION = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
+		await c.download_media(message=str(thumb_id),file_name=LOCATION)
+	except Exception as err:
+		print("Generating thumb")
+		video_thumbnail = take_screen_shot(merged_video_path,f"downloads/{str(cb.from_user.id)}",(duration / 2))
+	width = 1280
+	height = 720
+	try:
+		thumb = extractMetadata(createParser(video_thumbnail))
+		height = thumb.get("height")
+		width = thumb.get("width")
+		img = Image.open(video_thumbnail)
+		if width > height:
+			img.resize((320, height))
+		elif height > width:
+			img.resize((width,320))
+		img.save(video_thumbnail)
+		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail,"JPEG")
 	except:
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("⭕ Merged Video is corrupted")
 		return
-	video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
-	if os.path.exists(video_thumbnail) is False:
-		video_thumbnail=f"./assets/default_thumb.jpg"
-	else:
-		Image.open(video_thumbnail).convert("RGB").save(video_thumbnail)
-		img = Image.open(video_thumbnail)
-		# img.resize(width,height)
-		img.save(video_thumbnail,"JPEG")
 	await uploadVideo(
 		c=c,
 		cb=cb,
@@ -917,5 +942,6 @@ async def MakeButtons(bot: Client, m: Message, db: dict):
 	return markup
 
 
-
-mergeApp.run()
+if __name__ == '__main__':	
+	mergeApp.run()
+	mergeApp.send_message(chat_id=Config.OWNER,text="Bot is booted")
