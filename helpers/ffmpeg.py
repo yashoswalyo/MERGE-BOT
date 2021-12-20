@@ -160,7 +160,7 @@ async def take_screen_shot(video_file, output_directory, ttl):
 		e_response = stderr.decode().strip()
 		t_response = stdout.decode().strip()
 	#
-	if os.path.lexists(out_put_file_name):
+	if os.path.exists(out_put_file_name):
 		return out_put_file_name
 	else:
 		return None

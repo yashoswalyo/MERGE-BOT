@@ -297,15 +297,10 @@ async def show_thumbnail(c:Client ,m: Message):
 @mergeApp.on_message(filters.command(['deletethumbnail']) & filters.private & ~filters.edited)
 async def delete_thumbnail(c: Client,m: Message):
 	try:
-		thumb_id = await database.getThumb(m.from_user.id)
-		LOCATION = f'./downloads/{m.from_user.id}_thumb.jpg'
-		await c.download_media(message=str(thumb_id),file_name=LOCATION)
-		if os.path.exists(LOCATION) is False:
-			await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
-		else:
-			await database.delThumb(m.from_user.id)
-			os.remove(LOCATION)
-			await m.reply_text('✅ Deleted Sucessfully',quote=True)
+		await database.delThumb(m.from_user.id)
+		if os.path.exists(f"downloads/{str(m.from_user.id)}"):
+			os.remove(f"downloads/{str(m.from_user.id)}")
+		await m.reply_text('✅ Deleted Sucessfully',quote=True)
 	except Exception as err:
 		await m.reply_text(text='❌ Custom thumbnail not found',quote=True)
 
@@ -714,11 +709,11 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		return
 	try:
 		thumb_id = await database.getThumb(cb.from_user.id)
-		LOCATION = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
-		await c.download_media(message=str(thumb_id),file_name=LOCATION)
+		video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
+		await c.download_media(message=str(thumb_id),file_name=video_thumbnail)
 	except Exception as err:
 		print("Generating thumb")
-		video_thumbnail = take_screen_shot(merged_video_path,f"downloads/{str(cb.from_user.id)}",(duration / 2))
+		video_thumbnail = await take_screen_shot(merged_video_path,f"downloads/{str(cb.from_user.id)}",(duration / 2))
 	width = 1280
 	height = 720
 	try:
@@ -882,11 +877,11 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		return
 	try:
 		thumb_id = await database.getThumb(cb.from_user.id)
-		LOCATION = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
-		await c.download_media(message=str(thumb_id),file_name=LOCATION)
+		video_thumbnail = f'./downloads/{str(cb.from_user.id)}_thumb.jpg'
+		await c.download_media(message=str(thumb_id),file_name=video_thumbnail)
 	except Exception as err:
 		print("Generating thumb")
-		video_thumbnail = take_screen_shot(merged_video_path,f"downloads/{str(cb.from_user.id)}",(duration / 2))
+		video_thumbnail = await take_screen_shot(merged_video_path,f"downloads/{str(cb.from_user.id)}",(duration / 2))
 	width = 1280
 	height = 720
 	try:
@@ -944,4 +939,3 @@ async def MakeButtons(bot: Client, m: Message, db: dict):
 
 if __name__ == '__main__':	
 	mergeApp.run()
-	mergeApp.send_message(chat_id=Config.OWNER,text="Bot is booted")
