@@ -16,10 +16,10 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 
 ```diff
 - WHAT'S NEW:
-
++ Add subtitles through file menu (UNSTABLE)
 + Option to add subtitles to telegram video
 #  1. First send video.
-#  2. Then send subtitle in .srt format only.
+#  2. Then send subtitle in .srt format only (you can send as many subs as you want).
 #  3. Tap Merge Subtitle button.
 + Upload Files to Drive (Send your rclone config to bot)
 #  1. Send your rclone config to bot.
@@ -34,7 +34,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Owner can broadcast message to all users
 
 - TO DO:
-+ Option to add subtitles to telegram video
++ Add CANCEL button
 ```
 
 ## Deploy(at your own risk) :
