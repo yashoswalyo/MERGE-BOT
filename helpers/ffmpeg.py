@@ -12,10 +12,10 @@ from pyrogram.types import Message
 async def MergeVideo(input_file: str, user_id: int, message: Message, format_: str):
 	"""
 	This is for Merging Videos Together!
-	:param input_file: input.txt file's location.
-	:param user_id: Pass user_id as integer.
-	:param message: Pass Editable Message for Showing FFmpeg Progress.
-	:param format_: Pass File Extension.
+	:param `input_file`: input.txt file's location.
+	:param `user_id`: Pass user_id as integer.
+	:param `message`: Pass Editable Message for Showing FFmpeg Progress.
+	:param `format_`: Pass File Extension.
 	:return: This will return Merged Video File Path
 	"""
 	output_vid = f"downloads/{str(user_id)}/[@yashoswalyo].{format_.lower()}"
@@ -58,6 +58,16 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
 		return None
 
 async def MergeSub(filePath:str, subPath:str, user_id):
+	"""
+	This is for Merging Video + Subtitle Together.
+
+	Parameters:
+	- `filePath`: Path to Video file.
+	- `subPath`: Path to subtitile file.
+	- `user_id`: To get parent directory.
+
+	returns: Merged Video File Path
+	"""
 	print("Generating mux command")
 	input_files = ""
 	maps = ""
@@ -78,7 +88,18 @@ async def MergeSub(filePath:str, subPath:str, user_id):
 	return orgFilePath
 
 
-async def MergeSubNew(filePath:str, subPath:str, user_id, vid_list):
+async def MergeSubNew(filePath:str, subPath:str, user_id, file_list):
+	'''
+	This is for Merging Video + Subtitle(s) Together.
+
+	Parameters:
+	- `filePath`: Path to Video file.
+	- `subPath`: Path to subtitile file.
+	- `user_id`: To get parent directory.
+	- `file_list`: List of all input files
+
+	returns: Merged Video File Path
+	'''
 	print("Generating mux command")
 	input_files = ""
 	maps = ""
@@ -89,9 +110,9 @@ async def MergeSubNew(filePath:str, subPath:str, user_id, vid_list):
 	for i in range(len(videoStreamsData)):
 		if videoStreamsData[i]['codec_type'] == 'subtitle':
 			subTrack+=1
-	for i in vid_list:
+	for i in file_list:
 		input_files += f"-i '{i}' "
-	for j in range(1,(len(vid_list))):
+	for j in range(1,(len(file_list))):
 		maps += f"-map {j}:s "
 		metadata += f"-metadata:s:s:{subTrack} title='Track {subTrack+1} - tg@yashoswalyo' "
 		subTrack +=1
@@ -135,6 +156,17 @@ async def cult_small_video(video_file, output_directory, start_time, end_time, f
 
 
 async def take_screen_shot(video_file, output_directory, ttl):
+	'''
+	This functions generates custom_thumbnail / Screenshot.
+
+	Parameters:
+
+	- `video_file`: Path to video file.
+	- `output_directory`: Path where to save thumbnail
+	- `ttl`: Timestamp to generate ss
+
+	returns: This will return path of screenshot
+	'''
 	# https://stackoverflow.com/a/13891070/4723940
 	out_put_file_name = os.path.join(output_directory, str(time.time()) + ".jpg")
 	if video_file.upper().endswith(("MKV", "MP4", "WEBM", "AVI", "MOV", "OGG", "WMV", "M4V", "TS", "MPG", "MTS", "M2TS", "3GP")):
