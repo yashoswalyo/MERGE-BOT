@@ -19,7 +19,8 @@ from pyromod import listen
 
 from config import Config
 from helpers import database
-from helpers.display_progress import progress_for_pyrogram
+from __init__ import LOGGER, gDict, upload_as_doc, upload_to_drive
+from helpers.display_progress import Progress
 from helpers.ffmpeg import MergeSub, MergeVideo, MergeSubNew, take_screen_shot
 from helpers.uploader import uploadVideo
 from helpers.utils import get_readable_time, get_readable_file_size
@@ -316,14 +317,15 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('📤 To Telegram', callback_data = 'to_telegram'),
 						InlineKeyboardButton('🌫️ To Drive', callback_data = 'to_drive')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
 		return
 
 	elif cb.data == "mergeSubtitles":
-		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
+		upload_to_drive.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='How do yo want to upload file',
 			reply_markup=InlineKeyboardMarkup(
@@ -331,7 +333,8 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('🎞️ Video', callback_data='videoS'),
 						InlineKeyboardButton('📁 File', callback_data='documentS')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
@@ -349,7 +352,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 			formatDB.update({cb.from_user.id: None})
 			return
-		Config.upload_to_drive.update({f'{cb.from_user.id}':True})
+		upload_to_drive.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text="Okay I'll upload to drive\nDo you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**",
 			reply_markup=InlineKeyboardMarkup(
@@ -357,14 +360,15 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('👆 Default', callback_data='rename_NO'),
 						InlineKeyboardButton('✍️ Rename', callback_data='rename_YES')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
 		return
 	
 	elif cb.data == 'to_telegram':
-		Config.upload_to_drive.update({f'{cb.from_user.id}':False})
+		upload_to_drive.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='How do yo want to upload file',
 			reply_markup=InlineKeyboardMarkup(
@@ -372,14 +376,15 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('🎞️ Video', callback_data='video'),
 						InlineKeyboardButton('📁 File', callback_data='document')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
 		return
 	
 	elif cb.data == 'document':
-		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
+		upload_as_doc.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -387,14 +392,15 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('👆 Default', callback_data='rename_NO'),
 						InlineKeyboardButton('✍️ Rename', callback_data='rename_YES')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
 		return
 	
 	elif cb.data == 'video':
-		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
+		upload_as_doc.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -402,14 +408,15 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('👆 Default', callback_data='rename_NO'),
 						InlineKeyboardButton('✍️ Rename', callback_data='rename_YES')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
 		return
 	
 	elif cb.data == 'documentS':
-		Config.upload_as_doc.update({f'{cb.from_user.id}':True})
+		upload_as_doc.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -417,14 +424,15 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('👆 Default', callback_data='renameS_NO'),
 						InlineKeyboardButton('✍️ Rename', callback_data='renameS_YES')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
 		return
 	
 	elif cb.data == 'videoS':
-		Config.upload_as_doc.update({f'{cb.from_user.id}':False})
+		upload_as_doc.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text=f"Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
 			reply_markup=InlineKeyboardMarkup(
@@ -432,7 +440,8 @@ async def callback(c: Client, cb: CallbackQuery):
 					[
 						InlineKeyboardButton('👆 Default', callback_data='renameS_NO'),
 						InlineKeyboardButton('✍️ Rename', callback_data='renameS_YES')
-					]
+					],
+					[InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")]
 				]
 			)
 		)
@@ -481,13 +490,32 @@ async def callback(c: Client, cb: CallbackQuery):
 			await mergeSub(c,cb,new_file_name = f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_softmuxed_video.mkv")
 
 	elif cb.data == 'cancel':
-		print("beta branch")
 		await delete_all(root=f"downloads/{cb.from_user.id}/")
 		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		await cb.message.edit("Sucessfully Cancelled")
 		await asyncio.sleep(5)
 		await cb.message.delete(True)
+		return
+
+	elif cb.data.startswith("gUPcancel"):
+		cmf = cb.data.split("/")
+		chat_id, mes_id, from_usr = cmf[1], cmf[2], cmf[3]
+		if (int(cb.from_user.id) == int(from_usr)):
+			await c.answer_callback_query(
+				cb.id, text="Going to Cancel . . . 🛠", show_alert=False
+			)
+			gDict[int(chat_id)].append(int(mes_id))
+		else:
+			await c.answer_callback_query(
+				callback_query_id=cb.id,
+				text="⚠️ Opps ⚠️ \n I Got a False Visitor 🚸 !! \n\n 📛 Stay At Your Limits !!📛",
+				show_alert=True,
+				cache_time=0,
+			)
+		await delete_all(root=f"downloads/{cb.from_user.id}/")
+		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
+		formatDB.update({cb.from_user.id: None})
 		return
 
 	elif cb.data == 'close':
@@ -650,16 +678,18 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		file_dl_path = None
 		try:
 			c_time = time.time()
+			prog = Progress(cb.from_user.id,c,cb.message)
 			file_dl_path = await c.download_media(
 				message=i.document,
 				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
-				progress=progress_for_pyrogram,
+				progress=prog.progress_for_pyrogram,
 				progress_args=(
 					f"🚀 Downloading: {media.file_name}",
-					cb.message,
 					c_time
 				)
 			)
+			if gDict[cb.message.chat.id] and cb.message.message_id in gDict[cb.message.chat.id]:
+				return
 			await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
 			print(f"Downloaded Sucessfully:- {media.file_name}")
 			time.sleep(4)
@@ -742,7 +772,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		duration=duration,
 		video_thumbnail=video_thumbnail,
 		file_size=os.path.getsize(merged_video_path),
-		upload_mode=Config.upload_as_doc[f'{cb.from_user.id}']
+		upload_mode=upload_as_doc[f'{cb.from_user.id}']
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
@@ -780,16 +810,18 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		sub_dl_path = None
 		try:
 			c_time = time.time()
+			prog = Progress(cb.from_user.id,c,cb.message)
 			file_dl_path = await c.download_media(
 				message=media,
 				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
-				progress=progress_for_pyrogram,
+				progress=prog.progress_for_pyrogram,
 				progress_args=(
 					f"🚀 Downloading: {media.file_name}",
-					cb.message,
 					c_time
 				)
 			)
+			if gDict[cb.message.chat.id] and cb.message.message_id in gDict[cb.message.chat.id]:
+				return
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id)["video"].remove(i.message_id)
@@ -805,7 +837,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		if list_subtitle_ids[sIndex] is not None:
 			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
 			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
-			print("Got sub",a.document.file_name)
+			print("Got sub: ",a.document.file_name)
 			file_dl_path = await MergeSub(file_dl_path,sub_dl_path,cb.from_user.id)
 			print("Added subs")
 		sIndex += 1
@@ -850,7 +882,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	await cb.message.edit(f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
 	await asyncio.sleep(1)
 	merged_video_path = new_file_name
-	if Config.upload_to_drive[f'{cb.from_user.id}']:
+	if upload_to_drive[f'{cb.from_user.id}']:
 		await rclone_driver(omess,cb,merged_video_path)
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
@@ -910,7 +942,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		duration=duration,
 		video_thumbnail=video_thumbnail,
 		file_size=os.path.getsize(merged_video_path),
-		upload_mode=Config.upload_as_doc[f'{cb.from_user.id}']
+		upload_mode=upload_as_doc[f'{cb.from_user.id}']
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')

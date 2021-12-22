@@ -53,6 +53,7 @@ async def delThumb(uid):
 	db.mergebot.thumbnail.delete_many({
 		'_id':uid
 	})
+	return True
 
 async def getThumb(uid):
 	res = db.mergebot.thumbnail.find_one({"_id":uid})

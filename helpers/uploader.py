@@ -3,13 +3,14 @@ import time
 import asyncio
 from pyrogram import Client
 from pyrogram.types import InlineKeyboardButton,InlineKeyboardMarkup,CallbackQuery
-from helpers.display_progress import progress_for_pyrogram,humanbytes
+from helpers.display_progress import Progress
 from config import Config
 
 
 async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height,duration,video_thumbnail,file_size,upload_mode:bool):
 	try:
 		sent_ = None
+		prog = Progress(cb.from_user.id,c,cb.message)
 		if upload_mode is False:
 			c_time = time.time()
 			sent_ = await c.send_video(
@@ -20,10 +21,9 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 				duration=duration,
 				thumb=video_thumbnail,
 				caption=f"{merged_video_path.rsplit('/',1)[-1]}",
-				progress=progress_for_pyrogram,
+				progress=prog.progress_for_pyrogram,
 				progress_args=(
 					f"Uploading: {merged_video_path.rsplit('/',1)[-1]}",
-					cb.message,
 					c_time
 				)
 			)
@@ -34,10 +34,9 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 				document=merged_video_path,
 				thumb=video_thumbnail,
 				caption=f"**File Name: {merged_video_path.rsplit('/',1)[-1]}**",
-				progress=progress_for_pyrogram,
+				progress=prog.progress_for_pyrogram,
 				progress_args=(
 					f"Uploading: {merged_video_path.rsplit('/',1)[-1]}",
-					cb.message,
 					c_time
 				)
 			)
