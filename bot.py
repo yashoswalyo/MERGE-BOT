@@ -700,7 +700,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			continue
 		vid_list.append(f"{file_dl_path}")
 
-	subbed_video = await MergeSubNew(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id, vid_list=vid_list)
+	subbed_video = await MergeSubNew(filePath=vid_list[0], subPath=vid_list[1],user_id=cb.from_user.id, file_list=vid_list)
 	_cache = list()
 	if subbed_video is None:
 		await cb.message.edit("❌ Failed to add subs video !")
