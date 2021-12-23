@@ -20,7 +20,7 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 				width=width,
 				duration=duration,
 				thumb=video_thumbnail,
-				caption=f"{merged_video_path.rsplit('/',1)[-1]}",
+				caption=f"`{merged_video_path.rsplit('/',1)[-1]}`",
 				progress=prog.progress_for_pyrogram,
 				progress_args=(
 					f"Uploading: `{merged_video_path.rsplit('/',1)[-1]}`",
@@ -33,7 +33,7 @@ async def uploadVideo(c: Client,cb: CallbackQuery,merged_video_path,width,height
 				chat_id=cb.message.chat.id,
 				document=merged_video_path,
 				thumb=video_thumbnail,
-				caption=f"**File Name: {merged_video_path.rsplit('/',1)[-1]}**",
+				caption=f"`{merged_video_path.rsplit('/',1)[-1]}`",
 				progress=prog.progress_for_pyrogram,
 				progress_args=(
 					f"Uploading: `{merged_video_path.rsplit('/',1)[-1]}`",
