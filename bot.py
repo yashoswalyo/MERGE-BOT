@@ -19,7 +19,7 @@ from pyromod import listen
 
 from config import Config
 from helpers import database
-from __init__ import LOGGER, gDict, upload_as_doc, upload_to_drive
+from __init__ import LOGGER, gDict, UPLOAD_AS_DOC, UPLOAD_TO_DRIVE, queueDB, formatDB, replyDB
 from helpers.display_progress import Progress
 from helpers.ffmpeg import MergeSub, MergeVideo, MergeSubNew, take_screen_shot
 from helpers.uploader import uploadVideo
@@ -42,9 +42,7 @@ if os.path.exists('./downloads') == False:
 	os.makedirs('./downloads')
 
 
-queueDB={}
-formatDB={}
-replyDB={}
+
 
 @mergeApp.on_message( filters.command(['login']) & filters.private & ~filters.edited )
 async def allowUser(c:Client, m: Message):
@@ -325,7 +323,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 
 	elif cb.data == "mergeSubtitles":
-		upload_to_drive.update({f'{cb.from_user.id}':False})
+		UPLOAD_TO_DRIVE.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='How do yo want to upload file',
 			reply_markup=InlineKeyboardMarkup(
@@ -352,7 +350,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 			formatDB.update({cb.from_user.id: None})
 			return
-		upload_to_drive.update({f'{cb.from_user.id}':True})
+		UPLOAD_TO_DRIVE.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text="Okay I'll upload to drive\nDo you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**",
 			reply_markup=InlineKeyboardMarkup(
@@ -368,7 +366,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 	
 	elif cb.data == 'to_telegram':
-		upload_to_drive.update({f'{cb.from_user.id}':False})
+		UPLOAD_TO_DRIVE.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='How do yo want to upload file',
 			reply_markup=InlineKeyboardMarkup(
@@ -384,7 +382,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 	
 	elif cb.data == 'document':
-		upload_as_doc.update({f'{cb.from_user.id}':True})
+		UPLOAD_AS_DOC.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -400,7 +398,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 	
 	elif cb.data == 'video':
-		upload_as_doc.update({f'{cb.from_user.id}':False})
+		UPLOAD_AS_DOC.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_merged.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -416,7 +414,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 	
 	elif cb.data == 'documentS':
-		upload_as_doc.update({f'{cb.from_user.id}':True})
+		UPLOAD_AS_DOC.update({f'{cb.from_user.id}':True})
 		await cb.message.edit(
 			text='Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**',
 			reply_markup=InlineKeyboardMarkup(
@@ -432,7 +430,7 @@ async def callback(c: Client, cb: CallbackQuery):
 		return
 	
 	elif cb.data == 'videoS':
-		upload_as_doc.update({f'{cb.from_user.id}':False})
+		UPLOAD_AS_DOC.update({f'{cb.from_user.id}':False})
 		await cb.message.edit(
 			text=f"Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
 			reply_markup=InlineKeyboardMarkup(
@@ -772,7 +770,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		duration=duration,
 		video_thumbnail=video_thumbnail,
 		file_size=os.path.getsize(merged_video_path),
-		upload_mode=upload_as_doc[f'{cb.from_user.id}']
+		upload_mode=UPLOAD_AS_DOC[f'{cb.from_user.id}']
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
@@ -882,7 +880,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	await cb.message.edit(f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
 	await asyncio.sleep(1)
 	merged_video_path = new_file_name
-	if upload_to_drive[f'{cb.from_user.id}']:
+	if UPLOAD_TO_DRIVE[f'{cb.from_user.id}']:
 		await rclone_driver(omess,cb,merged_video_path)
 		await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
 		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
@@ -942,7 +940,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		duration=duration,
 		video_thumbnail=video_thumbnail,
 		file_size=os.path.getsize(merged_video_path),
-		upload_mode=upload_as_doc[f'{cb.from_user.id}']
+		upload_mode=UPLOAD_AS_DOC[f'{cb.from_user.id}']
 	)
 	await cb.message.delete(True)
 	await delete_all(root=f'./downloads/{str(cb.from_user.id)}')
