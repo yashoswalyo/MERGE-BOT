@@ -468,7 +468,7 @@ async def callback(c: Client, cb: CallbackQuery):
 			)
 			res: Message = await c.listen( cb.message.chat.id,filters=filters.text, timeout=60 )
 			if res.text :
-				new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','.')}.mkv"
+				new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','_')}.mkv"
 				await res.delete(True)
 				await mergeNow(c,cb,new_file_name)
 			return
