@@ -672,7 +672,7 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		os.makedirs(f'./downloads/{str(cb.from_user.id)}/')
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
-		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
+		await cb.message.edit(f'📥 Starting Download of ... `{media.file_name}`')
 		print(f'📥 Starting Download of ... {media.file_name}')
 		time.sleep(5)
 		file_dl_path = None
@@ -681,17 +681,17 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 			prog = Progress(cb.from_user.id,c,cb.message)
 			file_dl_path = await c.download_media(
 				message=i.document,
-				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
+				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/vid.mkv",
 				progress=prog.progress_for_pyrogram,
 				progress_args=(
-					f"🚀 Downloading: {media.file_name}",
+					f"🚀 Downloading: `{media.file_name}`",
 					c_time
 				)
 			)
 			if gDict[cb.message.chat.id] and cb.message.message_id in gDict[cb.message.chat.id]:
 				return
-			await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
-			print(f"Downloaded Sucessfully:- {media.file_name}")
+			await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
+			print(f"Downloaded Sucessfully ... {media.file_name}")
 			time.sleep(4)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
@@ -803,7 +803,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 	input_ = f"./downloads/{str(cb.from_user.id)}/input.txt"
 	for i in (await c.get_messages(chat_id=cb.from_user.id,message_ids=list_message_ids)):
 		media = i.video or i.document
-		await cb.message.edit(f'📥 Starting Download of ... {media.file_name}')
+		await cb.message.edit(f'📥 Starting Download of ... `{media.file_name}`')
 		print(f'📥 Starting Download of ... {media.file_name}')
 		time.sleep(5)
 		file_dl_path = None
@@ -813,10 +813,10 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			prog = Progress(cb.from_user.id,c,cb.message)
 			file_dl_path = await c.download_media(
 				message=media,
-				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/",
+				file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/vid.mkv", #fix for filename with single quote(') in name
 				progress=prog.progress_for_pyrogram,
 				progress_args=(
-					f"🚀 Downloading: {media.file_name}",
+					f"🚀 Downloading: `{media.file_name}`",
 					c_time
 				)
 			)
@@ -831,8 +831,8 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		except UnknownError as e:
 			print("e")
 			pass
-		await cb.message.edit(f"Downloaded Sucessfully:- {media.file_name}")
-		print(f"Downloaded Sucessfully:- {media.file_name}")
+		await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
+		print(f"Downloaded Sucessfully ... {media.file_name}")
 		time.sleep(5)
 		if list_subtitle_ids[sIndex] is not None:
 			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
