@@ -820,6 +820,9 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 			)
 			if gDict[cb.message.chat.id] and cb.message.message_id in gDict[cb.message.chat.id]:
 				return
+			await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
+			print(f"Downloaded Sucessfully ... {media.file_name}")
+			time.sleep(5)
 		except Exception as downloadErr:
 			print(f"Failed to download Error: {downloadErr}")
 			queueDB.get(cb.from_user.id)["video"].remove(i.message_id)
@@ -829,9 +832,7 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		except UnknownError as e:
 			print("e")
 			pass
-		await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
-		print(f"Downloaded Sucessfully ... {media.file_name}")
-		time.sleep(5)
+		
 		if list_subtitle_ids[sIndex] is not None:
 			a = await c.get_messages(chat_id=cb.from_user.id,message_ids=list_subtitle_ids[sIndex])
 			sub_dl_path = await c.download_media(message=a,file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.message_id)}/")
