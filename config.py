@@ -9,3 +9,4 @@ class Config(object):
 	PASSWORD = os.getenv('PASSWORD','mergebot')
 	DATABASE_URL=os.environ.get("DATABASE_URL","")
 	FLAG = int(os.getenv('FLAG',1))		# Dont Change this(unfinished feature!!) or else bot will stop working
+	LOGCHANNEL = os.getenv('LOGCHANNEL') or None # Add channel id with -100 /\or/\ channel user name without @

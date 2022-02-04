@@ -4,7 +4,7 @@ from pyrogram.types import CallbackQuery
 
 from config import Config
 
-class db(object):
+class Database(object):
 	client = MongoClient(Config.DATABASE_URL)
 	mergebot = client.MergeBot
 
@@ -14,23 +14,23 @@ async def addUser(uid,fname,lname):
 			'_id': uid,
 			'name': f"{fname} {lname}",
 		}
-		db.mergebot.users.insert_one(userDetails)
+		Database.mergebot.users.insert_one(userDetails)
 		print(f"New user added id={uid}\n{fname} {lname} \n")
 	except DuplicateKeyError:
 		print(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
 	return
 
 async def broadcast():
-	a = db.mergebot.users.find({})
+	a = Database.mergebot.users.find({})
 	return a
 
 async def allowUser(uid):
-	a = db.mergebot.allowedUsers.insert_one(
+	a = Database.mergebot.allowedUsers.insert_one(
 		{'_id':uid,}
 	)
 
 async def allowedUser(uid):
-	a = db.mergebot.allowedUsers.find_one({'_id':uid})
+	a = Database.mergebot.allowedUsers.find_one({'_id':uid})
 	try:
 		if uid == a['_id']:
 			return True
@@ -39,36 +39,36 @@ async def allowedUser(uid):
 
 async def saveThumb(uid,fid):
 	try:
-		db.mergebot.thumbnail.insert_one({
+		Database.mergebot.thumbnail.insert_one({
 			'_id':uid,
 			'thumbid':fid
 		})
 	except DuplicateKeyError:
-		db.mergebot.thumbnail.replace_one(
+		Database.mergebot.thumbnail.replace_one(
 			{'_id':uid},
 			{'thumbid':fid}
 		)
 
 async def delThumb(uid):
-	db.mergebot.thumbnail.delete_many({
+	Database.mergebot.thumbnail.delete_many({
 		'_id':uid
 	})
 	return True
 
 async def getThumb(uid):
-	res = db.mergebot.thumbnail.find_one({"_id":uid})
+	res = Database.mergebot.thumbnail.find_one({"_id":uid})
 	return res['thumbid']
 
 async def deleteUser(uid):
-	db.mergebot.allowedUsers.delete_many({'_id':uid})
-	db.mergebot.users.delete_many({'_id':uid})
+	Database.mergebot.allowedUsers.delete_many({'_id':uid})
+	Database.mergebot.users.delete_many({'_id':uid})
 
 
 async def addUserRcloneConfig(cb:CallbackQuery, fileId):
 	try:
 		await cb.message.edit("Adding file to DB")
 		uid = cb.from_user.id
-		db.mergebot.rcloneData.insert_one({
+		Database.mergebot.rcloneData.insert_one({
 			'_id':uid,
 			'rcloneFileId':fileId
 		})
@@ -76,7 +76,7 @@ async def addUserRcloneConfig(cb:CallbackQuery, fileId):
 		print("Updating rclone")
 		await cb.message.edit("Updating file in DB")
 		uid = cb.from_user.id
-		db.mergebot.rcloneData.replace_one(
+		Database.mergebot.rcloneData.replace_one(
 			{'_id':uid},
 			{'rcloneFileId':fileId}
 		)
@@ -85,7 +85,7 @@ async def addUserRcloneConfig(cb:CallbackQuery, fileId):
 
 async def getUserRcloneConfig(uid):
 	try:
-		res = db.mergebot.rcloneData.find_one({'_id':uid})
+		res = Database.mergebot.rcloneData.find_one({'_id':uid})
 		return res['rcloneFileId'] 
 	except Exception as err:
 		return None
