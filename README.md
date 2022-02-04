@@ -32,9 +32,10 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Custom thumbnail support
 + Users can login to bot using password
 + Owner can broadcast message to all users
++ Log Channel to store all merged videos
 
 - TO DO:
-+ You tell
++ Add support to merge video with multiple audios
 ```
 
 ## Deploy(at your own risk) :
@@ -48,6 +49,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 5. `OWNER_USERNAME`: User name of bot owner
 6. `DATABASE_URL`: Enter your mongodb URI
 7. `PASSWORD`: Enter password to login bot
+8. `LOGCHANNEL`: Log channel will store all users merged videos
 
 ## Commands (add via @botfather) :
 ```sh
