@@ -20,14 +20,17 @@
 		"BOT_TOKEN": {
 			"description": "Get this from @BotFather XD"
 		},
+		"DATABASE_URL": {
+			"description": "Enter your mongodb URI"
+		},
+		"LOGCHANNEL":{
+			"description": "Add channel id with '-100' OR channel user name without '@'"
+		},
 		"OWNER": {
 			"description": "Enter bot owner's ID"
 		},
 		"OWNER_USERNAME": {
-			"description": "Bot Owner User Name"
-		},
-		"DATABASE_URL": {
-			"description": "Enter your mongodb URI"
+			"description": "Bot Owner User Name without '@'"
 		},
 		"PASSWORD": {
 			"description": "Enter password to login bot"
