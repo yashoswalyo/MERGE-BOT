@@ -35,7 +35,7 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Log Channel to store all merged videos
 
 - TO DO:
-+ Add support to merge video with multiple audios
++ Add support to merge multiple audios with video
 ```
 
 ## Deploy(at your own risk) :
