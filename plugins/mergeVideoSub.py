@@ -72,13 +72,16 @@ async def mergeSub(c:Client,cb:CallbackQuery,new_file_name:str):
 		queueDB.update({cb.from_user.id: {'videos':[],'subtitles':[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
-	await cb.message.edit("✅ Sucessfully Muxed Video !")
+	try:
+		await cb.message.edit("✅ Sucessfully Muxed Video !")
+	except MessageNotModified:
+		await cb.message.edit("Sucessfully Muxed Video ! ✅")
 	print(f"Video muxed for: {cb.from_user.first_name} ")
-	await asyncio.sleep(3)
+	time.sleep(3)
 	file_size = os.path.getsize(subbed_video)
 	os.rename(subbed_video,new_file_name)
 	await cb.message.edit(f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
-	await asyncio.sleep(2)
+	time.sleep(2)
 	merged_video_path = new_file_name
 	if file_size > 2044723200:
 		await cb.message.edit("Video is Larger than 2GB Can't Upload")
