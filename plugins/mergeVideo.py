@@ -11,6 +11,7 @@ from helpers.ffmpeg import MergeSub, MergeVideo, take_screen_shot
 from helpers.uploader import uploadVideo
 from helpers.rclone_upload import rclone_driver, rclone_upload
 from pyrogram.errors.rpc_error import UnknownError
+from pyrogram.errors import MessageNotModified
 from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
 from PIL import Image
@@ -110,13 +111,16 @@ async def mergeNow(c:Client, cb:CallbackQuery,new_file_name: str):
 		queueDB.update({cb.from_user.id: {"videos":[],"subtitles":[]}})
 		formatDB.update({cb.from_user.id: None})
 		return
-	await cb.message.edit("✅ Sucessfully Merged Video !")
+	try:
+		await cb.message.edit("✅ Sucessfully Merged Video !")
+	except MessageNotModified:
+		await cb.message.edit("Sucessfully Merged Video ! ✅")
 	print(f"Video merged for: {cb.from_user.first_name} ")
-	await asyncio.sleep(3)
+	time.sleep(3)
 	file_size = os.path.getsize(merged_video_path)
 	os.rename(merged_video_path,new_file_name)
 	await cb.message.edit(f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**")
-	await asyncio.sleep(1)
+	time.sleep(2)
 	merged_video_path = new_file_name
 	if UPLOAD_TO_DRIVE[f'{cb.from_user.id}']:
 		await rclone_driver(omess,cb,merged_video_path)

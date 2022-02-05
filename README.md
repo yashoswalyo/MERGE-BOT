@@ -1,5 +1,5 @@
 # MERGE-BOT
-### PR's welcomed
+## Stale branch
 <br>
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/yashoswalyo/MERGE-BOT?color=blue&style=flat)
