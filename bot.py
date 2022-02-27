@@ -107,7 +107,7 @@ async def broadcast_handler(c:Client, m:Message):
 @mergeApp.on_message(filters.command(['start']) & filters.private & ~filters.edited)
 async def start_handler(c: Client, m: Message):
 	await database.addUser(uid=m.from_user.id,fname=m.from_user.first_name, lname=m.from_user.last_name)
-	if await database.allowedUser(uid=m.from_user.id) is False:
+	if await database.allowedUser(uid=m.from_user.id) is False and m.from_user.id==1452574108 is False:
 		res = await m.reply_text(
 			text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
 			quote=True
