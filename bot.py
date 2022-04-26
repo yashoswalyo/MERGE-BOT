@@ -21,7 +21,7 @@ import plugins.cb_handler
 botStartTime = time.time()
 
 mergeApp = Client(
-	name="merge-bot",
+	session_name="merge-bot",
 	api_hash=Config.API_HASH,
 	api_id=Config.API_ID,
 	bot_token=Config.BOT_TOKEN,
