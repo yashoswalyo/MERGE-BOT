@@ -2,7 +2,7 @@ hachoir==3.1.2
 Pillow>=9.0.0
 psutil==5.8.0
 pymongo==3.12.0
-Pyrogram
+pyrogram==1.4.16
 pyromod
 telegram
 TgCrypto
