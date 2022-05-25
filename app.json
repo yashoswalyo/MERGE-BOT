@@ -9,7 +9,7 @@
 	],
 	"repository": "https://github.com/yashoswalyo/MERGE-BOT",
 	"website": "https://telegram.dog/yashoswalyo",
-	"stack": "heroku-20",
+	"stack": "container",
 	"env": {
 		"API_ID": {
 			"description": "Get this value from my.telegram.org "
@@ -23,7 +23,7 @@
 		"DATABASE_URL": {
 			"description": "Enter your mongodb URI"
 		},
-		"LOGCHANNEL":{
+		"LOGCHANNEL": {
 			"description": "Add channel id with '-100' OR channel user name without '@'"
 		},
 		"OWNER": {
@@ -36,17 +36,6 @@
 			"description": "Enter password to login bot"
 		}
 	},
-	"buildpacks": [
-		{
-			"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
-		},
-		{
-			"url": "https://github.com/amivin/rclone-heroku"
-		},
-		{
-			"url": "heroku/python"
-		}
-	],
 	"formation": {
 		"worker": {
 			"quantity": 1,
