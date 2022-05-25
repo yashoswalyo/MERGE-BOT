@@ -3,7 +3,10 @@ FROM ubuntu:latest
 WORKDIR /usr/src/mergebot
 RUN chmod 777 /usr/src/mergebot
 
-RUN apt-get update && apt-get install -y python3 python3-pip curl ffmpeg
+RUN apt-get -y update && apt-get -y upgrade && \
+    apt-get install -y python3 python3-pip \
+    p7zip-full p7zip-rar xz-utils wget curl pv jq \
+    ffmpeg unzip neofetch mediainfo
 
 RUN curl https://rclone.org/install.sh | bash
 
