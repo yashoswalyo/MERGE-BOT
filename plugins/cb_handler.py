@@ -261,7 +261,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
                             [
                                 InlineKeyboardButton(
                                     "❌ Remove",
-                                    callback_data=f"removeFile_{str(m.message_id)}",
+                                    callback_data=f"removeFile_{str(m.id)}",
                                 ),
                                 InlineKeyboardButton(
                                     "📜 Add Subtitle",
@@ -280,7 +280,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
                             [
                                 InlineKeyboardButton(
                                     "❌ Remove",
-                                    callback_data=f"removeFile_{str(m.message_id)}",
+                                    callback_data=f"removeFile_{str(m.id)}",
                                 ),
                                 InlineKeyboardButton(
                                     "📜 Add Subtitle",
@@ -303,7 +303,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
                             [
                                 InlineKeyboardButton(
                                     "❌ Remove File",
-                                    callback_data=f"removeFile_{str(m.message_id)}",
+                                    callback_data=f"removeFile_{str(m.id)}",
                                 ),
                                 InlineKeyboardButton(
                                     "❌ Remove Subtitle",
@@ -322,7 +322,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
                             [
                                 InlineKeyboardButton(
                                     "❌ Remove File",
-                                    callback_data=f"removeFile_{str(m.message_id)}",
+                                    callback_data=f"removeFile_{str(m.id)}",
                                 ),
                                 InlineKeyboardButton(
                                     "❌ Remove Subtitle",
@@ -370,7 +370,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
                     quote=True,
                 )
                 return
-            queueDB.get(cb.from_user.id)["subtitles"][sIndex] = subs.message_id
+            queueDB.get(cb.from_user.id)["subtitles"][sIndex] = subs.id
             await subs.reply_text(
                 f"Added {subs.document.file_name}",
                 reply_markup=InlineKeyboardMarkup(

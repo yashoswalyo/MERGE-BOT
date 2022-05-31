@@ -45,13 +45,13 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
             prog = Progress(cb.from_user.id, c, cb.message)
             file_dl_path = await c.download_media(
                 message=media,
-                file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.message_id)}/vid.mkv",
+                file_name=f"./downloads/{str(cb.from_user.id)}/{str(i.id)}/vid.mkv",
                 progress=prog.progress_for_pyrogram,
                 progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time),
             )
             if (
                 gDict[cb.message.chat.id]
-                and cb.message.message_id in gDict[cb.message.chat.id]
+                and cb.message.id in gDict[cb.message.chat.id]
             ):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
@@ -59,7 +59,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
             time.sleep(4)
         except Exception as downloadErr:
             print(f"Failed to download Error: {downloadErr}")
-            queueDB.get(cb.from_user.id)["videos"].remove(i.message_id)
+            queueDB.get(cb.from_user.id)["videos"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
             time.sleep(4)
             await cb.message.delete(True)

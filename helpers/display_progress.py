@@ -35,14 +35,14 @@ class Progress:
     @property
     def is_cancelled(self):
         chat_id = self._mess.chat.id
-        mes_id = self._mess.message_id
+        mes_id = self._mess.id
         if gDict[chat_id] and mes_id in gDict[chat_id]:
             self._cancelled = True
         return self._cancelled
 
     async def progress_for_pyrogram(self, current, total, ud_type, start):
         chat_id = self._mess.chat.id
-        mes_id = self._mess.message_id
+        mes_id = self._mess.id
         from_user = self._from_user
         now = time.time()
         diff = now - start
