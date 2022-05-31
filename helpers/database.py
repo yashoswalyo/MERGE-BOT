@@ -28,13 +28,16 @@ async def broadcast():
     return a
 
 
-async def allowUser(uid):
-    a = Database.mergebot.allowedUsers.insert_one(
-        {
-            "_id": uid,
-        }
-    )
-
+async def allowUser(uid,fname,lname):
+    try:
+        a = Database.mergebot.allowedUsers.insert_one(
+            {
+                "_id": uid,
+            }
+        )
+    except DuplicateKeyError:
+        print(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
+    return
 
 async def allowedUser(uid):
     a = Database.mergebot.allowedUsers.find_one({"_id": uid})

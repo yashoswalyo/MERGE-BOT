@@ -16,6 +16,9 @@ queueDB = {}
 formatDB = {}
 replyDB = {}
 
+
+w = open('Merge-Bot.txt','w')
+w.truncate(0)
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s [%(filename)s:%(lineno)d]",
@@ -30,3 +33,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("PIL").setLevel(logging.WARNING)
 
 LOGGER = logging.getLogger(__name__)
+BROADCAST_MSG = '''
+**Total: {}
+Done: {}**
+'''
