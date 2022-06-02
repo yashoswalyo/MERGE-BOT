@@ -174,8 +174,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
     elif cb.data.startswith("rename_"):
         if "YES" in cb.data:
             await cb.message.edit(
-                "Current filename: **[@yashoswalyo]_merged.mkv**\n\nSend me new file name without extension: You have 1 minute",
-                parse_mode="markdown",
+                "Current filename: **[@yashoswalyo]_merged.mkv**\n\nSend me new file name without extension: You have 1 minute"
             )
             res: Message = await c.listen(
                 cb.message.chat.id, filters=filters.text, timeout=60
@@ -195,8 +194,7 @@ async def cb_handler(c: Client, cb: CallbackQuery):
     elif cb.data.startswith("renameS_"):
         if "YES" in cb.data:
             await cb.message.edit(
-                "Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: You have 1 minute ",
-                parse_mode="markdown",
+                "Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: You have 1 minute"
             )
             res: Message = await c.listen(
                 cb.message.chat.id, filters=filters.text, timeout=300
