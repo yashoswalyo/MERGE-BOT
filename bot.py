@@ -12,7 +12,7 @@ import shutil, psutil
 import pyrogram
 from PIL import Image
 from pyrogram import Client, filters
-from pyrogram.errors.exceptions.flood_420 import FloodWait
+from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
 from pyrogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -121,14 +121,23 @@ async def broadcast_handler(c: Client, m: Message):
             await msg.copy(chat_id=userList[i]["_id"])
             success = i + 1
             await status.edit_text(text=BROADCAST_MSG.format(len, success))
+            LOGGER.info(f"Message sent to {userList[i]['name']} ")
         except FloodWait as e:
             await asyncio.sleep(e.x)
             await msg.copy(chat_id=userList[i]["_id"])
-        except Exception:
+            LOGGER.info(f"Message sent to {userList[i]['name']} ")
+        except InputUserDeactivated:
             await database.deleteUser(userList[i]["_id"])
-            pass
-        print(f"Message sent to {userList[i]['name']} ")
-        await asyncio.sleep(2)
+            LOGGER.info(f"{userList[i]["_id"]} - {userList[i]['name']} : deactivated\n")
+        except UserIsBlocked:
+            await database.deleteUser(userList[i]["_id"])
+            LOGGER.info( f"{userList[i]["_id"]} - {userList[i]['name']} : blocked the bot\n")
+        except PeerIdInvalid:
+            await database.deleteUser(userList[i]["_id"])
+            LOGGER.info(f"{userList[i]["_id"]} - {userList[i]['name']} : user id invalid\n")
+        except Exception as e:
+            LOGGER.info(f"{userList[i]["_id"]} - {userList[i]['name']} : {e}\n")
+            await asyncio.sleep(3)
     await status.edit_text(
         text=BROADCAST_MSG.format(len, success)
         + f"**Failed: {str(len-success)}**\n\n__🤓 Broadcast completed sucessfully__",
