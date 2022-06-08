@@ -128,15 +128,15 @@ async def broadcast_handler(c: Client, m: Message):
             LOGGER.info(f"Message sent to {userList[i]['name']} ")
         except InputUserDeactivated:
             await database.deleteUser(userList[i]["_id"])
-            LOGGER.info(f"{userList[i]["_id"]} - {userList[i]['name']} : deactivated\n")
+            LOGGER.info(f"{userList[i]['_id']} - {userList[i]['name']} : deactivated\n")
         except UserIsBlocked:
             await database.deleteUser(userList[i]["_id"])
-            LOGGER.info( f"{userList[i]["_id"]} - {userList[i]['name']} : blocked the bot\n")
+            LOGGER.info( f"{userList[i]['_id']} - {userList[i]['name']} : blocked the bot\n")
         except PeerIdInvalid:
             await database.deleteUser(userList[i]["_id"])
-            LOGGER.info(f"{userList[i]["_id"]} - {userList[i]['name']} : user id invalid\n")
+            LOGGER.info(f"{userList[i]['_id']} - {userList[i]['name']} : user id invalid\n")
         except Exception as e:
-            LOGGER.info(f"{userList[i]["_id"]} - {userList[i]['name']} : {e}\n")
+            LOGGER.info(f"{userList[i]['_id']} - {userList[i]['name']} : {e}\n")
             await asyncio.sleep(3)
     await status.edit_text(
         text=BROADCAST_MSG.format(len, success)
