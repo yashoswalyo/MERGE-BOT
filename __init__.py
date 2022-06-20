@@ -3,6 +3,7 @@ from collections import defaultdict
 import logging
 from logging.handlers import RotatingFileHandler
 import time
+import sys
 
 """Some Constants"""
 UPLOAD_AS_DOC = {}  # Maintain each user ul_type
@@ -25,7 +26,7 @@ logging.basicConfig(
     datefmt="%d-%b-%y %H:%M:%S",
     handlers=[
         RotatingFileHandler("Merge-Bot.txt", maxBytes=50000000, backupCount=10),
-        logging.StreamHandler(),
+        logging.StreamHandler(sys.stdout), #to get sys messages
     ],
 )
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
