@@ -293,9 +293,11 @@ async def help_msg(c: Client, m: Message):
         text="""**Follow These Steps:
 
 1) Send me the custom thumbnail (optional).
+
 2) Send two or more Your Videos Which you want to merge
 3) After sending all files select merge options
 4) Select the upload mode.
+  TWO MODE : TELEGRAM & CLONE (DRIVE) for clone click /about
 5) Select rename if you want to give custom file name else press default**""",
         quote=True,
         reply_markup=InlineKeyboardMarkup(
@@ -309,7 +311,8 @@ async def about_handler(c: Client, m: Message):
     await m.reply_text(
         text="""
 - **WHAT'S NEW:**
-+ Upload to drive using your own rclone config
++ Upload to drive using your own rclone config 
++ HOW TO CREATE <b><a href="https://filecobrock.herokuapp.com/watch/274/How+to+create+rclone+config+file.mp4?hash=AgADpQ">CONFIG FILE</a></b>
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 - **FEATURES:**
 + Merge Upto 10 videos in one
@@ -321,10 +324,10 @@ async def about_handler(c: Client, m: Message):
         quote=True,
         reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("Developer", url="https://t.me/yashoswalyo")],
+                [InlineKeyboardButton("DEVELOPER", url="https://t.me/FLIGHER")],
                 [
                     InlineKeyboardButton(
-                        "Source Code", url="https://github.com/yashoswalyo/MERGE-BOT"
+                        "BOTS CHANNEL", url="https://t.me/movie_time_botonly"
                     ),
                     InlineKeyboardButton(
                         "Deployed By", url=f"https://t.me/{Config.OWNER_USERNAME}"
