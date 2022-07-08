@@ -1,11 +1,6 @@
 {
-
   "bb_sync_version":"1.0",
-
-  "name":"testBot",
-
-  "git_remote":"git@github.com:aakash2021-cap/MERGE-BOT2.0.git",
-
-  "csv_url":"https://example.com/csv"
-
+  "name":"saveybot_bot",
+  "csv_url":"https://example.com/csv",
+  "git_remote":"git@github.com:aakash2021-cap/MERGE-BOT2.0"
 }

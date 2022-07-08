@@ -1,115 +1,84 @@
-# MERGE-BOT
-### PR's Welcomed
-<br>
+# saveybot_bot - chat bot
+It is repository for chat bot: [@saveybot_bot](https://t.me/saveybot_bot)
 
-![GitHub Repo stars](https://img.shields.io/github/stars/yashoswalyo/MERGE-BOT?color=blue&style=flat)
-![GitHub forks](https://img.shields.io/github/forks/yashoswalyo/MERGE-BOT?color=green&style=flat)
-![GitHub issues](https://img.shields.io/github/issues/yashoswalyo/MERGE-BOT)
-![GitHub closed issues](https://img.shields.io/github/issues-closed/yashoswalyo/MERGE-BOT)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yashoswalyo/MERGE-BOT)
-![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/yashoswalyo/MERGE-BOT)
-![GitHub contributors](https://img.shields.io/github/contributors/yashoswalyo/MERGE-BOT?style=flat)
-![GitHub repo size](https://img.shields.io/github/repo-size/yashoswalyo/MERGE-BOT?color=red)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/yashoswalyo/MERGE-BOT)
+## What it is?
+This repository can be imported to [Bots.Business](https://bots.business) as a worked chat bot.
 
-An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Videos in Telegram into single video.
+[Bots.Business](https://bots.business) - it is probably the first CBPaaS - Chat Bot Platform as a Service.
 
-```diff
-- WHAT'S NEW:
-+ Option to add subtitles to telegram video
-#  1. First send video.
-#  2. Then send subtitle in .srt format only (you can send as many subs as you want).
-#  3. Tap Merge Subtitle button.
-+ Option to Add subtitles through file menu (UNSTABLE)
-+ Upload Files to Drive (Send your rclone config to bot)
-#  1. Send your rclone config to bot.
-#  2. Then send videos to merge, after you tap "Merge Now", upload to drive option will available.
-+ Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
+A CBPaaS is a cloud-based platform that enables developers to create chatbots without needing to build backend infrastructure.
 
-- FEATURES:
-+ Merge Upto 10 videos in one 
-+ Upload as document/video 
-+ Custom thumbnail support
-+ Users can login to bot using password
-+ Owner can broadcast message to all users
-+ Log Channel to store all merged videos
+## Create your own bot for Telegram from this Git repo
 
-- TO DO:
-+ Add support to merge multiple audios with video
-```
-## Deploy Tutorial : 
-[![Watch the video](https://img.youtube.com/vi/H-xVk_4zccs/hqdefault.jpg)](https://youtu.be/H-xVk_4zccs)
+How to create bot?
+1. Create bot with [@BotFather](https://telegram.me/BotFather) and take Secret Token
+2. Create bot in App and add Secret Token
+3. Add Public Key from App as [Deploy key](https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys) with read access (and write access for bot exporting if you need it)
+4. Do import for this git repo
 
-## Deploy(at your own risk) :
-<p><a href="https://heroku.com/deploy?template=https://github.com/yashoswalyo/MERGE-BOT"><img src="https://img.shields.io/badge/Deploy%20To%20Heroku-blueviolet?style=for-the-badge&logo=heroku" width="200""/></a></p>
+Now you can talk with yours new Telegram Bot
 
-### OR
-Goto `settings > actions > secret > New Repository Secret` <br>
-Add `HEROKU_EMAIL` <br>
-Add `HEROKU_API_KEY` <br>
-Add `HEROKU_APP_NAME` <br>
-Add `CONFIG_FILE_URL` <br>
-Goto `Actions > Manual Deplot To Heroku > Run Workflow`
+See [more](https://help.bots.business/getting-started)
 
-## Tutorial to get MongoDB URI:
-[![Watch the video](https://img.youtube.com/vi/OfQ7xxMylV4/hqdefault.jpg)](https://youtu.be/OfQ7xxMylV4)
+## Commands - in commands folder
+File name - it is command name (Bot it can be rewritten in command description)
+
+Command can have: `name`, `help`, `aliases` (second names), `answer`, `keyboard`, `scnarios` (for simple logic) and other options.
+
+### Command description
+It is file header:
+
+    /*CMD
+      command: /test
+      help: this is help for ccommand
+      need_reply: [ true or false here ]
+      auto_retry_time: [ time in sec ]
+      answer: it is example answer for /test command
+      keyboard: button1, button2
+      aliases: /test2, /test3
+    CMD*/
+
+See [more](https://help.bots.business/commands)
+
+### Command body
+It is command code in JavaScript.
+Use Bot Java Script for logic in command.
+
+For example:
+> Bot.sendMessage(2+2);
+
+See [more](https://help.bots.business/scenarios-and-bjs)
 
 
-## Config File Variables :
-1. `API_ID` : User Account Telegram API_ID, get it from my.telegram.org
-2. `API_HASH` : User Account Telegram API_HASH, get it from my.telegram.org
-3. `BOT_TOKEN` : Your Telegram Bot Token, get it from @Botfather XD
-4. `OWNER`: Enter bot owner's ID
-5. `OWNER_USERNAME`: User name of bot owner
-6. `DATABASE_URL`: Enter your mongodb URI
-7. `PASSWORD`: Enter password to login bot
-8. `LOGCHANNEL`: Log channel will store all users merged videos
+## Libraries - in libs folder
+You can store common code in the libs folder. File name - it is library name.
 
-## Commands (add via @botfather) :
-```sh
-start - Start The Bot
-showthumbnail - Shows your thumbnail
-deletethumbnail - Delete your thumbnail
-help - How to use Bot
-about - About the bot
-login - Access bot
-broadcast - (admin) Broadcast message to bot users
-stats - check bots stats
-```
+For example code in myLib.js:
 
-## Self Host
-```sh
-$ git clone https://github.com/yashoswalyo/MERGE-BOT.git
-$ cd MERGE-BOT
-$ sudo apt-get install python3-pip ffmpeg
-$ pip3 install -U pip
-$ pip3 install -U -r requirements.txt
-# <fill config.py correctly>
-$ python3 bot.py
-```
+    function hello(){ Bot.sendMessage("Hello from lib!") }
+    function goodbye(name){ Bot.sendMessage("Goodbye, " + name) }
 
-## License
-```sh
-Merge Bot, Telegram Video Merge Bot
-Copyright (c) 2021  Yash Oswal <https://github.com/yashoswalyo>
+    publish({
+      sayHello: hello,
+      sayGoodbyeTo: goodbye
+    })
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+then you can run in any bot's command:
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+    Libs.myLib.hello()
+    Libs.myLib.sayGoodbyeTo("Alice")
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>
-```
+See [more](https://help.bots.business/git/library)
 
-## Credits
+## Other bots example
+See other bots examples in the [github](https://github.com/bots-business?utf8=✓&tab=repositories&q=&type=public&language=javascript) or in the [Bot Store](https://bots.business/)
 
-- [Me](https://github.com/yashoswalyo) for [Nothing](https://github.com/yashoswalyo/MERGE-BOT) 😬
-- [Dan](https://github.com/delivrance) for [Pyrogram](https://github.com/pyrogram/pyrogram) ❤️
-- [Abir Hasan](https://github.com/AbirHasan2005) for his wonderful [code](https://github.com/AbirHasan2005/VideoMerge-Bot) ❤️
-- [Jigarvarma2005](https://github.com/Jigarvarma2005) and [SpechIDE](https://t.me/spechide) for helping me to fix bugs 🤓
+
+## Other help
+[Help.bots.business](https://help.bots.business)
+
+## API
+See [API](https://api.bots.business/docs#/docs/summary)
+
+
+![](https://bots.business/images/web-logo.png)
