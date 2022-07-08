@@ -92,7 +92,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     )
     time.sleep(2)
     merged_video_path = new_file_name
-    if file_size > 3145728:
+    if file_size > 2097152:
         await cb.message.edit("Video is Larger than 2GB Can't Upload")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
