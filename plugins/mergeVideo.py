@@ -134,7 +134,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
-    if file_size > 2044723200:
+    if file_size > 3145728:
         await cb.message.edit("Video is Larger than 2GB Can't Upload")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
