@@ -39,22 +39,6 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         )
         return
 
-    elif cb.data == "mergeSubtitles":
-        UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": False})
-        await cb.message.edit(
-            text="How do yo want to upload file",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("🎞️ Video", callback_data="videoS"),
-                        InlineKeyboardButton("📁 File", callback_data="documentS"),
-                    ],
-                    [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
-                ]
-            ),
-        )
-        return
-
     elif cb.data == "to_drive":
         try:
             urc = await database.getUserRcloneConfig(cb.from_user.id)
@@ -132,38 +116,6 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         )
         return
 
-    elif cb.data == "documentS":
-        UPLOAD_AS_DOC.update({f"{cb.from_user.id}": True})
-        await cb.message.edit(
-            text="Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("👆 Default", callback_data="renameS_NO"),
-                        InlineKeyboardButton("✍️ Rename", callback_data="renameS_YES"),
-                    ],
-                    [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
-                ]
-            ),
-        )
-        return
-
-    elif cb.data == "videoS":
-        UPLOAD_AS_DOC.update({f"{cb.from_user.id}": False})
-        await cb.message.edit(
-            text=f"Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("👆 Default", callback_data="renameS_NO"),
-                        InlineKeyboardButton("✍️ Rename", callback_data="renameS_YES"),
-                    ],
-                    [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
-                ]
-            ),
-        )
-        return
-
     elif cb.data.startswith("rclone_"):
         if "save" in cb.data:
             fileId = cb.message.reply_to_message.document.file_id
@@ -215,25 +167,6 @@ async def callback_handler(c: Client, cb: CallbackQuery):
                     cb,
                     new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
                 )
-
-    elif cb.data.startswith("renameS_"):
-        if "YES" in cb.data:
-            await cb.message.edit(
-                "Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: You have 1 minute"
-            )
-            res: Message = await c.listen(
-                cb.message.chat.id, filters=filters.text, timeout=300
-            )
-            if res.text:
-                new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','.')}.mkv"
-                await res.delete(True)
-                await mergeSub(c, cb, new_file_name)
-        if "NO" in cb.data:
-            await mergeSub(
-                c,
-                cb,
-                new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_softmuxed_video.mkv",
-            )
 
     elif cb.data == "cancel":
         await delete_all(root=f"downloads/{cb.from_user.id}/")
