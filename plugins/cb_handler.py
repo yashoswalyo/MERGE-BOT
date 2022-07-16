@@ -1,7 +1,6 @@
 from pyrogram import Client, filters
 import asyncio
-from bot import UPLOAD_TO_DRIVE, UPLOAD_AS_DOC, formatDB, queueDB, gDict
-from bot import delete_all, showQueue
+from bot import *
 from pyrogram.types import (
     CallbackQuery,
     Message,
@@ -11,10 +10,17 @@ from pyrogram.types import (
 from helpers import database
 from plugins.mergeVideo import mergeNow
 from plugins.mergeVideoSub import mergeSub
+from plugins.mergeVideoAudio import mergeAudio
 import os
 
+from plugins.usettings import userSettings
 
-async def cb_handler(c: Client, cb: CallbackQuery):
+
+@Client.on_callback_query()
+async def callback_handler(c: Client, cb: CallbackQuery):
+    #     await cb_handler.cb_handler(c, cb)
+    MERGE_MODE
+    # async def cb_handler(c: Client, cb: CallbackQuery):
 
     if cb.data == "merge":
         await cb.message.edit(
@@ -182,14 +188,33 @@ async def cb_handler(c: Client, cb: CallbackQuery):
             if res.text:
                 new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','_')}.mkv"
                 await res.delete(True)
-                await mergeNow(c, cb, new_file_name)
+                if MERGE_MODE[cb.from_user.id]==1:
+                    await mergeNow(c, cb, new_file_name)
+                elif MERGE_MODE[cb.from_user.id] == 2:
+                    await mergeAudio(c, cb, new_file_name)
+                elif MERGE_MODE[cb.from_user.id]==3:
+                    await mergeSub(c, cb, new_file_name)
+                
             return
         if "NO" in cb.data:
-            await mergeNow(
-                c,
-                cb,
-                new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
-            )
+            if MERGE_MODE[cb.from_user.id]==1:
+                await mergeNow(
+                    c,
+                    cb,
+                    new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
+                )
+            elif MERGE_MODE[cb.from_user.id]==2:
+                await mergeAudio(
+                    c,
+                    cb,
+                    new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
+                )
+            elif MERGE_MODE[cb.from_user.id]==3:
+                await mergeSub(
+                    c,
+                    cb,
+                    new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
+                )
 
     elif cb.data.startswith("renameS_"):
         if "YES" in cb.data:
@@ -239,8 +264,21 @@ async def cb_handler(c: Client, cb: CallbackQuery):
         formatDB.update({cb.from_user.id: None})
         return
 
+    elif cb.data.startswith("ch@ng3M0de_"):
+        uid = cb.data.split("_")[1]
+        mode = int(cb.data.split("_")[2])
+        database.setUserMergeMode(uid=int(uid), mode=mode)
+        await userSettings(
+            cb.message, int(uid), cb.from_user.first_name, cb.from_user.last_name
+        )
+        return
+
     elif cb.data == "close":
         await cb.message.delete(True)
+        try:
+            await cb.message.reply_to_message.delete(True)
+        except Exception as err:
+            pass
 
     elif cb.data.startswith("showFileName_"):
         id = int(cb.data.rsplit("_", 1)[-1])
