@@ -7,7 +7,7 @@ import ffmpeg
 from pyrogram.types.bots_and_keyboards.callback_query import CallbackQuery
 from config import Config
 from pyrogram.types import Message
-
+from __init__ import LOGGER
 
 async def MergeVideo(input_file: str, user_id: int, message: Message, format_: str):
     """
@@ -94,7 +94,7 @@ async def MergeSub(filePath: str, subPath: str, user_id):
     return orgFilePath
 
 
-async def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
+def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
     """
     This is for Merging Video + Subtitle(s) Together.
 
@@ -131,6 +131,28 @@ async def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
     )
     return f"./downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv"
 
+
+def MergeAudio(videoPath:str,files_list:list,user_id):
+    LOGGER.info("Generating Mux Command")
+    inputfiles = ""
+    maps = ""
+    metadata = ""
+    videoData = ffmpeg.probe(filename=videoPath)
+    videoStreamsData = videoData.get("streams")
+    audioTracks = 0
+    for i in range(len(videoStreamsData)):
+        if videoStreamsData[i]["codec_type"] == "audio":
+            audioTracks+=1
+    for i in files_list:
+        inputfiles += f"-i '{i}' "
+    for j in range(1,len(files_list)):
+        maps += f"-map {j}:a "
+    LOGGER.info("Merging files now")
+    subprocess.call(
+        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy './downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
+        shell=True
+    )
+    return f"./downloads/{str(user_id)}/[@yashoswalyo]_export.mkv"
 
 async def cult_small_video(video_file, output_directory, start_time, end_time, format_):
     # https://stackoverflow.com/a/13891070/4723940
