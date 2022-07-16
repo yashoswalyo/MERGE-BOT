@@ -54,7 +54,7 @@ mergeApp = Client(
     bot_token=Config.BOT_TOKEN,
     workers=300,
     plugins=dict(root="plugins"),
-    app_version="3.0+yash-multiSubsSupport",
+    app_version="4.0+yash-multiMergeSupport",
 )
 LOGGER.info("Bot started")
 
@@ -322,7 +322,6 @@ async def video_handler(c: Client, m: Message):
 
         editable = await m.reply_text("Please Wait ...", quote=True)
         MessageText = "Okay,\nNow Send Me Some More <u>Subtitles</u> or Press **Merge Now** Button!"
-
         if queueDB.get(user_id, None) is None:
             queueDB.update({user_id: {"videos": [], "subtitles": []}})
         if len(queueDB.get(user_id)["videos"]) == 0:
