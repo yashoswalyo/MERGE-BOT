@@ -10,3 +10,5 @@ class Config(object):
     PASSWORD = os.environ.get("PASSWORD")
     DATABASE_URL = os.environ.get("DATABASE_URL")
     LOGCHANNEL =os.environ.get("LOGCHANNEL")  # Add channel id with -100 /\or/\ channel user name without @
+    
+    MODES = ["video-video", "video-audio", "video-subtitle"]
