@@ -12,21 +12,21 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/yashoswalyo/MERGE-BOT?color=red)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/yashoswalyo/MERGE-BOT)
 
-An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Videos in Telegram into single video.
+An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Videos in Telegram into single video. <br>
+Bugs should be reported at: [Telegram Group](https://t.me/yo_codes_support)
 
 ```diff
-- WHAT'S NEW:
-+ Option to add subtitles to telegram video
-#  1. First send video.
-#  2. Then send subtitle in .srt format only (you can send as many subs as you want).
-#  3. Tap Merge Subtitle button.
-+ Option to Add subtitles through file menu (UNSTABLE)
+- TODO's:
++ Add ability to edit metadata of exported video
+
+- FEATURES:
++ (new) Option to add multiple audio tracks to telegram video
++ Option to add multiple subtitles to telegram video
 + Upload Files to Drive (Send your rclone config to bot)
 #  1. Send your rclone config to bot.
 #  2. Then send videos to merge, after you tap "Merge Now", upload to drive option will available.
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 
-- FEATURES:
 + Merge Upto 10 videos in one 
 + Upload as document/video 
 + Custom thumbnail support
@@ -34,8 +34,6 @@ An Telegram Bot By [Yash Oswal](https://t.me/yashoswalyo) To Merge multiple Vide
 + Owner can broadcast message to all users
 + Log Channel to store all merged videos
 
-- TO DO:
-+ Add support to merge multiple audios with video
 ```
 ## Deploy Tutorial : 
 [![Watch the video](https://img.youtube.com/vi/H-xVk_4zccs/hqdefault.jpg)](https://youtu.be/H-xVk_4zccs)
@@ -70,11 +68,12 @@ Goto `Actions > Manual Deplot To Heroku > Run Workflow`
 start - Start The Bot
 showthumbnail - Shows your thumbnail
 deletethumbnail - Delete your thumbnail
+settings - User Settings
 help - How to use Bot
 about - About the bot
 login - Access bot
-broadcast - (admin) Broadcast message to bot users
-stats - check bots stats
+broadcast - (admin only) Broadcast message to bot users
+stats - (admin only) check bots stats
 ```
 
 ## Self Host
@@ -85,7 +84,7 @@ $ sudo apt-get install python3-pip ffmpeg
 $ pip3 install -U pip
 $ pip3 install -U -r requirements.txt
 # <fill config.py correctly>
-$ python3 bot.py
+$ bash start.sh
 ```
 
 ## License
