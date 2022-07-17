@@ -5,7 +5,7 @@ from helpers.msg_utils import MakeButtons
 from helpers.database import getUserMergeMode, setUserMergeMode
 
 
-@mergeApp.on_message(filters.command(["s"]))
+@mergeApp.on_message(filters.command(["settings"]))
 async def f1(c: mergeApp, m: Message):
     # setUserMergeMode(uid=m.from_user.id,mode=1)
     replay = await m.reply(text="Please wait", quote=True)
