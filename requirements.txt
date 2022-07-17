@@ -8,3 +8,4 @@ Pyrogram
 pyromod
 python-dotenv
 requests
+TgCrypto
