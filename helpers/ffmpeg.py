@@ -4,7 +4,7 @@ import shutil
 import os
 import time
 import ffmpeg
-from pyrogram.types.bots_and_keyboards.callback_query import CallbackQuery
+from pyrogram.types import CallbackQuery
 from config import Config
 from pyrogram.types import Message
 from __init__ import LOGGER
