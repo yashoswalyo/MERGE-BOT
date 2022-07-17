@@ -177,7 +177,7 @@ async def start_handler(c: Client, m: Message):
     )
 
 
-@mergeApp.on_message((filters.document | filters.video) & filters.private)
+@mergeApp.on_message((filters.document | filters.video | filters.audio) & filters.private)
 async def video_handler(c: Client, m: Message):
     user_id = m.from_user.id
     if user_id != int(Config.OWNER):
@@ -191,7 +191,7 @@ async def video_handler(c: Client, m: Message):
     if os.path.exists(input_):
         await m.reply_text("Sorry Bro,\nAlready One process in Progress!\nDon't Spam.")
         return
-    media = m.video or m.document
+    media = m.video or m.document or m.audio
     if media.file_name is None:
         await m.reply_text("File Not Found")
         return
