@@ -50,7 +50,7 @@ botStartTime = time.time()
 mergeApp = Client(
     name="merge-bot",
     api_hash=Config.API_HASH,
-    api_id=Config.API_ID,
+    api_id=Config.TELEGRAM_API,
     bot_token=Config.BOT_TOKEN,
     workers=300,
     plugins=dict(root="plugins"),
