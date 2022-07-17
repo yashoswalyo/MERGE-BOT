@@ -1,8 +1,8 @@
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from pyrogram.types import CallbackQuery
-
 from config import Config
+from __init__ import LOGGER, MERGE_MODE
 
 
 class Database(object):
@@ -28,7 +28,7 @@ async def broadcast():
     return a
 
 
-async def allowUser(uid,fname,lname):
+async def allowUser(uid, fname, lname):
     try:
         a = Database.mergebot.allowedUsers.insert_one(
             {
@@ -38,6 +38,7 @@ async def allowUser(uid,fname,lname):
     except DuplicateKeyError:
         print(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
     return
+
 
 async def allowedUser(uid):
     a = Database.mergebot.allowedUsers.find_one({"_id": uid})
@@ -90,3 +91,57 @@ async def getUserRcloneConfig(uid):
         return res["rcloneFileId"]
     except Exception as err:
         return None
+
+
+def getUserMergeMode(uid: int):
+    "Returns merge mode of user"
+    try:
+        res_cur = Database.mergebot.mergeModes.find_one({"_id": uid})
+        return int(res_cur["mode"])
+    except Exception:
+        return None
+
+
+def setUserMergeMode(uid: int, mode: int):
+    modes = Config.MODES
+    if mode:
+        try:
+            Database.mergebot.mergeModes.insert_one(
+                document={"_id": uid, "mode":mode}
+            )
+            LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode-1]))
+        except Exception:
+            Database.mergebot.mergeModes.replace_one(
+                filter={"_id": uid},
+                replacement={"mode":mode},
+            )
+            LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode-1]))
+        MERGE_MODE[uid] = mode
+    # elif mode == 2:
+    #     try:
+    #         Database.mergebot.mergeModes.insert_one(
+    #             document={"_id": uid, modes[0]: 0, modes[1]: 1, modes[2]: 0}
+    #         )
+    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[1]))
+    #     except Exception:
+    #         rep = Database.mergebot.mergeModes.replace_one(
+    #             filter={"_id": uid},
+    #             replacement={modes[0]: 0, modes[1]: 1, modes[2]: 0},
+    #         )
+    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[1]))
+    #     MERGE_MODE[uid] = 2
+    #     # Database.mergebot.mergeModes.delete_many({'id':uid})
+    # elif mode == 3:
+    #     try:
+    #         Database.mergebot.mergeModes.insert_one(
+    #             document={"_id": uid, modes[0]: 0, modes[1]: 0, modes[2]: 1}
+    #         )
+    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[2]))
+    #     except Exception:
+    #         rep = Database.mergebot.mergeModes.replace_one(
+    #             filter={"_id": uid},
+    #             replacement={modes[0]: 0, modes[1]: 0, modes[2]: 1},
+    #         )
+    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[2]))
+    #     MERGE_MODE[uid]=3
+    LOGGER.info(MERGE_MODE)

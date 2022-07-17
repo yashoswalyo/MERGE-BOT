@@ -56,7 +56,7 @@ Goto `Actions > Manual Deplot To Heroku > Run Workflow`
 
 
 ## Config File Variables :
-1. `API_ID` : User Account Telegram API_ID, get it from my.telegram.org
+1. `TELEGRAM_API` : User Account Telegram API_ID, get it from my.telegram.org
 2. `API_HASH` : User Account Telegram API_HASH, get it from my.telegram.org
 3. `BOT_TOKEN` : Your Telegram Bot Token, get it from @Botfather XD
 4. `OWNER`: Enter bot owner's ID

@@ -4,8 +4,11 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 import sys
+from config import Config
+from helpers.msg_utils import MakeButtons
 
 """Some Constants"""
+MERGE_MODE = {} # Maintain each user merge_mode
 UPLOAD_AS_DOC = {}  # Maintain each user ul_type
 UPLOAD_TO_DRIVE = {}  # Maintain each user drive_choice
 
@@ -17,6 +20,9 @@ queueDB = {}
 formatDB = {}
 replyDB = {}
 
+VIDEO_EXTENSIONS = ["mkv", "mp4", "webm", "ts", "wav", "mov"]
+AUDIO_EXTENSIONS = ['aac','ac3','eac3','m4a','mka','thd','dts']
+SUBTITLE_EXTENSIONS = ['srt','ass']
 
 w = open('Merge-Bot.txt','w')
 w.truncate(0)
@@ -38,3 +44,4 @@ BROADCAST_MSG = '''
 **Total: {}
 Done: {}**
 '''
+bMaker = MakeButtons()

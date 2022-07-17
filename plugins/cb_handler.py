@@ -1,7 +1,6 @@
 from pyrogram import Client, filters
 import asyncio
-from bot import UPLOAD_TO_DRIVE, UPLOAD_AS_DOC, formatDB, queueDB, gDict
-from bot import delete_all, showQueue
+from bot import *
 from pyrogram.types import (
     CallbackQuery,
     Message,
@@ -11,10 +10,17 @@ from pyrogram.types import (
 from helpers import database
 from plugins.mergeVideo import mergeNow
 from plugins.mergeVideoSub import mergeSub
+from plugins.mergeVideoAudio import mergeAudio
 import os
 
+from plugins.usettings import userSettings
 
-async def cb_handler(c: Client, cb: CallbackQuery):
+
+@Client.on_callback_query()
+async def callback_handler(c: Client, cb: CallbackQuery):
+    #     await cb_handler.cb_handler(c, cb)
+    MERGE_MODE
+    # async def cb_handler(c: Client, cb: CallbackQuery):
 
     if cb.data == "merge":
         await cb.message.edit(
@@ -26,22 +32,6 @@ async def cb_handler(c: Client, cb: CallbackQuery):
                             "📤 To Telegram", callback_data="to_telegram"
                         ),
                         InlineKeyboardButton("🌫️ To Drive", callback_data="to_drive"),
-                    ],
-                    [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
-                ]
-            ),
-        )
-        return
-
-    elif cb.data == "mergeSubtitles":
-        UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": False})
-        await cb.message.edit(
-            text="How do yo want to upload file",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("🎞️ Video", callback_data="videoS"),
-                        InlineKeyboardButton("📁 File", callback_data="documentS"),
                     ],
                     [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
                 ]
@@ -126,38 +116,6 @@ async def cb_handler(c: Client, cb: CallbackQuery):
         )
         return
 
-    elif cb.data == "documentS":
-        UPLOAD_AS_DOC.update({f"{cb.from_user.id}": True})
-        await cb.message.edit(
-            text="Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("👆 Default", callback_data="renameS_NO"),
-                        InlineKeyboardButton("✍️ Rename", callback_data="renameS_YES"),
-                    ],
-                    [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
-                ]
-            ),
-        )
-        return
-
-    elif cb.data == "videoS":
-        UPLOAD_AS_DOC.update({f"{cb.from_user.id}": False})
-        await cb.message.edit(
-            text=f"Do you want to rename? Default file name is **[@yashoswalyo]_softmuxed_video.mkv**",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("👆 Default", callback_data="renameS_NO"),
-                        InlineKeyboardButton("✍️ Rename", callback_data="renameS_YES"),
-                    ],
-                    [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
-                ]
-            ),
-        )
-        return
-
     elif cb.data.startswith("rclone_"):
         if "save" in cb.data:
             fileId = cb.message.reply_to_message.document.file_id
@@ -182,33 +140,33 @@ async def cb_handler(c: Client, cb: CallbackQuery):
             if res.text:
                 new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','_')}.mkv"
                 await res.delete(True)
-                await mergeNow(c, cb, new_file_name)
+                if MERGE_MODE[cb.from_user.id]==1:
+                    await mergeNow(c, cb, new_file_name)
+                elif MERGE_MODE[cb.from_user.id] == 2:
+                    await mergeAudio(c, cb, new_file_name)
+                elif MERGE_MODE[cb.from_user.id]==3:
+                    await mergeSub(c, cb, new_file_name)
+                
             return
         if "NO" in cb.data:
-            await mergeNow(
-                c,
-                cb,
-                new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
-            )
-
-    elif cb.data.startswith("renameS_"):
-        if "YES" in cb.data:
-            await cb.message.edit(
-                "Current filename: **[@yashoswalyo]_softmuxed_video.mkv**\n\nSend me new file name without extension: You have 1 minute"
-            )
-            res: Message = await c.listen(
-                cb.message.chat.id, filters=filters.text, timeout=300
-            )
-            if res.text:
-                new_file_name = f"./downloads/{str(cb.from_user.id)}/{res.text.replace(' ','.')}.mkv"
-                await res.delete(True)
-                await mergeSub(c, cb, new_file_name)
-        if "NO" in cb.data:
-            await mergeSub(
-                c,
-                cb,
-                new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_softmuxed_video.mkv",
-            )
+            if MERGE_MODE[cb.from_user.id]==1:
+                await mergeNow(
+                    c,
+                    cb,
+                    new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
+                )
+            elif MERGE_MODE[cb.from_user.id]==2:
+                await mergeAudio(
+                    c,
+                    cb,
+                    new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
+                )
+            elif MERGE_MODE[cb.from_user.id]==3:
+                await mergeSub(
+                    c,
+                    cb,
+                    new_file_name=f"./downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv",
+                )
 
     elif cb.data == "cancel":
         await delete_all(root=f"downloads/{cb.from_user.id}/")
@@ -239,8 +197,21 @@ async def cb_handler(c: Client, cb: CallbackQuery):
         formatDB.update({cb.from_user.id: None})
         return
 
+    elif cb.data.startswith("ch@ng3M0de_"):
+        uid = cb.data.split("_")[1]
+        mode = int(cb.data.split("_")[2])
+        database.setUserMergeMode(uid=int(uid), mode=mode)
+        await userSettings(
+            cb.message, int(uid), cb.from_user.first_name, cb.from_user.last_name
+        )
+        return
+
     elif cb.data == "close":
         await cb.message.delete(True)
+        try:
+            await cb.message.reply_to_message.delete(True)
+        except Exception as err:
+            pass
 
     elif cb.data.startswith("showFileName_"):
         id = int(cb.data.rsplit("_", 1)[-1])
