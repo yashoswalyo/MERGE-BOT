@@ -159,7 +159,7 @@ async def broadcast_handler(c: Client, m: Message):
 
 @mergeApp.on_message(filters.command(["start"]) & filters.private)
 async def start_handler(c: Client, m: Message):
-    if m.from_user.id != Config.OWNER:
+    if m.from_user.id != int(Config.OWNER):
         await database.addUser(
             uid=m.from_user.id,
             fname=m.from_user.first_name,
@@ -180,7 +180,7 @@ async def start_handler(c: Client, m: Message):
 @mergeApp.on_message((filters.document | filters.video) & filters.private)
 async def video_handler(c: Client, m: Message):
     user_id = m.from_user.id
-    if user_id != Config.OWNER:
+    if user_id != int(Config.OWNER):
         if await database.allowedUser(uid=user_id) is False:
             res = await m.reply_text(
                 text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
@@ -357,7 +357,7 @@ async def video_handler(c: Client, m: Message):
 
 @mergeApp.on_message(filters.photo & filters.private)
 async def photo_handler(c: Client, m: Message):
-    if m.from_user.id != Config.OWNER:
+    if m.from_user.id != int(Config.OWNER):
         if await database.allowedUser(uid=m.from_user.id) is False:
             res = await m.reply_text(
                 text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
