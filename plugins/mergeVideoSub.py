@@ -9,6 +9,7 @@ import time
 from helpers.display_progress import Progress
 from helpers.ffmpeg import MergeSubNew, take_screen_shot
 from helpers.uploader import uploadVideo
+from helpers.rclone_upload import rclone_driver, rclone_upload
 from pyrogram.types import Message
 from pyrogram.errors import MessageNotModified
 from pyrogram.errors.rpc_error import UnknownError
@@ -100,6 +101,12 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     )
     time.sleep(2)
     merged_video_path = new_file_name
+    if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
+        await rclone_driver(omess, cb, merged_video_path)
+        await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        formatDB.update({cb.from_user.id: None})
+        return
     if file_size > 2044723200:
         await cb.message.edit("Video is Larger than 2GB Can't Upload")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
