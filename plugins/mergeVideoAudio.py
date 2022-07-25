@@ -5,6 +5,7 @@ from bot import *
 from helpers.display_progress import Progress
 from helpers.ffmpeg import MergeAudio, take_screen_shot
 from helpers.uploader import uploadVideo
+from helpers.rclone_upload import rclone_driver, rclone_upload
 from pyrogram.errors import MessageNotModified
 from pyrogram.errors.rpc_error import UnknownError
 from pyrogram.errors.exceptions.flood_420 import FloodWait
@@ -69,7 +70,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     
     muxed_video = MergeAudio(files_list[0],files_list,cb.from_user.id)
     if muxed_video is None:
-        await cb.message.edit("❌ Failed to add subs video !")
+        await cb.message.edit("❌ Failed to add audio to video !")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
@@ -92,7 +93,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         # uploads to drive using rclone
         await rclone_driver(omess, cb, merged_video_path)
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
         return
   
