@@ -1,6 +1,6 @@
 from pyrogram import Client
 import asyncio
-from bot import UPLOAD_AS_DOC, formatDB, queueDB, gDict, VIDEO_EXTENSIONS,SUBTITLE_EXTENSIONS, LOGGER
+from bot import UPLOAD_AS_DOC, formatDB, queueDB, gDict, VIDEO_EXTENSIONS, SUBTITLE_EXTENSIONS, LOGGER, UPLOAD_TO_DRIVE
 from bot import delete_all
 from pyrogram.types import CallbackQuery
 from helpers import database
