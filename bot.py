@@ -20,8 +20,7 @@ from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Message,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
+    User
 )
 from pyromod import listen
 
@@ -43,20 +42,32 @@ from __init__ import (
     bMaker,
 )
 from helpers.utils import get_readable_time, get_readable_file_size
-from plugins import cb_handler
+
 
 botStartTime = time.time()
 
-mergeApp = Client(
+class MergeBot(Client):
+    def start(self):
+        super().start()
+        try:
+            self.send_message(chat_id=Config.OWNER, text="<b>Bot Started!</b>")
+        except Exception as err:
+            LOGGER.error("Boot alert failed! Please start bot in PM")
+        return LOGGER.info("Bot Started!")
+
+    def stop(self):
+        super().stop()
+        return LOGGER.info("Bot Stopped")
+
+mergeApp = MergeBot(
     name="merge-bot",
     api_hash=Config.API_HASH,
-    api_id=Config.TELEGRAM_API,
+    api_id=int(Config.TELEGRAM_API),
     bot_token=Config.BOT_TOKEN,
     workers=300,
     plugins=dict(root="plugins"),
     app_version="4.0+yash-multiMergeSupport",
 )
-LOGGER.info("Bot started")
 
 
 if os.path.exists("./downloads") == False:
@@ -540,18 +551,34 @@ async def makeButtons(bot: Client, m: Message, db: dict):
     markup.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
     return markup
 
-
-async def alertBoot():
-    1
+LOGCHANNEL = Config.LOGCHANNEL
+try:
+    if Config.USER_SESSION_STRING is None:
+        raise KeyError
+    LOGGER.info("Generating USER Session")
+    userBot = Client(
+        name="merge-bot-user",
+        session_string=Config.USER_SESSION_STRING,
+        no_updates=True
+    )
+    
+except KeyError:
+    userBot = None
+    LOGGER.warning("No User Session, Default Bot session will be used")
 
 
 if __name__ == "__main__":
     # with mergeApp:
-    #     mergeApp.send_message(
-    #         chat_id=Config.OWNER,
-    #         text="<b>Bot Rebooted !</b>",
-    #     )
-    # asyncio.run(alertBoot())
-    # mergeApp.run(alertBoot())
+    #     bot:User = mergeApp.get_me()
+    #     bot_username = bot.username
+    try:
+        with userBot:
+            userBot.send_message(chat_id=int(LOGCHANNEL), text="Bot booted with Premium Account,\n\n  Thanks for using <a href='https://github.com/yashoswalyo/merge-bot'>this repo</a>",disable_web_page_preview=True)
+            user = userBot.get_me()
+            IS_PREMIUM = user.is_premium
+            print(IS_PREMIUM)
+    except:
+        IS_PREMIUM == False
+        pass
 
     mergeApp.run()

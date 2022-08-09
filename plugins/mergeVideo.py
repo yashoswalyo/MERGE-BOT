@@ -1,8 +1,9 @@
-from pyrogram import Client
+
 import asyncio
-from bot import UPLOAD_TO_DRIVE, UPLOAD_AS_DOC, formatDB, queueDB, gDict
-from bot import delete_all
+from bot import UPLOAD_TO_DRIVE, UPLOAD_AS_DOC, formatDB, queueDB, gDict, IS_PREMIUM, LOGGER
+from bot import delete_all, mergeApp as Client
 from pyrogram.types import CallbackQuery
+from config import Config
 from helpers import database
 import os
 import time
@@ -43,7 +44,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         media = i.video or i.document
         await cb.message.edit(f"📥 Starting Download of ... `{media.file_name}`")
         print(f"📥 Starting Download of ... {media.file_name}")
-        time.sleep(5)
+        await asyncio.sleep(5)
         file_dl_path = None
         sub_dl_path = None
         try:
@@ -62,7 +63,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             print(f"Downloaded Sucessfully ... {media.file_name}")
-            time.sleep(5)
+            await asyncio.sleep(5)
         except UnknownError as e:
             print(e)
             pass
@@ -70,7 +71,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
             print(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["video"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
-            time.sleep(4)
+            await asyncio.sleep(4)
             continue
 
         if list_subtitle_ids[sIndex] is not None:
@@ -103,6 +104,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         if vid_list[i] not in _cache:
             _cache.append(vid_list[i])
     vid_list = _cache
+    LOGGER.info(f"Trying to merge videos user {cb.from_user.id}")
     await cb.message.edit(f"🔀 Trying to merge videos ...")
     with open(input_, "w") as _list:
         _list.write("\n".join(vid_list))
@@ -120,13 +122,13 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     except MessageNotModified:
         await cb.message.edit("Sucessfully Merged Video ! ✅")
     print(f"Video merged for: {cb.from_user.first_name} ")
-    time.sleep(3)
+    await asyncio.sleep(3)
     file_size = os.path.getsize(merged_video_path)
     os.rename(merged_video_path, new_file_name)
     await cb.message.edit(
         f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
-    time.sleep(2)
+    await asyncio.sleep(3)
     merged_video_path = new_file_name
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         await rclone_driver(omess, cb, merged_video_path)
@@ -134,13 +136,18 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
-    if file_size > 2044723200:
-        await cb.message.edit("Video is Larger than 2GB Can't Upload")
+    if file_size > 2044723200 and IS_PREMIUM == False:
+        await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
-
+    if IS_PREMIUM and file_size > 4241280205:
+        await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
+        await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        formatDB.update({cb.from_user.id: None})
+        return
     await cb.message.edit("🎥 Extracting Video Data ...")
     duration = 1
     try:
