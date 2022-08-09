@@ -62,13 +62,14 @@ Goto `Actions > Manual Deplot To Heroku > Run Workflow`
 6. `DATABASE_URL`: Enter your mongodb URI
 7. `PASSWORD`: Enter password to login bot
 8. `LOGCHANNEL`: Log channel will store all users merged videos
+9. `USER_SESSION_STRING`: Premium account session string to upload upto 4GB (requires `LOGCHANNEL`)
 
 ## Commands (add via @botfather) :
-```sh
+```
 start - Start The Bot
 showthumbnail - Shows your thumbnail
 deletethumbnail - Delete your thumbnail
-settings - User Settings
+settings - User Settings to manage different modes
 help - How to use Bot
 about - About the bot
 login - Access bot

@@ -1,4 +1,3 @@
-from email import message
 from pyrogram import Client
 from pyrogram.types import CallbackQuery, Message
 from bot import *
@@ -7,8 +6,6 @@ from helpers.ffmpeg import MergeAudio, take_screen_shot
 from helpers.uploader import uploadVideo
 from helpers.rclone_upload import rclone_driver, rclone_upload
 from pyrogram.errors import MessageNotModified
-from pyrogram.errors.rpc_error import UnknownError
-from pyrogram.errors.exceptions.flood_420 import FloodWait
 from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
 from PIL import Image
@@ -40,7 +37,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
             tmpFileName = "vid.mkv"
         elif currentFileNameExt in AUDIO_EXTENSIONS:
             tmpFileName = "audio."+currentFileNameExt
-        time.sleep(5)
+        await asyncio.sleep(5)
         file_dl_path = None
         try:
             c_time = time.time()
@@ -58,12 +55,12 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
-            time.sleep(4)
+            await asyncio.sleep(4)
         except Exception as downloadErr:
             LOGGER.warning(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["audios"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
-            time.sleep(4)
+            await asyncio.sleep(4)
             await cb.message.delete(True)
             continue
         files_list.append(f"{file_dl_path}")
@@ -80,13 +77,13 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     except MessageNotModified:
         await cb.message.edit("Sucessfully Muxed Video ! ✅")
     LOGGER.info(f"Video muxed for: {cb.from_user.first_name} ")
-    time.sleep(3)
+    await asyncio.sleep(3)
     file_size = os.path.getsize(muxed_video)
     os.rename(muxed_video, new_file_name)
     await cb.message.edit(
         f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
-    time.sleep(2)
+    await asyncio.sleep(2)
     merged_video_path = new_file_name
    
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
@@ -97,10 +94,16 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         formatDB.update({cb.from_user.id: None})
         return
   
-    if file_size > 2044723200:
-        await cb.message.edit("Video is Larger than 2GB Can't Upload")
+    if file_size > 2044723200 and IS_PREMIUM == False:
+        await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        formatDB.update({cb.from_user.id: None})
+        return
+    if IS_PREMIUM and file_size > 4241280205:
+        await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
+        await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
     await cb.message.edit("🎥 Extracting Video Data ...")

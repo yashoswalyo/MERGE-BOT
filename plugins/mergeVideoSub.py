@@ -1,8 +1,9 @@
 from pyrogram import Client
 import asyncio
-from bot import UPLOAD_AS_DOC, formatDB, queueDB, gDict, VIDEO_EXTENSIONS, SUBTITLE_EXTENSIONS, LOGGER, UPLOAD_TO_DRIVE
+from bot import UPLOAD_AS_DOC, formatDB, queueDB, gDict, VIDEO_EXTENSIONS,SUBTITLE_EXTENSIONS, LOGGER
 from bot import delete_all
 from pyrogram.types import CallbackQuery
+from config import Config
 from helpers import database
 import os
 import time
@@ -26,8 +27,8 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     await cb.message.edit("⭕ Processing...")
     duration = 0
     video_mess = queueDB.get(cb.from_user.id)["videos"][0]
-    list_message_ids:list = queueDB.get(cb.from_user.id)["subtitles"]
-    list_message_ids.insert(0,video_mess)
+    list_message_ids: list = queueDB.get(cb.from_user.id)["subtitles"]
+    list_message_ids.insert(0, video_mess)
     list_message_ids.sort()
     if list_message_ids is None:
         await cb.answer("Queue Empty", show_alert=True)
@@ -35,7 +36,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
         return
     if not os.path.exists(f"./downloads/{str(cb.from_user.id)}/"):
         os.makedirs(f"./downloads/{str(cb.from_user.id)}/")
-    msgs:list[Message] = await c.get_messages(
+    msgs: list[Message] = await c.get_messages(
         chat_id=cb.from_user.id, message_ids=list_message_ids
     )
     for i in msgs:
@@ -46,8 +47,8 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
         if currentFileNameExt in VIDEO_EXTENSIONS:
             tmpFileName = "vid.mkv"
         elif currentFileNameExt in SUBTITLE_EXTENSIONS:
-            tmpFileName = "sub."+currentFileNameExt
-        time.sleep(5)
+            tmpFileName = "sub." + currentFileNameExt
+        await asyncio.sleep(5)
         file_dl_path = None
         try:
             c_time = time.time()
@@ -58,19 +59,16 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
                 progress=prog.progress_for_pyrogram,
                 progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time),
             )
-            if (
-                gDict[cb.message.chat.id]
-                and cb.message.id in gDict[cb.message.chat.id]
-            ):
+            if gDict[cb.message.chat.id] and cb.message.id in gDict[cb.message.chat.id]:
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
-            time.sleep(4)
+            await asyncio.sleep(4)
         except Exception as downloadErr:
             LOGGER.warning(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["subtitles"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
-            time.sleep(4)
+            await asyncio.sleep(4)
             await cb.message.delete(True)
             continue
         vid_list.append(f"{file_dl_path}")
@@ -93,13 +91,13 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     except MessageNotModified:
         await cb.message.edit("Sucessfully Muxed Video ! ✅")
     LOGGER.info(f"Video muxed for: {cb.from_user.first_name} ")
-    time.sleep(3)
+    await asyncio.sleep(3)
     file_size = os.path.getsize(subbed_video)
     os.rename(subbed_video, new_file_name)
     await cb.message.edit(
         f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
-    time.sleep(2)
+    await asyncio.sleep(3)
     merged_video_path = new_file_name
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         await rclone_driver(omess, cb, merged_video_path)
@@ -107,8 +105,14 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
-    if file_size > 2044723200:
-        await cb.message.edit("Video is Larger than 2GB Can't Upload")
+    if file_size > 2044723200 and IS_PREMIUM == False:
+        await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
+        await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        formatDB.update({cb.from_user.id: None})
+        return
+    if IS_PREMIUM and file_size > 4241280205:
+        await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})

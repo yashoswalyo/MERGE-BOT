@@ -4,11 +4,10 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 import sys
-from config import Config
 from helpers.msg_utils import MakeButtons
 
 """Some Constants"""
-MERGE_MODE = {} # Maintain each user merge_mode
+MERGE_MODE = {}  # Maintain each user merge_mode
 UPLOAD_AS_DOC = {}  # Maintain each user ul_type
 UPLOAD_TO_DRIVE = {}  # Maintain each user drive_choice
 
@@ -21,18 +20,18 @@ formatDB = {}
 replyDB = {}
 
 VIDEO_EXTENSIONS = ["mkv", "mp4", "webm", "ts", "wav", "mov"]
-AUDIO_EXTENSIONS = ['aac','ac3','eac3','m4a','mka','thd','dts']
-SUBTITLE_EXTENSIONS = ['srt','ass']
+AUDIO_EXTENSIONS = ["aac", "ac3", "eac3", "m4a", "mka", "thd", "dts"]
+SUBTITLE_EXTENSIONS = ["srt", "ass"]
 
-w = open('Merge-Bot.txt','w')
+w = open("Merge-Bot.txt", "w")
 w.truncate(0)
 logging.basicConfig(
     level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s [%(filename)s:%(lineno)d]",
+    format="%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
     datefmt="%d-%b-%y %H:%M:%S",
     handlers=[
         RotatingFileHandler("Merge-Bot.txt", maxBytes=50000000, backupCount=10),
-        logging.StreamHandler(sys.stdout), #to get sys messages
+        logging.StreamHandler(sys.stdout),  # to get sys messages
     ],
 )
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
@@ -40,8 +39,8 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("PIL").setLevel(logging.WARNING)
 
 LOGGER = logging.getLogger(__name__)
-BROADCAST_MSG = '''
+BROADCAST_MSG = """
 **Total: {}
 Done: {}**
-'''
+"""
 bMaker = MakeButtons()
