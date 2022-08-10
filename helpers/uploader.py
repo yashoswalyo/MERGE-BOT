@@ -104,6 +104,6 @@ async def uploadVideo(
             if Config.LOGCHANNEL is not None:
                 media = sent_.video or sent_.document
                 await sent_.copy(
-                    chat_id=Config.LOGCHANNEL,
+                    chat_id=int(LOGCHANNEL),
                     caption=f"`{media.file_name}`\n\nMerged for: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.first_name}",
                 )
