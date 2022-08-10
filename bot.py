@@ -550,7 +550,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
     markup.append([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
     markup.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
     return markup
-IS_PREMIUM = bool
+IS_PREMIUM = False
 LOGCHANNEL = Config.LOGCHANNEL
 try:
     if Config.USER_SESSION_STRING is None:
