@@ -550,7 +550,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
     markup.append([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
     markup.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
     return markup
-IS_PREMIUM = False
+
 LOGCHANNEL = Config.LOGCHANNEL
 try:
     if Config.USER_SESSION_STRING is None:
@@ -575,9 +575,10 @@ if __name__ == "__main__":
         with userBot:
             userBot.send_message(chat_id=int(LOGCHANNEL), text="Bot booted with Premium Account,\n\n  Thanks for using <a href='https://github.com/yashoswalyo/merge-bot'>this repo</a>",disable_web_page_preview=True)
             user = userBot.get_me()
-            IS_PREMIUM = user.is_premium
-    except:
-        IS_PREMIUM = False
+            Config.IS_PREMIUM = user.is_premium
+    except Exception as err:
+        LOGGER.error(f"{err}")
+        Config.IS_PREMIUM = False
         pass
 
     mergeApp.run()

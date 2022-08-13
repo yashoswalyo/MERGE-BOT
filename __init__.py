@@ -34,7 +34,7 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout),  # to get sys messages
     ],
 )
-logging.getLogger("pyrogram").setLevel(logging.ERROR)
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("PIL").setLevel(logging.WARNING)
 

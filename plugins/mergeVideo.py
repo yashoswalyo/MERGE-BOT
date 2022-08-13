@@ -1,6 +1,6 @@
 
 import asyncio
-from bot import UPLOAD_TO_DRIVE, UPLOAD_AS_DOC, formatDB, queueDB, gDict, IS_PREMIUM, LOGGER
+from bot import UPLOAD_TO_DRIVE, UPLOAD_AS_DOC, formatDB, queueDB, gDict, LOGGER
 from bot import delete_all, mergeApp as Client
 from pyrogram.types import CallbackQuery
 from config import Config
@@ -30,6 +30,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     list_message_ids.sort()
     list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
     # list_subtitle_ids.sort()
+    LOGGER.info(Config.IS_PREMIUM)
     print(list_message_ids, list_subtitle_ids)
     if list_message_ids is None:
         await cb.answer("Queue Empty", show_alert=True)
@@ -136,13 +137,13 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
-    if file_size > 2044723200 and IS_PREMIUM == False:
+    if file_size > 2044723200 and Config.IS_PREMIUM == False:
         await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         return
-    if IS_PREMIUM and file_size > 4241280205:
+    if Config.IS_PREMIUM and file_size > 4241280205:
         await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})

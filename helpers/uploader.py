@@ -8,7 +8,7 @@ from pyrogram.types import (
 )
 from helpers.display_progress import Progress
 from config import Config
-from bot import IS_PREMIUM, userBot ,LOGCHANNEL
+from bot import userBot ,LOGCHANNEL
 
 
 async def uploadVideo(
@@ -23,7 +23,7 @@ async def uploadVideo(
     upload_mode: bool,
 ):
     # Report your errors in telegram group.
-    if IS_PREMIUM:
+    if Config.IS_PREMIUM:
         sent_ = None
         prog = Progress(cb.from_user.id, c, cb.message)
         async with userBot:

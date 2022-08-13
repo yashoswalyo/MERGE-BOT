@@ -11,5 +11,5 @@ class Config(object):
     DATABASE_URL = os.environ.get("DATABASE_URL")
     LOGCHANNEL = os.environ.get("LOGCHANNEL")  # Add channel id as -100 + Actual ID
     USER_SESSION_STRING = os.environ.get("USER_SESSION_STRING", None)
-    
+    IS_PREMIUM = False
     MODES = ["video-video", "video-audio", "video-subtitle"]
