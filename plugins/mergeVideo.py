@@ -20,7 +20,7 @@ from PIL import Image
 
 async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     omess = cb.message.reply_to_message
-    # print(omess.id)
+    # LOGGER.info(omess.id)
     vid_list = list()
     sub_list = list()
     sIndex = 0
@@ -31,7 +31,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
     # list_subtitle_ids.sort()
     LOGGER.info(Config.IS_PREMIUM)
-    print(list_message_ids, list_subtitle_ids)
+    LOGGER.info(list_message_ids, list_subtitle_ids)
     if list_message_ids is None:
         await cb.answer("Queue Empty", show_alert=True)
         await cb.message.delete(True)
@@ -44,7 +44,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     ):
         media = i.video or i.document
         await cb.message.edit(f"📥 Starting Download of ... `{media.file_name}`")
-        print(f"📥 Starting Download of ... {media.file_name}")
+        LOGGER.info(f"📥 Starting Download of ... {media.file_name}")
         await asyncio.sleep(5)
         file_dl_path = None
         sub_dl_path = None
@@ -63,13 +63,13 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
             ):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
-            print(f"Downloaded Sucessfully ... {media.file_name}")
+            LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
             await asyncio.sleep(5)
         except UnknownError as e:
-            print(e)
+            LOGGER.info(e)
             pass
         except Exception as downloadErr:
-            print(f"Failed to download Error: {downloadErr}")
+            LOGGER.info(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["video"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
             await asyncio.sleep(4)
@@ -83,9 +83,9 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
                 message=a,
                 file_name=f"./downloads/{str(cb.from_user.id)}/{str(a.id)}/",
             )
-            print("Got sub: ", a.document.file_name)
+            LOGGER.info("Got sub: ", a.document.file_name)
             file_dl_path = await MergeSub(file_dl_path, sub_dl_path, cb.from_user.id)
-            print("Added subs")
+            LOGGER.info("Added subs")
         sIndex += 1
 
         metadata = extractMetadata(createParser(file_dl_path))
@@ -95,7 +95,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
             vid_list.append(f"file '{file_dl_path}'")
         except:
             await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-            queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+            queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
             formatDB.update({cb.from_user.id: None})
             await cb.message.edit("⚠️ Video is corrupted")
             return
@@ -115,14 +115,14 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     if merged_video_path is None:
         await cb.message.edit("❌ Failed to merge video !")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     try:
         await cb.message.edit("✅ Sucessfully Merged Video !")
     except MessageNotModified:
         await cb.message.edit("Sucessfully Merged Video ! ✅")
-    print(f"Video merged for: {cb.from_user.first_name} ")
+    LOGGER.info(f"Video merged for: {cb.from_user.first_name} ")
     await asyncio.sleep(3)
     file_size = os.path.getsize(merged_video_path)
     os.rename(merged_video_path, new_file_name)
@@ -134,19 +134,19 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         await rclone_driver(omess, cb, merged_video_path)
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     if file_size > 2044723200 and Config.IS_PREMIUM == False:
         await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     if Config.IS_PREMIUM and file_size > 4241280205:
         await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     await cb.message.edit("🎥 Extracting Video Data ...")
@@ -157,7 +157,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
             duration = metadata.get("duration").seconds
     except Exception as er:
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("⭕ Merged Video is corrupted")
         return
@@ -166,7 +166,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         video_thumbnail = f"./downloads/{str(cb.from_user.id)}_thumb.jpg"
         await c.download_media(message=str(thumb_id), file_name=video_thumbnail)
     except Exception as err:
-        print("Generating thumb")
+        LOGGER.info("Generating thumb")
         video_thumbnail = await take_screen_shot(
             merged_video_path, f"downloads/{str(cb.from_user.id)}", (duration / 2)
         )
@@ -185,7 +185,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         Image.open(video_thumbnail).convert("RGB").save(video_thumbnail, "JPEG")
     except:
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("⭕ Merged Video is corrupted")
         return
@@ -202,6 +202,6 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     )
     await cb.message.delete(True)
     await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-    queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+    queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
     formatDB.update({cb.from_user.id: None})
     return

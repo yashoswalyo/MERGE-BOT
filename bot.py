@@ -73,13 +73,18 @@ mergeApp = MergeBot(
 if os.path.exists("./downloads") == False:
     os.makedirs("./downloads")
 
+@mergeApp.on_message(filters.command(['log']) & filters.user(Config.OWNER_USERNAME))
+async def sendLogFile(c:Client,m:Message):
+    await m.reply_document(document="./mergebotlog.txt")
+    return
 
 @mergeApp.on_message(filters.command(["login"]) & filters.private)
 async def allowUser(c: Client, m: Message):
-    if await database.allowedUser(uid=m.from_user.id) is True:
+    if await database.allowedUser(uid=m.from_user.id) is True | m.from_user.id == int(Config.OWNER):
         await m.reply_text(text=f"**Dont Spam**\n  ⚡ You can use me!!", quote=True)
     else:
         passwd = m.text.split(" ", 1)[1]
+        passwd = passwd.strip()
         if passwd == Config.PASSWORD:
             await database.allowUser(
                 uid=m.from_user.id,
@@ -189,7 +194,7 @@ async def start_handler(c: Client, m: Message):
 
 
 @mergeApp.on_message((filters.document | filters.video | filters.audio) & filters.private)
-async def video_handler(c: Client, m: Message):
+async def files_handler(c: Client, m: Message):
     user_id = m.from_user.id
     if user_id != int(Config.OWNER):
         if await database.allowedUser(uid=user_id) is False:
@@ -251,7 +256,7 @@ async def video_handler(c: Client, m: Message):
         MessageText = "Okay,\nNow Send Me Next Video or Press **Merge Now** Button!"
 
         if queueDB.get(user_id, None) is None:
-            queueDB.update({m.from_user.id: {"videos": [], "subtitles": []}})
+            queueDB.update({user_id: {"videos": [], "subtitles": [], "audios":[]}})
         if (
             len(queueDB.get(user_id)["videos"]) >= 0
             and len(queueDB.get(user_id)["videos"]) < 10
@@ -298,7 +303,7 @@ async def video_handler(c: Client, m: Message):
         )
 
         if queueDB.get(user_id, None) is None:
-            queueDB.update({user_id: {"videos": [], "audios": []}})
+            queueDB.update({user_id: {"videos": [], "subtitles": [], "audios":[]}})
         if len(queueDB.get(user_id)["videos"]) == 0:
             queueDB.get(user_id)["videos"].append(m.id)
             # if len(queueDB.get(user_id)["videos"])==1:
@@ -334,7 +339,7 @@ async def video_handler(c: Client, m: Message):
         editable = await m.reply_text("Please Wait ...", quote=True)
         MessageText = "Okay,\nNow Send Me Some More <u>Subtitles</u> or Press **Merge Now** Button!"
         if queueDB.get(user_id, None) is None:
-            queueDB.update({user_id: {"videos": [], "subtitles": []}})
+            queueDB.update({user_id: {"videos": [], "subtitles": [], "audios":[]}})
         if len(queueDB.get(user_id)["videos"]) == 0:
             queueDB.get(user_id)["videos"].append(m.id)
             # if len(queueDB.get(user_id)["videos"])==1:
@@ -475,7 +480,7 @@ async def delete_all(root):
     try:
         shutil.rmtree(root)
     except Exception as e:
-        print(e)
+        LOGGER.info(e)
 
 
 async def makeButtons(bot: Client, m: Message, db: dict):
@@ -509,7 +514,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
             ),
         )
         for i in msgs:
-            media = i.video or i.document or None
+            media = i.audio or i.document or None
             if media is None:
                 continue
             else:
@@ -555,7 +560,7 @@ LOGCHANNEL = Config.LOGCHANNEL
 try:
     if Config.USER_SESSION_STRING is None:
         raise KeyError
-    LOGGER.info("Generating USER Session")
+    LOGGER.info("Starting USER Session")
     userBot = Client(
         name="merge-bot-user",
         session_string=Config.USER_SESSION_STRING,

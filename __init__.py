@@ -20,17 +20,17 @@ formatDB = {}
 replyDB = {}
 
 VIDEO_EXTENSIONS = ["mkv", "mp4", "webm", "ts", "wav", "mov"]
-AUDIO_EXTENSIONS = ["aac", "ac3", "eac3", "m4a", "mka", "thd", "dts"]
+AUDIO_EXTENSIONS = ["aac", "ac3", "eac3", "m4a", "mka", "thd", "dts", "mp3"]
 SUBTITLE_EXTENSIONS = ["srt", "ass"]
 
-w = open("Merge-Bot.txt", "w")
+w = open("mergebotlog.txt", "w")
 w.truncate(0)
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
     datefmt="%d-%b-%y %H:%M:%S",
     handlers=[
-        RotatingFileHandler("Merge-Bot.txt", maxBytes=50000000, backupCount=10),
+        RotatingFileHandler("mergebotlog.txt", maxBytes=50000000, backupCount=10),
         logging.StreamHandler(sys.stdout),  # to get sys messages
     ],
 )

@@ -69,7 +69,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     if muxed_video is None:
         await cb.message.edit("❌ Failed to add audio to video !")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     try:
@@ -83,27 +83,27 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     await cb.message.edit(
         f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
-    await asyncio.sleep(2)
+    await asyncio.sleep(3)
     merged_video_path = new_file_name
    
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         # uploads to drive using rclone
         await rclone_driver(omess, cb, merged_video_path)
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
   
     if file_size > 2044723200 and Config.IS_PREMIUM == False:
         await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     if Config.IS_PREMIUM and file_size > 4241280205:
         await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     await cb.message.edit("🎥 Extracting Video Data ...")
@@ -115,7 +115,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
             duration = metadata.get("duration").seconds
     except Exception as er:
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("⭕ Merged Video is corrupted")
         return
@@ -143,11 +143,10 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         Image.open(video_thumbnail).convert("RGB").save(video_thumbnail, "JPEG")
     except:
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit(
             "⭕ Merged Video is corrupted \n\n<i>Try setting custom thumbnail</i>",
-            parse_mode="html",
         )
         return
     await uploadVideo(
@@ -163,6 +162,6 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     )
     await cb.message.delete(True)
     await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-    queueDB.update({cb.from_user.id: {"videos": [], "audios": []}})
+    queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
     formatDB.update({cb.from_user.id: None})
     return

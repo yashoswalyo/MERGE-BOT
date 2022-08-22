@@ -50,7 +50,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         if os.path.exists(f"userdata/{cb.from_user.id}/rclone.conf") is False:
             await cb.message.delete()
             await delete_all(root=f"downloads/{cb.from_user.id}/")
-            queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+            queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
             formatDB.update({cb.from_user.id: None})
             return
         UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": True})
@@ -119,7 +119,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     elif cb.data.startswith("rclone_"):
         if "save" in cb.data:
             fileId = cb.message.reply_to_message.document.file_id
-            print(fileId)
+            LOGGER.info(fileId)
             await c.download_media(
                 message=cb.message.reply_to_message,
                 file_name=f"./userdata/{cb.from_user.id}/rclone.conf",
@@ -170,7 +170,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
 
     elif cb.data == "cancel":
         await delete_all(root=f"downloads/{cb.from_user.id}/")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("Sucessfully Cancelled")
         await asyncio.sleep(5)
@@ -193,7 +193,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
                 cache_time=0,
             )
         await delete_all(root=f"downloads/{cb.from_user.id}/")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
 
@@ -215,7 +215,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
 
     elif cb.data.startswith("showFileName_"):
         id = int(cb.data.rsplit("_", 1)[-1])
-        print(
+        LOGGER.info(
             queueDB.get(cb.from_user.id)["videos"],
             queueDB.get(cb.from_user.id)["subtitles"],
         )
@@ -354,7 +354,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
                 quote=True,
             )
             await rmess.delete(True)
-            print("Added sub to list")
+            LOGGER.info("Added sub to list")
         return
 
     elif cb.data.startswith("removeSub_"):
@@ -373,7 +373,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
                 ]
             ),
         )
-        print("Sub removed from list")
+        LOGGER.info("Sub removed from list")
         return
 
     elif cb.data == "back":

@@ -21,7 +21,6 @@ from PIL import Image
 
 
 async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
-    print()
     omess = cb.message.reply_to_message
     vid_list = list()
     await cb.message.edit("⭕ Processing...")
@@ -63,7 +62,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
-            await asyncio.sleep(4)
+            await asyncio.sleep(5)
         except Exception as downloadErr:
             LOGGER.warning(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["subtitles"].remove(i.id)
@@ -83,7 +82,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     if subbed_video is None:
         await cb.message.edit("❌ Failed to add subs video !")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     try:
@@ -102,19 +101,19 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         await rclone_driver(omess, cb, merged_video_path)
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     if file_size > 2044723200 and Config.IS_PREMIUM == False:
         await cb.message.edit(f"Video is Larger than 2GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to add premium account to get 4GB TG uploads")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     if Config.IS_PREMIUM and file_size > 4241280205:
         await cb.message.edit(f"Video is Larger than 4GB Can't Upload,\n\n Tell {Config.OWNER_USERNAME} to die with premium account")
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
     await cb.message.edit("🎥 Extracting Video Data ...")
@@ -126,7 +125,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
             duration = metadata.get("duration").seconds
     except Exception as er:
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("⭕ Merged Video is corrupted")
         return
@@ -154,11 +153,10 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
         Image.open(video_thumbnail).convert("RGB").save(video_thumbnail, "JPEG")
     except:
         await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit(
             "⭕ Merged Video is corrupted \n\n<i>Try setting custom thumbnail</i>",
-            parse_mode="html",
         )
         return
     await uploadVideo(
@@ -174,6 +172,6 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     )
     await cb.message.delete(True)
     await delete_all(root=f"./downloads/{str(cb.from_user.id)}")
-    queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+    queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
     formatDB.update({cb.from_user.id: None})
     return

@@ -91,7 +91,7 @@ class Progress:
             # cpu = "{psutil.cpu_percent()}%"
             tmp = (
                 progress
-                + "\n**⌧ Total 🗃:**` 〚{1}〛`\n**⌧ Done ✅ :**` 〚{0}〛`\n**⌧ Speed 📊 :** ` 〚{2}〛`\n**⌧ ETA 🔃 :**` 〚{3}〛`".format(
+                + "\n**⌧ Total 🗃:**` 〚{1}〛`\n**⌧ Done ✅ :**` 〚{0}〛`\n**⌧ Speed 📊 :** ` 〚{2}/s〛`\n**⌧ ETA 🔃 :**` 〚{3}〛`".format(
                     humanbytes(current),
                     humanbytes(total),
                     humanbytes(speed),
@@ -122,11 +122,11 @@ def humanbytes(size):
         return ""
     power = 2**10
     n = 0
-    Dic_powerN = {0: " ", 1: "K", 2: "M", 3: "G", 4: "T"}
+    Dic_powerN = {0: "", 1: "K", 2: "M", 3: "G", 4: "T"}
     while size > power:
         size /= power
         n += 1
-    return str(round(size, 2)) + " " + Dic_powerN[n] + "B/s"
+    return f"{str(round(size, 2))} {Dic_powerN[n]}B"
 
 
 def TimeFormatter(milliseconds: int) -> str:
