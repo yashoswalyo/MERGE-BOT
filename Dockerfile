@@ -4,7 +4,7 @@ WORKDIR /usr/src/mergebot
 RUN chmod 777 /usr/src/mergebot
 
 RUN apt-get -y update && apt-get -y upgrade && apt-get install apt-utils -y && \
-    apt-get install -y python3 python3-pip \
+    apt-get install -y python3 python3-pip git \
     p7zip-full p7zip-rar xz-utils wget curl pv jq \
     ffmpeg unzip neofetch mediainfo
 
