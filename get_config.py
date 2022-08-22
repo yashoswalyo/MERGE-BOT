@@ -2,7 +2,7 @@ from requests import get as rget
 from __init__ import LOGGER
 import os
 
-CONFIG_FILE_URL = os.environ.get('https://gist.githubusercontent.com/yashoswalyo/3f101445fd6504c28d77d743a9f69f2d/raw/mergebot-config.env')
+CONFIG_FILE_URL = os.environ.get('CONFIG_FILE_URL')
 try:
     if len(CONFIG_FILE_URL) == 0:
         raise TypeError

@@ -84,6 +84,7 @@ async def allowUser(c: Client, m: Message):
         await m.reply_text(text=f"**Dont Spam**\n  ⚡ You can use me!!", quote=True)
     else:
         passwd = m.text.split(" ", 1)[1]
+        passwd = passwd.strip()
         if passwd == Config.PASSWORD:
             await database.allowUser(
                 uid=m.from_user.id,
