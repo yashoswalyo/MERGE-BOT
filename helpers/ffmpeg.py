@@ -149,7 +149,7 @@ def MergeAudio(videoPath:str,files_list:list,user_id):
         maps += f"-map {j}:a "
     LOGGER.info("Merging files now")
     subprocess.call(
-        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy './downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
+        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a:? {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy './downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
         shell=True
     )
     return f"./downloads/{str(user_id)}/[@yashoswalyo]_export.mkv"

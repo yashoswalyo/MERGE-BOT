@@ -75,7 +75,7 @@ if os.path.exists("./downloads") == False:
 
 @mergeApp.on_message(filters.command(['log']) & filters.user(Config.OWNER_USERNAME))
 async def sendLogFile(c:Client,m:Message):
-    await m.reply_document(document="./mergebotlog.txt",reply_markup=True)
+    await m.reply_document(document="./mergebotlog.txt")
     return
 
 @mergeApp.on_message(filters.command(["login"]) & filters.private)

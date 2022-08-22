@@ -47,7 +47,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
             tmpFileName = "vid.mkv"
         elif currentFileNameExt in SUBTITLE_EXTENSIONS:
             tmpFileName = "sub." + currentFileNameExt
-        await asyncio.sleep
+        await asyncio.sleep(5)
         file_dl_path = None
         try:
             c_time = time.time()
