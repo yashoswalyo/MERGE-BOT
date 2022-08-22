@@ -44,14 +44,14 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
         await message.edit(
             text="Unable to Execute FFmpeg Command! Got `NotImplementedError` ...\n\nPlease run bot in a Linux/Unix Environment."
         )
-        await asyncio.sleep(10)
+        await time.sleep(10)
         return None
     await message.edit("Merging Video Now ...\n\nPlease Keep Patience ...")
     stdout, stderr = await process.communicate()
     e_response = stderr.decode().strip()
     t_response = stdout.decode().strip()
-    print(e_response)
-    print(t_response)
+    LOGGER.info(e_response)
+    LOGGER.info(t_response)
     if os.path.lexists(output_vid):
         return output_vid
     else:
@@ -69,7 +69,7 @@ async def MergeSub(filePath: str, subPath: str, user_id):
 
     returns: Merged Video File Path
     """
-    print("Generating mux command")
+    LOGGER.info("Generating mux command")
     input_files = ""
     maps = ""
     metadata = ""
@@ -83,7 +83,7 @@ async def MergeSub(filePath: str, subPath: str, user_id):
     maps += f"-map 1:s "
     metadata += f"-metadata:s:s:{subTrack} title='Track {subTrack+1} - tg@yashoswalyo' "
     subTrack += 1
-    print("Sub muxing")
+    LOGGER.info("Sub muxing")
     subprocess.call(
         f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a -map 0:s? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv' ",
         shell=True,
@@ -106,7 +106,7 @@ def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
 
     returns: Merged Video File Path
     """
-    print("Generating mux command")
+    LOGGER.info("Generating mux command")
     input_files = ""
     maps = ""
     metadata = ""
@@ -124,7 +124,7 @@ def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
             f"-metadata:s:s:{subTrack} title='Track {subTrack+1} - tg@yashoswalyo' "
         )
         subTrack += 1
-    print("Sub muxing")
+    LOGGER.info("Sub muxing")
     subprocess.call(
         f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a -map 0:s? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",
         shell=True,
@@ -181,8 +181,8 @@ async def cult_small_video(video_file, output_directory, start_time, end_time, f
     stdout, stderr = await process.communicate()
     e_response = stderr.decode().strip()
     t_response = stdout.decode().strip()
-    print(e_response)
-    print(t_response)
+    LOGGER.info(e_response)
+    LOGGER.info(t_response)
     if os.path.lexists(out_put_file_name):
         return out_put_file_name
     else:

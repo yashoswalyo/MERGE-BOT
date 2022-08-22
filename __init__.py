@@ -20,7 +20,7 @@ formatDB = {}
 replyDB = {}
 
 VIDEO_EXTENSIONS = ["mkv", "mp4", "webm", "ts", "wav", "mov"]
-AUDIO_EXTENSIONS = ["aac", "ac3", "eac3", "m4a", "mka", "thd", "dts"]
+AUDIO_EXTENSIONS = ["aac", "ac3", "eac3", "m4a", "mka", "thd", "dts", "mp3"]
 SUBTITLE_EXTENSIONS = ["srt", "ass"]
 
 w = open("Merge-Bot.txt", "w")

@@ -54,6 +54,6 @@ Merge mode: {userMergeModeStr}"""
     else:
         setUserMergeMode(uid=int(uid), mode=1)
         await userSettings(editable, uid, fname, lname)
-    # await asyncio.sleep(10)
+    # await time.sleep(10)
     # await c.delete_messages(chat_id=editable.chat.id, message_ids=[res.id-1,res.id])
     return

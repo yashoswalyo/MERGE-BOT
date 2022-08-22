@@ -9,7 +9,7 @@ from pyrogram.types import (
 from helpers.display_progress import Progress
 from config import Config
 from bot import userBot ,LOGCHANNEL
-
+from __init__ import LOGGER
 
 async def uploadVideo(
     c:Client,
@@ -98,12 +98,12 @@ async def uploadVideo(
                     ),
                 )
         except Exception as err:
-            print(err)
+            LOGGER.info(err)
             await cb.message.edit("Failed to upload")
         if sent_ is not None:
             if Config.LOGCHANNEL is not None:
                 media = sent_.video or sent_.document
                 await sent_.copy(
                     chat_id=int(LOGCHANNEL),
-                    caption=f"`{media.file_name}`\n\nMerged for: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.first_name}",
+                    caption=f"`{media.file_name}`\n\nMerged for: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.first_name}</a>",
                 )

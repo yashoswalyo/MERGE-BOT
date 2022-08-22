@@ -17,9 +17,9 @@ async def addUser(uid, fname, lname):
             "name": f"{fname} {lname}",
         }
         Database.mergebot.users.insert_one(userDetails)
-        print(f"New user added id={uid}\n{fname} {lname} \n")
+        LOGGER.info(f"New user added id={uid}\n{fname} {lname} \n")
     except DuplicateKeyError:
-        print(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
+        LOGGER.info(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
     return
 
 
@@ -36,7 +36,7 @@ async def allowUser(uid, fname, lname):
             }
         )
     except DuplicateKeyError:
-        print(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
+        LOGGER.info(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
     return
 
 
@@ -77,7 +77,7 @@ async def addUserRcloneConfig(cb: CallbackQuery, fileId):
         uid = cb.from_user.id
         Database.mergebot.rcloneData.insert_one({"_id": uid, "rcloneFileId": fileId})
     except Exception as err:
-        print("Updating rclone")
+        LOGGER.info("Updating rclone")
         await cb.message.edit("Updating file in DB")
         uid = cb.from_user.id
         Database.mergebot.rcloneData.replace_one({"_id": uid}, {"rcloneFileId": fileId})

@@ -10,6 +10,7 @@ from pyrogram.errors import FloodWait, MessageNotModified
 from pyrogram.types import CallbackQuery, Message
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from helpers import database
+from __init__ import LOGGER
 
 
 class Status:
@@ -100,17 +101,16 @@ class RCUploadTask(Status):
             try:
                 await self._message.edit(
                     progress,
-                    parse_mode="html",
                     reply_markup=InlineKeyboardMarkup(
                         [[InlineKeyboardButton("Cancel", callback_data="cancel")]]
                     ),
                 )
             except MessageNotModified as e:
-                print("{}".format(e))
+                LOGGER.info("{}".format(e))
             except FloodWait as e:
-                print("{}".format(e))
+                LOGGER.info("{}".format(e))
             except Exception as e:
-                print("Not expected {}".format(e))
+                LOGGER.info("Not expected {}".format(e))
 
     async def is_active(self):
         return self._active
@@ -144,7 +144,7 @@ async def rclone_driver(userMess: Message, cb: CallbackQuery, merged_video_path)
         )
     except Exception as er:
         await ul_task.set_inactive()
-        print("Stuff gone wrong in here: " + str(er))
+        LOGGER.info("Stuff gone wrong in here: " + str(er))
         return
 
 
@@ -191,7 +191,7 @@ async def rclone_upload(
         task.cancel = True
         return task
 
-    print("Upload Complete")
+    LOGGER.info("Upload Complete")
     gid = await getGdriveLink(
         driveName=DRIVE_NAME,
         baseDir=BASE_DIR,
@@ -206,7 +206,7 @@ async def rclone_upload(
         reply_markup=InlineKeyboardMarkup([button]),
     )
 
-    print(f"Uploaded folder id: {gid}")
+    LOGGER.info(f"Uploaded folder id: {gid}")
     await msg.delete()
     return task
 
@@ -243,12 +243,12 @@ async def rclone_process_display(
 
         if sleeps:
             sleeps = False
-            await asyncio.sleep(2)
+            await time.sleep(2)
             process.stdout.flush()
 
 
 async def getGdriveLink(driveName, baseDir, entName: str, conf_path: str, isdir=True):
-    print("Ent - ", entName)
+    LOGGER.info("Ent - ", entName)
     entName = re.escape(entName)
     filter_path = os.path.join(os.getcwd(), str(time.time()).replace(".", "") + ".txt")
     # with open(filter_path,'w',encoding="UTF-8") as file:
@@ -282,4 +282,4 @@ async def getGdriveLink(driveName, baseDir, entName: str, conf_path: str, isdir=
         name = data[0]["Name"]
         return (id, name)
     except Exception:
-        print(f"Error occured: {traceback.format_exc()} {stdout} ")
+        LOGGER.info(f"Error occured: {traceback.format_exc()} {stdout} ")

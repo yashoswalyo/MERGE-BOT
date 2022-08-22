@@ -73,6 +73,10 @@ mergeApp = MergeBot(
 if os.path.exists("./downloads") == False:
     os.makedirs("./downloads")
 
+@mergeApp.on_message(filters.command(['log']) & filters.user(Config.OWNER))
+async def sendLogFile(c:Client,m:Message):
+    await m.reply_document(document="mergebotlog.txt",reply_markup=True)
+    return
 
 @mergeApp.on_message(filters.command(["login"]) & filters.private)
 async def allowUser(c: Client, m: Message):
@@ -143,7 +147,7 @@ async def broadcast_handler(c: Client, m: Message):
             await status.edit_text(text=BROADCAST_MSG.format(len, success))
             LOGGER.info(f"Message sent to {userList[i]['name']} ")
         except FloodWait as e:
-            await asyncio.sleep(e.x)
+            await time.sleep(e.x)
             await msg.copy(chat_id=userList[i]["_id"])
             LOGGER.info(f"Message sent to {userList[i]['name']} ")
         except InputUserDeactivated:
@@ -161,7 +165,7 @@ async def broadcast_handler(c: Client, m: Message):
             )
         except Exception as err:
             LOGGER.warning(f"{err}\n")
-        await asyncio.sleep(3)
+        await time.sleep(3)
     await status.edit_text(
         text=BROADCAST_MSG.format(len, success)
         + f"**Failed: {str(len-success)}**\n\n__🤓 Broadcast completed sucessfully__",
@@ -475,7 +479,7 @@ async def delete_all(root):
     try:
         shutil.rmtree(root)
     except Exception as e:
-        print(e)
+        LOGGER.info(e)
 
 
 async def makeButtons(bot: Client, m: Message, db: dict):
@@ -555,7 +559,7 @@ LOGCHANNEL = Config.LOGCHANNEL
 try:
     if Config.USER_SESSION_STRING is None:
         raise KeyError
-    LOGGER.info("Generating USER Session")
+    LOGGER.info("Starting USER Session")
     userBot = Client(
         name="merge-bot-user",
         session_string=Config.USER_SESSION_STRING,
