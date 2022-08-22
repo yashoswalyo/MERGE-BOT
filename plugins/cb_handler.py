@@ -50,7 +50,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         if os.path.exists(f"userdata/{cb.from_user.id}/rclone.conf") is False:
             await cb.message.delete()
             await delete_all(root=f"downloads/{cb.from_user.id}/")
-            queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+            queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
             formatDB.update({cb.from_user.id: None})
             return
         UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": True})
@@ -170,7 +170,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
 
     elif cb.data == "cancel":
         await delete_all(root=f"downloads/{cb.from_user.id}/")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("Sucessfully Cancelled")
         await asyncio.sleep(5)
@@ -193,7 +193,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
                 cache_time=0,
             )
         await delete_all(root=f"downloads/{cb.from_user.id}/")
-        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
+        queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios":[]}})
         formatDB.update({cb.from_user.id: None})
         return
 

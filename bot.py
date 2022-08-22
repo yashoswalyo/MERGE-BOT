@@ -194,7 +194,7 @@ async def start_handler(c: Client, m: Message):
 
 
 @mergeApp.on_message((filters.document | filters.video | filters.audio) & filters.private)
-async def video_handler(c: Client, m: Message):
+async def files_handler(c: Client, m: Message):
     user_id = m.from_user.id
     if user_id != int(Config.OWNER):
         if await database.allowedUser(uid=user_id) is False:
@@ -256,7 +256,7 @@ async def video_handler(c: Client, m: Message):
         MessageText = "Okay,\nNow Send Me Next Video or Press **Merge Now** Button!"
 
         if queueDB.get(user_id, None) is None:
-            queueDB.update({m.from_user.id: {"videos": [], "subtitles": []}})
+            queueDB.update({user_id: {"videos": [], "subtitles": [], "audios":[]}})
         if (
             len(queueDB.get(user_id)["videos"]) >= 0
             and len(queueDB.get(user_id)["videos"]) < 10
@@ -303,7 +303,7 @@ async def video_handler(c: Client, m: Message):
         )
 
         if queueDB.get(user_id, None) is None:
-            queueDB.update({user_id: {"videos": [], "audios": []}})
+            queueDB.update({user_id: {"videos": [], "subtitles": [], "audios":[]}})
         if len(queueDB.get(user_id)["videos"]) == 0:
             queueDB.get(user_id)["videos"].append(m.id)
             # if len(queueDB.get(user_id)["videos"])==1:
@@ -339,7 +339,7 @@ async def video_handler(c: Client, m: Message):
         editable = await m.reply_text("Please Wait ...", quote=True)
         MessageText = "Okay,\nNow Send Me Some More <u>Subtitles</u> or Press **Merge Now** Button!"
         if queueDB.get(user_id, None) is None:
-            queueDB.update({user_id: {"videos": [], "subtitles": []}})
+            queueDB.update({user_id: {"videos": [], "subtitles": [], "audios":[]}})
         if len(queueDB.get(user_id)["videos"]) == 0:
             queueDB.get(user_id)["videos"].append(m.id)
             # if len(queueDB.get(user_id)["videos"])==1:
