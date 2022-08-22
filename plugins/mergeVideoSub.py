@@ -62,7 +62,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
-            await asyncio.sleep
+            await asyncio.sleep(5)
         except Exception as downloadErr:
             LOGGER.warning(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["subtitles"].remove(i.id)
