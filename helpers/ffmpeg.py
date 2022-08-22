@@ -44,7 +44,7 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
         await message.edit(
             text="Unable to Execute FFmpeg Command! Got `NotImplementedError` ...\n\nPlease run bot in a Linux/Unix Environment."
         )
-        await time.sleep(10)
+        await asyncio.sleep(10)
         return None
     await message.edit("Merging Video Now ...\n\nPlease Keep Patience ...")
     stdout, stderr = await process.communicate()

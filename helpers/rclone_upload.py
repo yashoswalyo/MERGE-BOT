@@ -243,7 +243,7 @@ async def rclone_process_display(
 
         if sleeps:
             sleeps = False
-            await time.sleep(2)
+            await asyncio.sleep(2)
             process.stdout.flush()
 
 

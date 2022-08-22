@@ -173,7 +173,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": []}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit("Sucessfully Cancelled")
-        await time.sleep(5)
+        await asyncio.sleep(5)
         await cb.message.delete(True)
         return
 

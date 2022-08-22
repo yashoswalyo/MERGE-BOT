@@ -21,7 +21,6 @@ from PIL import Image
 
 
 async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
-    LOGGER.info()
     omess = cb.message.reply_to_message
     vid_list = list()
     await cb.message.edit("⭕ Processing...")
@@ -48,7 +47,7 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
             tmpFileName = "vid.mkv"
         elif currentFileNameExt in SUBTITLE_EXTENSIONS:
             tmpFileName = "sub." + currentFileNameExt
-        await time.sleep
+        await asyncio.sleep
         file_dl_path = None
         try:
             c_time = time.time()
@@ -63,12 +62,12 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
-            await time.sleep
+            await asyncio.sleep
         except Exception as downloadErr:
             LOGGER.warning(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["subtitles"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
-            await time.sleep(4)
+            await asyncio.sleep(4)
             await cb.message.delete(True)
             continue
         vid_list.append(f"{file_dl_path}")
@@ -91,13 +90,13 @@ async def mergeSub(c: Client, cb: CallbackQuery, new_file_name: str):
     except MessageNotModified:
         await cb.message.edit("Sucessfully Muxed Video ! ✅")
     LOGGER.info(f"Video muxed for: {cb.from_user.first_name} ")
-    await time.sleep(3)
+    await asyncio.sleep(3)
     file_size = os.path.getsize(subbed_video)
     os.rename(subbed_video, new_file_name)
     await cb.message.edit(
         f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
-    await time.sleep(3)
+    await asyncio.sleep(3)
     merged_video_path = new_file_name
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         await rclone_driver(omess, cb, merged_video_path)

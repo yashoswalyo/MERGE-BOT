@@ -73,14 +73,14 @@ mergeApp = MergeBot(
 if os.path.exists("./downloads") == False:
     os.makedirs("./downloads")
 
-@mergeApp.on_message(filters.command(['log']) & filters.user(Config.OWNER))
+@mergeApp.on_message(filters.command(['log']) & filters.user(Config.OWNER_USERNAME))
 async def sendLogFile(c:Client,m:Message):
-    await m.reply_document(document="mergebotlog.txt",reply_markup=True)
+    await m.reply_document(document="./mergebotlog.txt",reply_markup=True)
     return
 
 @mergeApp.on_message(filters.command(["login"]) & filters.private)
 async def allowUser(c: Client, m: Message):
-    if await database.allowedUser(uid=m.from_user.id) is True:
+    if await database.allowedUser(uid=m.from_user.id) is True | m.from_user.id == int(Config.OWNER):
         await m.reply_text(text=f"**Dont Spam**\n  ⚡ You can use me!!", quote=True)
     else:
         passwd = m.text.split(" ", 1)[1]
@@ -148,7 +148,7 @@ async def broadcast_handler(c: Client, m: Message):
             await status.edit_text(text=BROADCAST_MSG.format(len, success))
             LOGGER.info(f"Message sent to {userList[i]['name']} ")
         except FloodWait as e:
-            await time.sleep(e.x)
+            await asyncio.sleep(e.x)
             await msg.copy(chat_id=userList[i]["_id"])
             LOGGER.info(f"Message sent to {userList[i]['name']} ")
         except InputUserDeactivated:
@@ -166,7 +166,7 @@ async def broadcast_handler(c: Client, m: Message):
             )
         except Exception as err:
             LOGGER.warning(f"{err}\n")
-        await time.sleep(3)
+        await asyncio.sleep(3)
     await status.edit_text(
         text=BROADCAST_MSG.format(len, success)
         + f"**Failed: {str(len-success)}**\n\n__🤓 Broadcast completed sucessfully__",

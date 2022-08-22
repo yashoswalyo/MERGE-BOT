@@ -45,7 +45,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
         media = i.video or i.document
         await cb.message.edit(f"📥 Starting Download of ... `{media.file_name}`")
         LOGGER.info(f"📥 Starting Download of ... {media.file_name}")
-        await time.sleep(5)
+        await asyncio.sleep(5)
         file_dl_path = None
         sub_dl_path = None
         try:
@@ -64,7 +64,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
-            await time.sleep(5)
+            await asyncio.sleep(5)
         except UnknownError as e:
             LOGGER.info(e)
             pass
@@ -72,7 +72,7 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
             LOGGER.info(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["video"].remove(i.id)
             await cb.message.edit("❗File Skipped!")
-            await time.sleep(4)
+            await asyncio.sleep(4)
             continue
 
         if list_subtitle_ids[sIndex] is not None:
@@ -123,13 +123,13 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     except MessageNotModified:
         await cb.message.edit("Sucessfully Merged Video ! ✅")
     LOGGER.info(f"Video merged for: {cb.from_user.first_name} ")
-    await time.sleep(3)
+    await asyncio.sleep(3)
     file_size = os.path.getsize(merged_video_path)
     os.rename(merged_video_path, new_file_name)
     await cb.message.edit(
         f"🔄 Renamed Merged Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
-    await time.sleep(3)
+    await asyncio.sleep(3)
     merged_video_path = new_file_name
     if UPLOAD_TO_DRIVE[f"{cb.from_user.id}"]:
         await rclone_driver(omess, cb, merged_video_path)
