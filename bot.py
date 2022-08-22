@@ -514,7 +514,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
             ),
         )
         for i in msgs:
-            media = i.video or i.document or None
+            media = i.audio or i.document or None
             if media is None:
                 continue
             else:
