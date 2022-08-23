@@ -21,7 +21,7 @@ Bugs should be reported at: [Telegram Group](https://t.me/yo_codes_support)
 
 - FEATURES:
 + (new) Option to add multiple audio tracks to telegram video
-+ Option to add multiple subtitles to telegram video
++ (new) Option to add multiple subtitles to telegram video
 + Upload Files to Drive (Send your rclone config to bot)
 #  1. Send your rclone config to bot.
 #  2. Then send videos to merge, after you tap "Merge Now", upload to drive option will available.
@@ -47,8 +47,10 @@ Add `HEROKU_EMAIL` <br>
 Add `HEROKU_API_KEY` <br>
 Add `HEROKU_APP_NAME` <br>
 Add `CONFIG_FILE_URL` <br>
-Goto `Actions > Manual Deplot To Heroku > Run Workflow`
+Goto `Actions > Manual Deploy To Heroku > Run Workflow`
 
+### OR
+Coming soon
 ## Tutorial to get MongoDB URI:
 [![Watch the video](https://img.youtube.com/vi/OfQ7xxMylV4/hqdefault.jpg)](https://youtu.be/OfQ7xxMylV4)
 
@@ -61,8 +63,9 @@ Goto `Actions > Manual Deplot To Heroku > Run Workflow`
 5. `OWNER_USERNAME`: User name of bot owner
 6. `DATABASE_URL`: Enter your mongodb URI
 7. `PASSWORD`: Enter password to login bot
-8. `LOGCHANNEL`: Log channel will store all users merged videos
+8. `LOGCHANNEL`: Log channel will store all users merged videos ("-100" + "channel Id")
 9. `USER_SESSION_STRING`: Premium account session string to upload upto 4GB (requires `LOGCHANNEL`)
+
 
 ## Commands (add via @botfather) :
 ```
@@ -73,6 +76,7 @@ settings - User Settings to manage different modes
 help - How to use Bot
 about - About the bot
 login - Access bot
+log - (admin only) Get log file from server
 broadcast - (admin only) Broadcast message to bot users
 stats - (admin only) check bots stats
 ```
@@ -81,15 +85,15 @@ stats - (admin only) check bots stats
 ```sh
 $ git clone https://github.com/yashoswalyo/MERGE-BOT.git
 $ cd MERGE-BOT
-$ sudo apt-get install python3-pip ffmpeg
+$ sudo apt-get install python3 python3-pip ffmpeg
 $ pip3 install -U pip
 $ pip3 install -U -r requirements.txt
-# <fill config.py correctly>
+# <fill config.env correctly by looking at sample_config.env>
 $ bash start.sh
 ```
 
 ## License
-```sh
+```
 Merge Bot, Telegram Video Merge Bot
 Copyright (c) 2021  Yash Oswal <https://github.com/yashoswalyo>
 
