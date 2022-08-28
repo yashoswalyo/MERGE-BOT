@@ -27,9 +27,11 @@ from pyromod import listen
 from config import Config
 from helpers import database
 from __init__ import (
+    AUTH_CHANNEL,
     AUDIO_EXTENSIONS,
     BROADCAST_MSG,
     LOGGER,
+    RCLONE_COMMAND,
     MERGE_MODE,
     SUBTITLE_EXTENSIONS,
     VIDEO_EXTENSIONS,
@@ -104,6 +106,13 @@ async def allowUser(c: Client, m: Message):
 
 @mergeApp.on_message(
     filters.command(["stats"]) & filters.private & filters.user(Config.OWNER)
+)
+app.add_handler(rclone_config_handler)
+    ##############################################################################
+    upload_as_doc_handler = MessageHandler(
+        upload_as_doc,
+        filters=filters.command([f"{TOGGLE_DOC}"])
+        & filters.chat(chats=AUTH_CHANNEL),
 )
 async def stats_handler(c: Client, m: Message):
     currentTime = get_readable_time(time.time() - botStartTime)
