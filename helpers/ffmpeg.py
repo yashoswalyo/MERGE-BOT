@@ -85,7 +85,7 @@ async def MergeSub(filePath: str, subPath: str, user_id):
     subTrack += 1
     LOGGER.info("Sub muxing")
     subprocess.call(
-        f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a -map 0:s? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv' ",
+        f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a:? -map 0:s:? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv' ",
         shell=True,
     )
     orgFilePath = shutil.move(
@@ -126,7 +126,7 @@ def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
         subTrack += 1
     LOGGER.info("Sub muxing")
     subprocess.call(
-        f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a -map 0:s? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",
+        f"ffmpeg -hide_banner {input_files}-map 0:v:0 -map 0:a:? -map 0:s:? {maps}{metadata}-c:v copy -c:a copy -c:s srt './downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv'",
         shell=True,
     )
     return f"./downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv"
@@ -137,11 +137,13 @@ def MergeAudio(videoPath:str,files_list:list,user_id):
     inputfiles = ""
     maps = ""
     metadata = ""
+    rmDispositions = ""
     videoData = ffmpeg.probe(filename=videoPath)
     videoStreamsData = videoData.get("streams")
     audioTracks = 0
     for i in range(len(videoStreamsData)):
         if videoStreamsData[i]["codec_type"] == "audio":
+            rmDispositions += f"-disposition:a:{audioTracks} 0 "
             audioTracks+=1
     for i in files_list:
         inputfiles += f"-i '{i}' "
@@ -149,7 +151,7 @@ def MergeAudio(videoPath:str,files_list:list,user_id):
         maps += f"-map {j}:a "
     LOGGER.info("Merging files now")
     subprocess.call(
-        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a:? {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy './downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
+        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a:? {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy {rmDispositions}-disposition:a:{audioTracks} default './downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
         shell=True
     )
     return f"./downloads/{str(user_id)}/[@yashoswalyo]_export.mkv"
