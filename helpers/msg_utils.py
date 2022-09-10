@@ -16,18 +16,6 @@ class MakeButtons:
         return self._make()
 
     def _make(self):
-        # butt = []
-        # if self._isUrl:
-        #     count=0
-        #     for j in range(int(len(self._set1)/3)):
-        #         buttons = []
-
-        #         for i in range(3):
-        #             buttons.append(
-        #                 InlineKeyboardButton(text=self._set1[count], url=self._set2[0])
-        #             )
-        #             count+=1
-        #         butt.append(buttons)
         butt = []
         if self._isUrl:
             while self._set1:

@@ -24,7 +24,7 @@ async def addUser(uid, fname, lname):
 
 
 async def broadcast():
-    a = Database.mergebot.users.find({})
+    a = Database.mergebot.mergeSettings.find({})
     return a
 
 
@@ -67,8 +67,7 @@ async def getThumb(uid):
 
 
 async def deleteUser(uid):
-    Database.mergebot.allowedUsers.delete_many({"_id": uid})
-    Database.mergebot.users.delete_many({"_id": uid})
+    Database.mergebot.mergeSettings.delete_many({"_id": uid})
 
 
 async def addUserRcloneConfig(cb: CallbackQuery, fileId):
@@ -93,29 +92,46 @@ async def getUserRcloneConfig(uid):
         return None
 
 
-def getUserMergeMode(uid: int):
-    "Returns merge mode of user"
+def getUserMergeSettings(uid: int):
     try:
-        res_cur = Database.mergebot.mergeModes.find_one({"_id": uid})
-        return int(res_cur["mode"])
-    except Exception:
+        res_cur = Database.mergebot.mergeSettings.find_one({"_id": uid})
+        return res_cur
+    except Exception as e:
+        LOGGER.info(e)
         return None
 
 
-def setUserMergeMode(uid: int, mode: int):
+def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, allowed, thumbnail):
     modes = Config.MODES
-    if mode:
+    if uid:
         try:
-            Database.mergebot.mergeModes.insert_one(
-                document={"_id": uid, "mode":mode}
+            Database.mergebot.mergeSettings.insert_one(
+                document={
+                    "_id": uid,
+                    "name": name,
+                    "user_settings": {
+                        "merge_mode": mode,
+                        "edit_metadata": edit_metadata,
+                    },
+                    "isAllowed": allowed,
+                    "thumbnail": thumbnail,
+                }
             )
-            LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode-1]))
+            LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode - 1]))
         except Exception:
-            Database.mergebot.mergeModes.replace_one(
+            Database.mergebot.mergeSettings.replace_one(
                 filter={"_id": uid},
-                replacement={"mode":mode},
+                replacement={
+                    "name": name,
+                    "user_settings": {
+                        "merge_mode": mode,
+                        "edit_metadata": edit_metadata,
+                    },
+                    "isAllowed": allowed,
+                    "thumbnail": thumbnail,
+                },
             )
-            LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode-1]))
+            LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode - 1]))
         MERGE_MODE[uid] = mode
     # elif mode == 2:
     #     try:
@@ -145,3 +161,12 @@ def setUserMergeMode(uid: int, mode: int):
     #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[2]))
     #     MERGE_MODE[uid]=3
     LOGGER.info(MERGE_MODE)
+
+
+def enableMetadataToggle(uid: int, value: bool):
+
+    1
+
+
+def disableMetadataToggle(uid: int, value: bool):
+    1

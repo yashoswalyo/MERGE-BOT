@@ -2,58 +2,76 @@ import time
 from pyrogram import filters, Client as mergeApp
 from pyrogram.types import Message, InlineKeyboardMarkup
 from helpers.msg_utils import MakeButtons
-from helpers.database import getUserMergeMode, setUserMergeMode
+from helpers.utils import UserSettings
 
 
 @mergeApp.on_message(filters.command(["settings"]))
 async def f1(c: mergeApp, m: Message):
     # setUserMergeMode(uid=m.from_user.id,mode=1)
     replay = await m.reply(text="Please wait", quote=True)
+    usettings = UserSettings(m.from_user.id, m.from_user.first_name)
     await userSettings(
-        replay, m.from_user.id, m.from_user.first_name, m.from_user.last_name
+        replay, m.from_user.id, m.from_user.first_name, m.from_user.last_name, usettings
     )
 
 
 async def userSettings(
-    editable: Message, uid: int, fname: str | None, lname: str | None
+    editable: Message,
+    uid: int,
+    fname: str | None,
+    lname: str | None,
+    usettings: UserSettings,
 ):
-
-    mode = getUserMergeMode(uid=uid)
     b = MakeButtons()
-    if mode is not None:
-        if mode== 1:
+    if usettings.user_id:
+        if usettings.merge_mode == 1:
             userMergeModeId = 1
-            userMergeModeStr = "Video + Video"
-        elif mode == 2:
+            userMergeModeStr = "Video 🎥 + Video 🎥"
+        elif usettings.merge_mode == 2:
             userMergeModeId = 2
-            userMergeModeStr = "Video + Audio"
-        elif mode == 3:
+            userMergeModeStr = "Video 🎥 + Audio 🎵"
+        elif usettings.merge_mode == 3:
             userMergeModeId = 3
-            userMergeModeStr = "Video + Subtitle"
-
+            userMergeModeStr = "Video 🎥 + Subtitle 📜"
+        if usettings.edit_metadata:
+            editMetadataStr = "✅"
+        else:
+            editMetadataStr = "❌"
         uSettingsMessage = f"""
 <b><u>Merge Bot settings for <a href='tg://user?id={uid}'>{fname} {lname}</a></u></b>
-
-Merge mode: {userMergeModeStr}"""
-        if userMergeModeId == 1:
-            markup=b.makebuttons(
-                ["Change to Video 🎥 + Audio 🎵", "Close"],
-                [f"ch@ng3M0de_{uid}_2", "close"]
-            )
-        elif userMergeModeId == 2:
-            markup=b.makebuttons(
-                ["Change to Video 🎥 + Subtitle", "Close"],
-                [f"ch@ng3M0de_{uid}_3", "close"]
-            )
-        elif userMergeModeId == 3:
-            markup=b.makebuttons(
-                ["Change to Video 🎥 + Video 🎥", "Close"],
-                [f"ch@ng3M0de_{uid}_1", "close"]
-            )
-        res = await editable.edit(text=uSettingsMessage, reply_markup=InlineKeyboardMarkup(markup))
+    ┃
+    ┣**👦 ID: <u>{usettings.user_id}</u>**
+    ┣**{'⚡' if usettings.allowed else '❗'} Allowed: <u>{usettings.allowed}</u>**
+    ┣**{'✅' if usettings.edit_metadata else '❌'} Edit Metadata: <u>{usettings.edit_metadata}</u>**
+    ┗**Ⓜ️ Merge mode: <u>{userMergeModeStr}</u>**
+"""
+        markup = b.makebuttons(
+            [
+                "Merge mode",
+                userMergeModeStr,
+                "Edit Metadata",
+                editMetadataStr,
+                "Close",
+            ],
+            [
+                "tryotherbutton",
+                f"ch@ng3M0de_{uid}_{(userMergeModeId%3)+1}",
+                "tryotherbutton",
+                f"toggleEdit_{uid}",
+                "close",
+            ],
+            rows=2,
+        )
+        res = await editable.edit(
+            text=uSettingsMessage, reply_markup=InlineKeyboardMarkup(markup)
+        )
     else:
-        setUserMergeMode(uid=int(uid), mode=1)
-        await userSettings(editable, uid, fname, lname)
+        usettings.name = fname
+        usettings.merge_mode = 1
+        usettings.allowed = False
+        usettings.edit_metadata = False
+        usettings.thumbnail = None
+        await userSettings(editable, uid, fname, lname, usettings)
     # await asyncio.sleep(10)
     # await c.delete_messages(chat_id=editable.chat.id, message_ids=[res.id-1,res.id])
     return

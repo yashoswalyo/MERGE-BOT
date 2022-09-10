@@ -44,7 +44,7 @@ if UPSTREAM_REPO is not None:
 
     update = subprocess.run([f"git init -q \
                      && git config --global user.email yashoswal18@gmail.com \
-                     && git config --global user.name clonebot \
+                     && git config --global user.name mergebot \
                      && git add . \
                      && git commit -sm update -q \
                      && git remote add origin {UPSTREAM_REPO} \

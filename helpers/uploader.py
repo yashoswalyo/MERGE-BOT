@@ -1,18 +1,18 @@
+import asyncio
 import os
 import time
-import asyncio
-from pyrogram import Client
-from pyrogram.types import (
-    CallbackQuery,
-    Message
-)
-from helpers.display_progress import Progress
-from config import Config
-from bot import userBot ,LOGCHANNEL
+
 from __init__ import LOGGER
+from bot import LOGCHANNEL, userBot
+from config import Config
+from pyrogram import Client
+from pyrogram.types import CallbackQuery, Message
+
+from helpers.display_progress import Progress
+
 
 async def uploadVideo(
-    c:Client,
+    c: Client,
     cb: CallbackQuery,
     merged_video_path,
     width,
@@ -22,7 +22,7 @@ async def uploadVideo(
     file_size,
     upload_mode: bool,
 ):
-    # Report your errors in telegram group.
+    # Report your errors in telegram group (@yo_codes).
     if Config.IS_PREMIUM:
         sent_ = None
         prog = Progress(cb.from_user.id, c, cb.message)
@@ -59,9 +59,9 @@ async def uploadVideo(
             if sent_ is not None:
                 await c.copy_message(
                     chat_id=cb.message.chat.id,
-                    from_chat_id=sent_.chat.id ,
+                    from_chat_id=sent_.chat.id,
                     message_id=sent_.id,
-                    caption=f"`{merged_video_path.rsplit('/',1)[-1]}`"
+                    caption=f"`{merged_video_path.rsplit('/',1)[-1]}`",
                 )
                 # await sent_.delete()
     else:
