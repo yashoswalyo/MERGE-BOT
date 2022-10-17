@@ -433,8 +433,8 @@ async def media_extracter(c: Client, m: Message):
                 await m.reply("File name not found; goto @yashoswalyo")
                 return
             markup = bMaker.makebuttons(
-                set1=["Audio", "Subtitle", "All", "Cancel"],
-                set2=[f"extract_audio_{mid}", f"extract_subtitle_{mid}", f"extract_all_{mid}", 'cancel'],
+                set1=["Audio", "Subtitle", "Cancel"],
+                set2=[f"extract_audio_{mid}", f"extract_subtitle_{mid}", 'cancel'],
                 isCallback=True,
                 rows=2,
             )
@@ -648,7 +648,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
                     [
                         InlineKeyboardButton(
                             f"{media.file_name}",
-                            callback_data=f"showFileName_{i.id}",
+                            callback_data=f"tryotherbutton",
                         )
                     ]
                 )
@@ -673,7 +673,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
                     [
                         InlineKeyboardButton(
                             f"{media.file_name}",
-                            callback_data=f"showFileName_{i.id}",
+                            callback_data=f"tryotherbutton",
                         )
                     ]
                 )
