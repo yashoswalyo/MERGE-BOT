@@ -101,7 +101,7 @@ def getUserMergeSettings(uid: int):
         return None
 
 
-def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, allowed, thumbnail):
+def setUserMergeSettings(uid: int, name: str, mode, edit_metadata,banned, allowed, thumbnail):
     modes = Config.MODES
     if uid:
         try:
@@ -114,6 +114,7 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, allowed, thum
                         "edit_metadata": edit_metadata,
                     },
                     "isAllowed": allowed,
+                    "isBanned": banned,
                     "thumbnail": thumbnail,
                 }
             )
@@ -128,6 +129,7 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, allowed, thum
                         "edit_metadata": edit_metadata,
                     },
                     "isAllowed": allowed,
+                    "isBanned": banned,
                     "thumbnail": thumbnail,
                 },
             )

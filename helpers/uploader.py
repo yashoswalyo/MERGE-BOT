@@ -107,3 +107,37 @@ async def uploadVideo(
                     chat_id=int(LOGCHANNEL),
                     caption=f"`{media.file_name}`\n\nMerged for: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.first_name}</a>",
                 )
+
+
+async def uploadFiles(
+    c: Client,
+    cb: CallbackQuery,
+    up_path,
+    n,
+    all
+):
+    try:
+        sent_ = None
+        prog = Progress(cb.from_user.id, c, cb.message)
+        c_time = time.time()
+        sent_: Message = await c.send_document(
+            chat_id=cb.message.chat.id,
+            document=up_path,
+            caption=f"`{up_path.rsplit('/',1)[-1]}`",
+            progress=prog.progress_for_pyrogram,
+            progress_args=(
+                f"Uploading: `{up_path.rsplit('/',1)[-1]}`",
+                c_time,
+                f"\n**Uploading: {n}/{all}**"
+            ),
+        )
+        if sent_ is not None:
+            if Config.LOGCHANNEL is not None:
+                media = sent_.video or sent_.document
+                await sent_.copy(
+                    chat_id=int(LOGCHANNEL),
+                    caption=f"`{media.file_name}`\n\nExtracted by: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.first_name}</a>",
+                )
+    except:
+        1    
+    1

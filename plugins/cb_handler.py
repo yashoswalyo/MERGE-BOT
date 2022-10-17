@@ -10,6 +10,7 @@ from bot import (
     gDict,
     queueDB,
     showQueue,
+    mergeApp
 )
 from helpers import database
 from helpers.utils import UserSettings
@@ -24,6 +25,7 @@ from pyrogram.types import (
 from plugins.mergeVideo import mergeNow
 from plugins.mergeVideoAudio import mergeAudio
 from plugins.mergeVideoSub import mergeSub
+from plugins.streams_extractor import streamsExtractor
 from plugins.usettings import userSettings
 
 
@@ -406,3 +408,17 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             cb.message, uid, cb.from_user.first_name, cb.from_user.last_name, user
         )
         return
+    
+    elif cb.data.startswith('extract'):
+        edata = cb.data.split('_')[1]
+        media_mid = int(cb.data.split('_')[2])
+        try:
+            if edata == 'audio':
+                LOGGER.info('audio')
+                await streamsExtractor(c,cb,media_mid,exAudios=True)
+            elif edata == 'subtitle':
+                await streamsExtractor(c,cb,media_mid,exSubs=True)
+            elif edata == 'all':
+                await streamsExtractor(c,cb,media_mid,exAudios=True,exSubs=True)
+        except Exception as e:
+            LOGGER.error(e)
