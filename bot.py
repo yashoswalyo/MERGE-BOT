@@ -415,6 +415,40 @@ async def photo_handler(c: Client, m: Message):
     del user
 
 
+@mergeApp.on_message(filters.command(["extract"]) & filters.private)
+async def media_extracter(c: Client, m: Message):
+    user = UserSettings(uid=m.from_user.id, name=m.from_user.first_name)
+    if not user.allowed:
+        return
+    if user.merge_mode == 4:
+        if m.reply_to_message is None:
+            await m.reply(text="Reply /extract to a video or document file")
+            return
+        rmess = m.reply_to_message
+        if rmess.video or rmess.document:
+            media = rmess.video or rmess.document
+            mid=rmess.id
+            file_name = media.file_name
+            if file_name is None:
+                await m.reply("File name not found; goto @yashoswalyo")
+                return
+            markup = bMaker.makebuttons(
+                set1=["Audio", "Subtitle", "All", "Cancel"],
+                set2=[f"extract_audio_{mid}", f"extract_subtitle_{mid}", f"extract_all_{mid}", 'cancel'],
+                isCallback=True,
+                rows=2,
+            )
+            await m.reply(
+                text="Choose from below what you want to extract?",
+                quote=True,
+                reply_markup=InlineKeyboardMarkup(markup),
+            )
+    else:
+        await m.reply(
+            text="Change settings and set mode to extract\nthen use /extract command"
+        )
+
+
 @mergeApp.on_message(filters.command(["help"]) & filters.private)
 async def help_msg(c: Client, m: Message):
     await m.reply_text(

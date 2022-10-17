@@ -40,7 +40,7 @@ class Progress:
             self._cancelled = True
         return self._cancelled
 
-    async def progress_for_pyrogram(self, current, total, ud_type, start):
+    async def progress_for_pyrogram(self, current, total, ud_type, start, count=""):
         chat_id = self._mess.chat.id
         mes_id = self._mess.id
         from_user = self._from_user
@@ -91,12 +91,13 @@ class Progress:
             # cpu = "{psutil.cpu_percent()}%"
             tmp = (
                 progress
-                + "\n**⌧ Total 🗃:**` 〚{1}〛`\n**⌧ Done ✅ :**` 〚{0}〛`\n**⌧ Speed 📊 :** ` 〚{2}/s〛`\n**⌧ ETA 🔃 :**` 〚{3}〛`".format(
+                + "\n**⌧ Total 🗃:**` 〚{1}〛`\n**⌧ Done ✅ :**` 〚{0}〛`\n**⌧ Speed 📊 :** ` 〚{2}/s〛`\n**⌧ ETA 🔃 :**` 〚{3}〛`\n {4}".format(
                     humanbytes(current),
                     humanbytes(total),
                     humanbytes(speed),
                     # elapsed_time if elapsed_time != '' else "0 s",
                     estimated_total_time if estimated_total_time != "" else "0 s",
+                    count
                 )
             )
             try:

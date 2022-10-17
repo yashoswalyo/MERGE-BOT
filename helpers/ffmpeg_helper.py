@@ -8,6 +8,8 @@ from pyrogram.types import CallbackQuery
 from config import Config
 from pyrogram.types import Message
 from __init__ import LOGGER
+from helpers.utils import get_path_size
+
 
 async def MergeVideo(input_file: str, user_id: int, message: Message, format_: str):
     """
@@ -96,7 +98,7 @@ async def MergeSub(filePath: str, subPath: str, user_id):
 
 def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
     """
-    This is for Merging Video + Subtitle(s) Together.
+    This method is for Merging Video + Subtitle(s) Together.
 
     Parameters:
     - `filePath`: Path to Video file.
@@ -132,7 +134,7 @@ def MergeSubNew(filePath: str, subPath: str, user_id, file_list):
     return f"downloads/{str(user_id)}/[@yashoswalyo]_softmuxed_video.mkv"
 
 
-def MergeAudio(videoPath:str,files_list:list,user_id):
+def MergeAudio(videoPath: str, files_list: list, user_id):
     LOGGER.info("Generating Mux Command")
     inputfiles = ""
     maps = ""
@@ -144,17 +146,21 @@ def MergeAudio(videoPath:str,files_list:list,user_id):
     for i in range(len(videoStreamsData)):
         if videoStreamsData[i]["codec_type"] == "audio":
             rmDispositions += f"-disposition:a:{audioTracks} 0 "
-            audioTracks+=1
+            audioTracks += 1
     for i in files_list:
         inputfiles += f"-i '{i}' "
-    for j in range(1,len(files_list)):
+    for j in range(1, len(files_list)):
         maps += f"-map {j}:a "
-    LOGGER.info("Merging files now")
-    subprocess.call(
-        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a:? {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy {rmDispositions}-disposition:a:{audioTracks} default './downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
-        shell=True
+    LOGGER.info(
+        f"Command: ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a:? {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy {rmDispositions}-disposition:a:{audioTracks} default 'downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'"
     )
+    process = subprocess.call(
+        f"ffmpeg -hide_banner {inputfiles}-map 0:v:0 -map 0:a:? {maps}-map 0:s:? -c:v copy -c:a copy -c:s copy {rmDispositions}-disposition:a:{audioTracks} default 'downloads/{str(user_id)}/[@yashoswalyo]_export.mkv'",
+        shell=True,
+    )
+    LOGGER.info(process)
     return f"downloads/{str(user_id)}/[@yashoswalyo]_export.mkv"
+
 
 async def cult_small_video(video_file, output_directory, start_time, end_time, format_):
     # https://stackoverflow.com/a/13891070/4723940
@@ -248,3 +254,113 @@ async def take_screen_shot(video_file, output_directory, ttl):
         return out_put_file_name
     else:
         return None
+
+
+async def extractAudios(path_to_file, user_id):
+    '''
+    Thanks to Jitu Bhai and group.
+    '''
+    dir_name = os.path.dirname(os.path.dirname(path_to_file))
+    if not os.path.exists(path_to_file):
+        return None
+    if not os.path.exists(dir_name + "/extract"):
+        os.makedirs(dir_name + "/extract")
+    videoStreamsData = ffmpeg.probe(path_to_file)
+    # with open("data.json",'w') as f:
+    #     f.write(json.dumps(videoStreamsData))
+    extract_dir = dir_name + "/extract"
+    audios = []
+    for stream in videoStreamsData.get("streams"):
+        try:
+            if stream["codec_type"] == "audio":
+                audios.append(stream)
+        except Exception as e:
+            LOGGER.warning(e)
+    for audio in audios:
+        try:
+            index = audio["index"]
+            try:
+                output_file: str = (
+                    "("
+                    + audio["tags"]["language"]
+                    + ") "
+                    + audio["tags"]["title"]
+                    + "."
+                    + audio["codec_type"]
+                    + ".mka"
+                )
+                output_file = output_file.replace(" ", ".")
+            except:
+                output_file = str(audio["index"]) + "." + audio["codec_type"] + ".mka"
+            exec_command = f"ffmpeg -hide_banner -i '{path_to_file}' -map 0:{index} -c copy '{extract_dir}/{output_file}'"
+            LOGGER.info(exec_command)
+            subprocess.call(exec_command, shell=True)
+        except:
+            1
+    if get_path_size(extract_dir) > 0:
+        return extract_dir
+    else:
+        LOGGER.warning(f"{extract_dir} is empty")
+        return None
+
+
+async def extractSubtitles(path_to_file, user_id):
+    '''
+    Thanks to Jitu Bhai and group.
+    '''
+    dir_name = os.path.dirname(os.path.dirname(path_to_file))
+    if not os.path.exists(path_to_file):
+        return None
+    if not os.path.exists(dir_name + "/extract"):
+        os.makedirs(dir_name + "/extract")
+    videoStreamsData = ffmpeg.probe(path_to_file)
+    # with open("data.json",'w') as f:
+    #     f.write(json.dumps(videoStreamsData))
+    extract_dir = dir_name + "/extract"
+    subtitles = []
+    for stream in videoStreamsData.get("streams"):
+        try:
+            if stream["codec_type"] == "subtitle":
+                subtitles.append(stream)
+        except Exception as e:
+            LOGGER.warning(e)
+    for subtitle in subtitles:
+        try:
+            index = subtitle["index"]
+            try:
+                output_file: str = (
+                    "("
+                    + subtitle["tags"]["language"]
+                    + ") "
+                    + subtitle["tags"]["title"]
+                    + "."
+                    + subtitle["codec_type"]
+                    + ".mka"
+                )
+                output_file = output_file.replace(" ", ".")
+            except:
+                try:
+                    output_file = (
+                        str(subtitle["index"])
+                        + "."
+                        + subtitle["tags"]["language"]
+                        + "."
+                        + subtitle["codec_type"]
+                        + ".mka"
+                    )
+                except:
+                    output_file = (
+                        str(subtitle["index"]) + "." + subtitle["codec_type"] + ".mka"
+                    )
+
+            exec_command = f"ffmpeg -hide_banner -i '{path_to_file}' -map 0:{index} -c copy '{extract_dir}/{output_file}'"
+            LOGGER.info(exec_command)
+            subprocess.call(exec_command, shell=True)
+        except:
+            1
+    if get_path_size(extract_dir) > 0:
+        return extract_dir
+    else:
+        LOGGER.warning(f"{extract_dir} is empty")
+        return None
+    1
