@@ -11,7 +11,7 @@ import time
 
 import psutil
 from PIL import Image
-from pyrogram import Client, filters
+from pyrogram import Client, filters,enums
 from pyrogram.errors import (
     FloodWait,
     InputUserDeactivated,
@@ -47,6 +47,7 @@ from helpers import database
 from helpers.utils import UserSettings, get_readable_file_size, get_readable_time
 
 botStartTime = time.time()
+parent_id = Config.GDRIVE_FOLDER_ID
 
 
 class MergeBot(Client):
@@ -87,12 +88,18 @@ async def sendLogFile(c: Client, m: Message):
 @mergeApp.on_message(filters.command(["login"]) & filters.private)
 async def loginHandler(c: Client, m: Message):
     user = UserSettings(m.from_user.id, m.from_user.first_name)
+    if user.banned:
+        await m.reply_text(text=f"**Banned User Detected!**\n  🛡️ Unfortunately you can't use me\n\nContact: 🈲 @{Config.OWNER_USERNAME}", quote=True)
+        return
     if user.user_id == int(Config.OWNER):
         user.allowed = True
     if user.allowed:
         await m.reply_text(text=f"**Dont Spam**\n  ⚡ You can use me!!", quote=True)
     else:
-        passwd = m.text.split(" ", 1)[1]
+        try:
+            passwd = m.text.split(" ", 1)[1]
+        except:
+            await m.reply_text("**Command:**\n  `/login <password>`\n\n**Usage:**\n  `password`: Get the password from owner",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
         passwd = passwd.strip()
         if passwd == Config.PASSWORD:
             user.allowed = True
@@ -138,7 +145,9 @@ async def stats_handler(c: Client, m: Message):
 
 
 @mergeApp.on_message(
-    filters.command(["broadcast"]) & filters.private & filters.user(Config.OWNER_USERNAME)
+    filters.command(["broadcast"])
+    & filters.private
+    & filters.user(Config.OWNER_USERNAME)
 )
 async def broadcast_handler(c: Client, m: Message):
     msg = m.reply_to_message
@@ -214,6 +223,8 @@ async def files_handler(c: Client, m: Message):
                 quote=True,
             )
             return
+    if user.merge_mode == 4: # extract_mode
+        return
     input_ = f"downloads/{str(user_id)}/input.txt"
     if os.path.exists(input_):
         await m.reply_text("Sorry Bro,\nAlready One process in Progress!\nDon't Spam.")
@@ -426,6 +437,7 @@ async def about_handler(c: Client, m: Message):
     await m.reply_text(
         text="""
 **WHAT'S NEW:**
++ (Incomplete)
 + Upload to drive using your own rclone config
 + Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
 **FEATURES:**
@@ -499,7 +511,51 @@ async def delete_thumbnail(c: Client, m: Message):
     except Exception as err:
         await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
 
-
+@mergeApp.on_message(filters.command(["ban","unban"]) & filters.private)
+async def ban_user(c:Client,m:Message):
+    incoming=m.text.split(' ')[0]
+    if incoming == '/ban':
+        if m.from_user.id == int(Config.OWNER):
+            try:
+                abuser_id = int(m.text.split(" ")[1])
+                if abuser_id == int(Config.OWNER):
+                    await m.reply_text("I can't ban you master,\nPlease don't abandon me. ",quote=True)
+                else:
+                    try:
+                        user_obj: User = await c.get_users(abuser_id)
+                        udata  = UserSettings(uid=abuser_id,name=user_obj.first_name)
+                        udata.banned=True
+                        udata.allowed=False
+                        udata.set()
+                        await m.reply_text(f"Pooof, {user_obj.first_name} has been **BANNED**",quote=True)
+                    except Exception as e:
+                        LOGGER.error(e)
+            except:
+                await m.reply_text("**Command:**\n  `/ban <user_id>`\n\n**Usage:**\n  `user_id`: User ID of the user",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
+        else:
+            await m.reply_text("**(Only for __OWNER__)\nCommand:**\n  `/ban <user_id>`\n\n**Usage:**\n  `user_id`: User ID of the user",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
+        return
+    elif incoming == '/unban':
+        if m.from_user.id == int(Config.OWNER):
+            try:
+                abuser_id = int(m.text.split(" ")[1])
+                if abuser_id == int(Config.OWNER):
+                    await m.reply_text("I can't ban you master,\nPlease don't abandon me. ",quote=True)
+                else:
+                    try:
+                        user_obj: User = await c.get_users(abuser_id)
+                        udata  = UserSettings(uid=abuser_id,name=user_obj.first_name)
+                        udata.banned=False
+                        udata.allowed=False
+                        udata.set()
+                        await m.reply_text(f"Pooof, {user_obj.first_name} has been **UN_BANNED**",quote=True)
+                    except Exception as e:
+                        LOGGER.error(e)
+            except:
+                await m.reply_text("**Command:**\n  `/unban <user_id>`\n\n**Usage:**\n  `user_id`: User ID of the user",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
+        else:
+            await m.reply_text("**(Only for __OWNER__)\nCommand:**\n  `/unban <user_id>`\n\n**Usage:**\n  `user_id`: User ID of the user",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
+        return
 async def showQueue(c: Client, cb: CallbackQuery):
     try:
         markup = await makeButtons(c, cb.message, queueDB)
@@ -550,7 +606,7 @@ async def makeButtons(bot: Client, m: Message, db: dict):
             ),
         )
         for i in msgs:
-            media = i.audio or i.document or None
+            media = i.audio or i.document or i.video or None
             if media is None:
                 continue
             else:
