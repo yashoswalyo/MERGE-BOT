@@ -470,16 +470,21 @@ async def help_msg(c: Client, m: Message):
 async def about_handler(c: Client, m: Message):
     await m.reply_text(
         text="""
-**WHAT'S NEW:**
-+ (Incomplete)
-+ Upload to drive using your own rclone config
-+ Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
-**FEATURES:**
-+ Merge Upto 10 videos in one
-+ Upload as document/video
-+ Custom thumbnail support
-+ Users can login to bot using password
-+ Owner can broadcast message to all users
+**𝐖𝐇𝐀𝐓'𝐒 𝐍𝐄𝐖:**
++ (𝐈𝐧𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐞)
+👨‍💻 𝐔𝐩𝐥𝐨𝐚𝐝 𝐭𝐨 𝐝𝐫𝐢𝐯𝐞 𝐮𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐨𝐰𝐧 𝐫𝐜𝐥𝐨𝐧𝐞 𝐜𝐨𝐧𝐟𝐢𝐠
+👨‍💻 𝐌𝐞𝐫𝐠𝐞𝐝 𝐯𝐢𝐝𝐞𝐨 𝐩𝐫𝐞𝐬𝐞𝐫𝐯𝐞𝐬 𝐚𝐥𝐥 𝐬𝐭𝐫𝐞𝐚𝐦𝐬 𝐨𝐟 𝐭𝐡𝐞 𝐟𝐢𝐫𝐬𝐭 𝐯𝐢𝐝𝐞𝐨 𝐲𝐨𝐮 𝐬𝐞𝐧𝐝 (𝐢.𝐞. 𝐚𝐥𝐥 𝐚𝐮𝐝𝐢𝐨𝐭𝐫𝐚𝐜𝐤𝐬/𝐬𝐮𝐛𝐭𝐢𝐭𝐥𝐞𝐬)
+➖➖➖➖➖➖➖➖➖➖➖➖
+**𝐂𝐨𝐦𝐩𝐥𝐞𝐭𝐞𝐝**
+⚡ 𝐄𝐱𝐭𝐫𝐚𝐱𝐜𝐭 𝐚𝐥𝐥 𝐚𝐮𝐝𝐢𝐨 + 𝐬𝐮𝐛𝐭𝐢𝐭𝐥𝐞𝐬 𝐤𝐞𝐞𝐩𝐢𝐧𝐠 𝐚𝐥𝐥 𝐦𝐞𝐭𝐚𝐝𝐚𝐭𝐚
+⚡ 𝐍𝐨𝐰 𝐨𝐰𝐧𝐞𝐫 𝐜𝐚𝐧 𝐛𝐚𝐧 𝐮𝐬𝐞𝐫𝐬 𝐚𝐧𝐝 𝐮𝐧𝐛𝐚𝐧 𝐮𝐬𝐞𝐫𝐬 𝐰𝐡𝐨 𝐚𝐫𝐞 𝐮𝐬𝐢𝐧𝐠 𝐛𝐨𝐭
+➖➖➖➖➖➖➖➖➖➖➖➖
+**𝐅𝐄𝐀𝐓𝐔𝐑𝐄𝐒:**
+🔰 𝐌𝐞𝐫𝐠𝐞 𝐔𝐩𝐭𝐨 𝟏𝟎 𝐯𝐢𝐝𝐞𝐨𝐬 𝐢𝐧 𝐨𝐧𝐞
+🔰 𝐔𝐩𝐥𝐨𝐚𝐝 𝐚𝐬 𝐝𝐨𝐜𝐮𝐦𝐞𝐧𝐭/𝐯𝐢𝐝𝐞𝐨
+🔰 𝐂𝐮𝐬𝐭𝐨𝐦 𝐭𝐡𝐮𝐦𝐛𝐧𝐚𝐢𝐥 𝐬𝐮𝐩𝐩𝐨𝐫𝐭
+🔰 𝐔𝐬𝐞𝐫𝐬 𝐜𝐚𝐧 𝐥𝐨𝐠𝐢𝐧 𝐭𝐨 𝐛𝐨𝐭 𝐮𝐬𝐢𝐧𝐠 𝐩𝐚𝐬𝐬𝐰𝐨𝐫𝐝
+🔰 𝐎𝐰𝐧𝐞𝐫 𝐜𝐚𝐧 𝐛𝐫𝐨𝐚𝐝𝐜𝐚𝐬𝐭 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐭𝐨 𝐚𝐥𝐥 𝐮𝐬𝐞𝐫𝐬
 		""",
         quote=True,
         reply_markup=InlineKeyboardMarkup(
