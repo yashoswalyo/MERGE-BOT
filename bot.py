@@ -71,7 +71,7 @@ mergeApp = MergeBot(
     bot_token=Config.BOT_TOKEN,
     workers=300,
     plugins=dict(root="plugins"),
-    app_version="4.0+yash-multiMergeSupport",
+    app_version="5.0+yash-mergebot",
 )
 
 
@@ -566,6 +566,21 @@ async def ban_user(c:Client,m:Message):
                         udata.allowed=False
                         udata.set()
                         await m.reply_text(f"Pooof, {user_obj.first_name} has been **BANNED**",quote=True)
+                        acknowledgement = f"""
+Dear {user_obj.first_name},
+I found your messages annoying and forwarded them to our team of moderators for inspection. The moderators have confirmed the report and your account is now banned.
+
+While the account is banned, you will not be able to do certain things, like merging videos/audios/subtitles or extract audios from Telegram media.
+
+Your account can be released only by @{Config.OWNER_USERNAME}."""
+                        try:
+                            await c.send_message(
+                                chat_id=abuser_id,
+                                text=acknowledgement
+                            )
+                        except Exception as e:
+                            await m.reply_text(f"An error occured while sending acknowledgement\n\n`{e}`",quote=True)
+                            LOGGER.error(e)
                     except Exception as e:
                         LOGGER.error(e)
             except:
@@ -584,9 +599,19 @@ async def ban_user(c:Client,m:Message):
                         user_obj: User = await c.get_users(abuser_id)
                         udata  = UserSettings(uid=abuser_id,name=user_obj.first_name)
                         udata.banned=False
-                        udata.allowed=False
+                        udata.allowed=True
                         udata.set()
                         await m.reply_text(f"Pooof, {user_obj.first_name} has been **UN_BANNED**",quote=True)
+                        release_notice = f"""
+Good news {user_obj.first_name}, the ban has been uplifted on your account. You're free as a bird!"""
+                        try:
+                            await c.send_message(
+                                chat_id=abuser_id,
+                                text=release_notice
+                            )
+                        except Exception as e:
+                            await m.reply_text(f"An error occured while sending release notice\n\n`{e}`",quote=True)
+                            LOGGER.error(e)                      
                     except Exception as e:
                         LOGGER.error(e)
             except:
