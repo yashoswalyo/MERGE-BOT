@@ -71,7 +71,7 @@ mergeApp = MergeBot(
     bot_token=Config.BOT_TOKEN,
     workers=300,
     plugins=dict(root="plugins"),
-    app_version="4.0+yash-multiMergeSupport",
+    app_version="5.0+yash-mergebot",
 )
 
 
@@ -470,27 +470,31 @@ async def help_msg(c: Client, m: Message):
 async def about_handler(c: Client, m: Message):
     await m.reply_text(
         text="""
-**WHAT'S NEW:**
-+ (Incomplete)
-+ Upload to drive using your own rclone config
-+ Merged video preserves all streams of the first video you send (i.e. all audiotracks/subtitles)
-**FEATURES:**
-+ Merge Upto 10 videos in one
-+ Upload as document/video
-+ Custom thumbnail support
-+ Users can login to bot using password
-+ Owner can broadcast message to all users
+**ᴡʜᴀᴛ's ɴᴇᴡ:**
+👨‍💻 ʙᴀɴ/ᴜɴʙᴀɴ ᴜsᴇʀs
+👨‍💻 ᴇxᴛʀᴀᴄᴛ ᴀʟʟ ᴀᴜᴅɪᴏs ᴀɴᴅ sᴜʙᴛɪᴛʟᴇs ғʀᴏᴍ ᴛᴇʟᴇɢʀᴀᴍ ᴍᴇᴅɪᴀ
+👨‍💻 ᴍᴇʀɢᴇ ᴠɪᴅᴇᴏ + ᴀᴜᴅɪᴏ 
+👨‍💻 ᴍᴇʀɢᴇ ᴠɪᴅᴇᴏ + sᴜʙᴛɪᴛʟᴇs
+👨‍💻 ᴜᴘʟᴏᴀᴅ ᴛᴏ ᴅʀɪᴠᴇ ᴜsɪɴɢ ʏᴏᴜʀ ᴏᴡɴ ʀᴄʟᴏɴᴇ ᴄᴏɴғɪɢ
+👨‍💻 ᴍᴇʀɢᴇᴅ ᴠɪᴅᴇᴏ ᴘʀᴇsᴇʀᴠᴇs ᴀʟʟ sᴛʀᴇᴀᴍs ᴏғ ᴛʜᴇ ғɪʀsᴛ ᴠɪᴅᴇᴏ ʏᴏᴜ sᴇɴᴅ (ɪ.ᴇ ᴀʟʟ ᴀᴜᴅɪᴏᴛʀᴀᴄᴋs/sᴜʙᴛɪᴛʟᴇs)
+➖➖➖➖➖➖➖➖➖➖➖➖➖
+**ғᴇᴀᴛᴜʀᴇs**
+🔰 ᴍᴇʀɢᴇ ᴜᴘᴛᴏ 𝟷𝟶 ᴠɪᴅᴇᴏ ɪɴ ᴏɴᴇ 
+🔰 ᴜᴘʟᴏᴀᴅ ᴀs ᴅᴏᴄᴜᴍᴇɴᴛs/ᴠɪᴅᴇᴏ
+🔰 ᴄᴜsᴛᴏᴍs ᴛʜᴜᴍʙɴᴀɪʟ sᴜᴘᴘᴏʀᴛ
+🔰 ᴜsᴇʀs ᴄᴀɴ ʟᴏɢɪɴ ᴛᴏ ʙᴏᴛ ᴜsɪɴɢ ᴘᴀssᴡᴏʀᴅ
+🔰 ᴏᴡɴᴇʀ ᴄᴀɴ ʙʀᴏᴀᴅᴄᴀsᴛ ᴍᴇssᴀɢᴇ ᴛᴏ ᴀʟʟ ᴜsᴇʀs
 		""",
         quote=True,
         reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("Developer", url="https://t.me/yashoswalyo")],
+                [InlineKeyboardButton("👨‍💻Developer👨‍💻", url="https://t.me/yashoswalyo")],
                 [
                     InlineKeyboardButton(
-                        "Source Code", url="https://github.com/yashoswalyo/MERGE-BOT"
+                        "🏘Source Code🏘", url="https://github.com/yashoswalyo/MERGE-BOT"
                     ),
                     InlineKeyboardButton(
-                        "Deployed By", url=f"https://t.me/{Config.OWNER_USERNAME}"
+                        "🤔Deployed By🤔", url=f"https://t.me/{Config.OWNER_USERNAME}"
                     ),
                 ],
                 [InlineKeyboardButton("Close 🔐", callback_data="close")],
@@ -562,6 +566,21 @@ async def ban_user(c:Client,m:Message):
                         udata.allowed=False
                         udata.set()
                         await m.reply_text(f"Pooof, {user_obj.first_name} has been **BANNED**",quote=True)
+                        acknowledgement = f"""
+Dear {user_obj.first_name},
+I found your messages annoying and forwarded them to our team of moderators for inspection. The moderators have confirmed the report and your account is now banned.
+
+While the account is banned, you will not be able to do certain things, like merging videos/audios/subtitles or extract audios from Telegram media.
+
+Your account can be released only by @{Config.OWNER_USERNAME}."""
+                        try:
+                            await c.send_message(
+                                chat_id=abuser_id,
+                                text=acknowledgement
+                            )
+                        except Exception as e:
+                            await m.reply_text(f"An error occured while sending acknowledgement\n\n`{e}`",quote=True)
+                            LOGGER.error(e)
                     except Exception as e:
                         LOGGER.error(e)
             except:
@@ -580,9 +599,19 @@ async def ban_user(c:Client,m:Message):
                         user_obj: User = await c.get_users(abuser_id)
                         udata  = UserSettings(uid=abuser_id,name=user_obj.first_name)
                         udata.banned=False
-                        udata.allowed=False
+                        udata.allowed=True
                         udata.set()
                         await m.reply_text(f"Pooof, {user_obj.first_name} has been **UN_BANNED**",quote=True)
+                        release_notice = f"""
+Good news {user_obj.first_name}, the ban has been uplifted on your account. You're free as a bird!"""
+                        try:
+                            await c.send_message(
+                                chat_id=abuser_id,
+                                text=release_notice
+                            )
+                        except Exception as e:
+                            await m.reply_text(f"An error occured while sending release notice\n\n`{e}`",quote=True)
+                            LOGGER.error(e)                      
                     except Exception as e:
                         LOGGER.error(e)
             except:
