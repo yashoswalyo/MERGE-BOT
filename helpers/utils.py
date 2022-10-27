@@ -88,7 +88,7 @@ class UserSettings(object):
                     "thumbnail": self.thumbnail,
                 }
             else: return self.set()
-        except KeyError:
+        except Exception:
             return self.set()
 
     def set(self):
