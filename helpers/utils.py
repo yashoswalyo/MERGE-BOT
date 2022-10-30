@@ -60,7 +60,7 @@ class UserSettings(object):
         self.name: str = name
         self.merge_mode: int = 1
         self.edit_metadata: bool = False
-        self.allowed: bool = False
+        self.allowed: bool = True
         self.thumbnail = None
         self.banned:bool = False
         self.get()

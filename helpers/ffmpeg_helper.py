@@ -54,7 +54,8 @@ async def MergeVideo(input_file: str, user_id: int, message: Message, format_: s
     t_response = stdout.decode().strip()
     LOGGER.info(e_response)
     LOGGER.info(t_response)
-    if os.path.lexists(output_vid):
+    LOGGER.info(output_vid)
+    if os.path.exists(output_vid):
         return output_vid
     else:
         return None
@@ -284,17 +285,7 @@ async def take_screen_shot(video_file, output_directory, ttl):
             out_put_file_name,
         ]
         # width = "90"
-        process = await asyncio.create_subprocess_exec(
-            *file_genertor_command,
-            # stdout must a pipe to be accessible as process.stdout
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        # Wait for the subprocess to finish
-        stdout, stderr = await process.communicate()
-        e_response = stderr.decode().strip()
-        t_response = stdout.decode().strip()
-    #
+        process = subprocess.call(file_genertor_command)
     if os.path.exists(out_put_file_name):
         return out_put_file_name
     else:
