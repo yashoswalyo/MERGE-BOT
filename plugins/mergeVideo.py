@@ -32,7 +32,8 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
     # list_subtitle_ids.sort()
     LOGGER.info(Config.IS_PREMIUM)
-    LOGGER.info(list_message_ids, list_subtitle_ids)
+    LOGGER.info(f"Videos: {list_message_ids}")
+    LOGGER.info(f"Subs: {list_subtitle_ids}")
     if list_message_ids is None:
         await cb.answer("Queue Empty", show_alert=True)
         await cb.message.delete(True)
