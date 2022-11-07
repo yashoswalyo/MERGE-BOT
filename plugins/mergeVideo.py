@@ -32,7 +32,8 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     list_subtitle_ids = queueDB.get(cb.from_user.id)["subtitles"]
     # list_subtitle_ids.sort()
     LOGGER.info(Config.IS_PREMIUM)
-    LOGGER.info(list_message_ids, list_subtitle_ids)
+    LOGGER.info(f"Videos: {list_message_ids}")
+    LOGGER.info(f"Subs: {list_subtitle_ids}")
     if list_message_ids is None:
         await cb.answer("Queue Empty", show_alert=True)
         await cb.message.delete(True)
@@ -40,9 +41,10 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
     if not os.path.exists(f"downloads/{str(cb.from_user.id)}/"):
         os.makedirs(f"downloads/{str(cb.from_user.id)}/")
     input_ = f"downloads/{str(cb.from_user.id)}/input.txt"
+    all = len(list_message_ids)
+    n=1
     for i in await c.get_messages(
-        chat_id=cb.from_user.id, message_ids=list_message_ids
-    ):
+chat_id=cb.from_user.id, message_ids=list_message_ids ):
         media = i.video or i.document
         await cb.message.edit(f"📥 Starting Download of ... `{media.file_name}`")
         LOGGER.info(f"📥 Starting Download of ... {media.file_name}")
@@ -56,8 +58,9 @@ async def mergeNow(c: Client, cb: CallbackQuery, new_file_name: str):
                 message=media,
                 file_name=f"downloads/{str(cb.from_user.id)}/{str(i.id)}/vid.mkv",  # fix for filename with single quote(') in name
                 progress=prog.progress_for_pyrogram,
-                progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time),
+                progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time, f"\n**Downloading: {n}/{all}**"),
             )
+            n+=1
             if gDict[cb.message.chat.id] and cb.message.id in gDict[cb.message.chat.id]:
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")

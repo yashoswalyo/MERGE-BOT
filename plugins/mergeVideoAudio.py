@@ -33,6 +33,8 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         return
     if not os.path.exists(f"downloads/{str(cb.from_user.id)}/"):
         os.makedirs(f"downloads/{str(cb.from_user.id)}/")
+    all = len(list_message_ids)
+    n=1
     msgs: list[Message] = await c.get_messages(
         chat_id=cb.from_user.id, message_ids=list_message_ids
     )
@@ -54,8 +56,9 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
                 message=media,
                 file_name=f"downloads/{str(cb.from_user.id)}/{str(i.id)}/{tmpFileName}",
                 progress=prog.progress_for_pyrogram,
-                progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time),
+                progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time, f"\n**Downloading: {n}/{all}**"),
             )
+            n+=1
             if gDict[cb.message.chat.id] and cb.message.id in gDict[cb.message.chat.id]:
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
