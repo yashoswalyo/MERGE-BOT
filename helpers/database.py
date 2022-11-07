@@ -2,10 +2,10 @@ from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from pyrogram.types import CallbackQuery
 from config import Config
-from __init__ import LOGGER, MERGE_MODE, settingsDB
+from __init__ import LOGGER, MERGE_MODE, LOCAL_SETTINGS_DB, RCLONE_LOCAL_DB
 
 
-#class Database(object):
+# class Database(object):
 #    client = MongoClient(Config.DATABASE_URL)
 #    mergebot = client.MergeBot
 
@@ -74,49 +74,59 @@ async def addUserRcloneConfig(cb: CallbackQuery, fileId):
     try:
         await cb.message.edit("Adding file to DB")
         uid = cb.from_user.id
-        Database.mergebot.rcloneData.insert_one({"_id": uid, "rcloneFileId": fileId})
+        RCLONE_LOCAL_DB.update({uid: {"_id": uid, "rcloneFileId": fileId}})
+        # Database.mergebot.rcloneData.insert_one({"_id": uid, "rcloneFileId": fileId})
     except Exception as err:
         LOGGER.info("Updating rclone")
         await cb.message.edit("Updating file in DB")
         uid = cb.from_user.id
-        Database.mergebot.rcloneData.replace_one({"_id": uid}, {"rcloneFileId": fileId})
+        RCLONE_LOCAL_DB.update({uid: {"_id": uid, "rcloneFileId": fileId}})
+        # Database.mergebot.rcloneData.replace_one({"_id": uid}, {"rcloneFileId": fileId})
     await cb.message.edit("Done")
     return
 
 
 async def getUserRcloneConfig(uid):
     try:
-        res = Database.mergebot.rcloneData.find_one({"_id": uid})
+        # res = Database.mergebot.rcloneData.find_one({"_id": uid})
+        res = RCLONE_LOCAL_DB.get(uid)
         return res["rcloneFileId"]
     except Exception as err:
         return None
 
 
 def getUserMergeSettings(uid: int):
-    if settingsDB.get(uid) is None:
+    if LOCAL_SETTINGS_DB.get(uid) is None:
         LOGGER.info(f"{uid} Not found")
         return None
-    return settingsDB.get(uid)
+    return LOCAL_SETTINGS_DB.get(uid)
 
 
-def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allowed, thumbnail):
+def setUserMergeSettings(
+    uid: int, name: str, mode, edit_metadata, banned, allowed, thumbnail
+):
     modes = Config.MODES
     if uid:
-        settingsDB.update({
-            uid:{
-                "_id":uid,
-                "name": name,
-                "user_settings": {
-                   "merge_mode": mode,
-                   "edit_metadata": edit_metadata,
-                },
-                "isAllowed": allowed,
-                "isBanned": banned,
-                "thumbnail": thumbnail,
+        LOCAL_SETTINGS_DB.update(
+            {
+                uid: {
+                    "_id": uid,
+                    "name": name,
+                    "user_settings": {
+                        "merge_mode": mode,
+                        "edit_metadata": edit_metadata,
+                    },
+                    "isAllowed": allowed,
+                    "isBanned": banned,
+                    "thumbnail": thumbnail,
+                }
             }
-        }
         )
-        LOGGER.info("User {} - {}Settings updated: {}".format(uid, name, settingsDB.get(uid)))
+        LOGGER.info(
+            "User {} - {}Settings updated: {}".format(
+                uid, name, LOCAL_SETTINGS_DB.get(uid)
+            )
+        )
 
 
 def enableMetadataToggle(uid: int, value: bool):

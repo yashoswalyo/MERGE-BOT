@@ -10,7 +10,8 @@ from helpers.msg_utils import MakeButtons
 MERGE_MODE = {}  # Maintain each user merge_mode
 UPLOAD_AS_DOC = {}  # Maintain each user ul_type
 UPLOAD_TO_DRIVE = {}  # Maintain each user drive_choice
-settingsDB = {}
+LOCAL_SETTINGS_DB = {}
+RCLONE_LOCAL_DB = {}
 FINISHED_PROGRESS_STR = os.environ.get("FINISHED_PROGRESS_STR", "█")
 UN_FINISHED_PROGRESS_STR = os.environ.get("UN_FINISHED_PROGRESS_STR", "░")
 EDIT_SLEEP_TIME_OUT = 10
