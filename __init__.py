@@ -21,7 +21,7 @@ replyDB = {}
 
 VIDEO_EXTENSIONS = ["mkv", "mp4", "webm", "ts", "wav", "mov"]
 AUDIO_EXTENSIONS = ["aac", "ac3", "eac3", "m4a", "mka", "thd", "dts", "mp3"]
-SUBTITLE_EXTENSIONS = ["srt", "ass"]
+SUBTITLE_EXTENSIONS = ["srt", "ass", "mka", "mks"]
 
 w = open("mergebotlog.txt", "w")
 w.truncate(0)
