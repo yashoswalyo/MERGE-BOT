@@ -396,14 +396,14 @@ async def files_handler(c: Client, m: Message):
 @mergeApp.on_message(filters.photo & filters.private)
 async def photo_handler(c: Client, m: Message):
     user = UserSettings(m.chat.id, m.from_user.first_name)
-    if m.from_user.id != int(Config.OWNER):
-        if user.allowed is False:
-            res = await m.reply_text(
-                text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
-                quote=True,
-            )
-            del user
-            return
+    # if m.from_user.id != int(Config.OWNER):
+    if not user.allowed:
+        res = await m.reply_text(
+            text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
+            quote=True,
+        )
+        del user
+        return
     thumbnail = m.photo.file_id
     msg = await m.reply_text("Saving Thumbnail. . . .", quote=True)
     user.thumbnail = thumbnail
@@ -522,14 +522,18 @@ async def show_thumbnail(c: Client, m: Message):
     try:
         user = UserSettings(m.from_user.id, m.from_user.first_name)
         thumb_id = user.thumbnail
-        LOCATION = f"downloads/{m.from_user.id}_thumb.jpg"
-        await c.download_media(message=str(thumb_id), file_name=LOCATION)
-        if os.path.exists(LOCATION) is False:
-            await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
-        else:
+        LOCATION = f"downloads/{str(m.from_user.id)}_thumb.jpg"
+        if os.path.exists(LOCATION):
             await m.reply_photo(
                 photo=LOCATION, caption="🖼️ Your custom thumbnail", quote=True
             )
+        elif thumb_id is not None :
+            await c.download_media(message=str(thumb_id), file_name=LOCATION)
+            await m.reply_photo(
+                photo=LOCATION, caption="🖼️ Your custom thumbnail", quote=True
+            )
+        else: 
+            await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
         del user
     except Exception as err:
         LOGGER.info(err)
@@ -544,8 +548,9 @@ async def delete_thumbnail(c: Client, m: Message):
         user.set()
         if os.path.exists(f"downloads/{str(m.from_user.id)}"):
             os.remove(f"downloads/{str(m.from_user.id)}")
-        await m.reply_text("✅ Deleted Sucessfully", quote=True)
-        del user
+            await m.reply_text("✅ Deleted Sucessfully", quote=True)
+            del user
+        else: raise Exception("Thumbnail file not found")
     except Exception as err:
         await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
 
