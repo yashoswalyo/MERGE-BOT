@@ -18,8 +18,8 @@ async def f1(c: mergeApp, m: Message):
 async def userSettings(
     editable: Message,
     uid: int,
-    fname: str,
-    lname: str,
+    fname,
+    lname,
     usettings: UserSettings,
 ):
     b = MakeButtons()
