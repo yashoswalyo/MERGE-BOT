@@ -10,6 +10,7 @@ import shutil
 import time
 
 import psutil
+import pyromod
 from PIL import Image
 from pyrogram import Client, filters,enums
 from pyrogram.errors import (
@@ -25,7 +26,6 @@ from pyrogram.types import (
     Message,
     User,
 )
-from pyromod import listen
 
 from __init__ import (
     AUDIO_EXTENSIONS,
