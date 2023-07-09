@@ -179,7 +179,7 @@ def MergeAudio(videoPath: str, files_list: list, user_id):
     audioTracks = 0
     for i in range(len(videoStreamsData)):
         if videoStreamsData[i]["codec_type"] == "audio":
-            muxcmd.append(f"disposition:a:{audioTracks}")
+            muxcmd.append(f"-disposition:a:{audioTracks}")
             muxcmd.append("0")
             audioTracks += 1
     fAudio = audioTracks
