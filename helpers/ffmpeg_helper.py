@@ -357,7 +357,8 @@ async def extractAudios(path_to_file, user_id):
         LOGGER.warning(f"{extract_dir} is empty")
         return None
 
-async def extractSubtitles(path_to_file, user_id):
+
+def extractSubtitles(path_to_file, user_id):
     """
     docs
     """
@@ -390,7 +391,7 @@ async def extractSubtitles(path_to_file, user_id):
             try:
                 output_file: str = (
                     os.path.splitext(os.path.basename(path_to_file))[0]  # Get the video file name without extension
-                    + "." + subtitle["tags"]["title"]  # Use the subtitle title
+                    + "." + subtitle["tags"]["language"]  # Use the subtitle language
                     + ".srt"
                 )
                 output_file = output_file.replace(" ", ".")
@@ -408,7 +409,12 @@ async def extractSubtitles(path_to_file, user_id):
                     )
                 except:
                     output_file = (
-                        os.path.splitext(os.path.basename(path_to_file))[0] + "." + str(subtitle["index"]) + "." + subtitle["codec_type"] + ".srt"
+                        os.path.splitext(os.path.basename(path_to_file))[0]
+                        + "."
+                        + str(subtitle["index"])
+                        + "."
+                        + subtitle["codec_type"]
+                        + ".srt"
                     )
             extractcmd.append("-c:s")
             extractcmd.append("srt")
