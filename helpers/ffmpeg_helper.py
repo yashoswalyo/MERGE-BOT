@@ -357,7 +357,6 @@ async def extractAudios(path_to_file, user_id):
         LOGGER.warning(f"{extract_dir} is empty")
         return None
 
-
 async def extractSubtitles(path_to_file, user_id):
     """
     docs
@@ -389,14 +388,10 @@ async def extractSubtitles(path_to_file, user_id):
             index = subtitle["index"]
             extractcmd.append(f"0:{index}")
             try:
-                output_file: str = (
-                    "("
-                    + subtitle["tags"]["language"]
-                    + ") "
-                    + subtitle["tags"]["title"]
-                    + "."
-                    + subtitle["codec_type"]
-                    + ".mka"
+               output_file: str = (
+                    os.path.splitext(os.path.basename(path_to_file))[0]  # Get the video file name without extension
+                    + "_" + subtitle["tags"]["title"]  # Use the subtitle title
+                    + ".srt"
                 )
                 output_file = output_file.replace(" ", ".")
             except:
@@ -407,14 +402,14 @@ async def extractSubtitles(path_to_file, user_id):
                         + subtitle["tags"]["language"]
                         + "."
                         + subtitle["codec_type"]
-                        + ".mka"
+                        + ".srt"
                     )
                 except:
                     output_file = (
-                        str(subtitle["index"]) + "." + subtitle["codec_type"] + ".mka"
+                        str(subtitle["index"]) + "." + subtitle["codec_type"] + ".srt"
                     )
-            extractcmd.append("-c")
-            extractcmd.append("copy")
+            extractcmd.append("-c:s")
+            extractcmd.append("srt")
             extractcmd.append(f"{extract_dir}/{output_file}")
             LOGGER.info(extractcmd)
             subprocess.call(extractcmd)
