@@ -301,6 +301,7 @@ async def take_screen_shot(video_file, output_directory, ttl):
         return None
 
 
+
 async def extractAudios(path_to_file, user_id):
     """
     docs
@@ -333,19 +334,40 @@ async def extractAudios(path_to_file, user_id):
             extractcmd.append(f"0:{index}")
             try:
                 output_file: str = (
-                    "("
-                    + audio["tags"]["language"]
-                    + ") "
-                    + audio["tags"]["title"]
+                    os.path.splitext(os.path.basename(path_to_file))[
+                        0
+                    ]  # Get the video file name without extension
                     + "."
-                    + audio["codec_type"]
-                    + ".mka"
+                    + audio["tags"]["language"]  # Use the subtitle language
+                    + ".srt"
                 )
                 output_file = output_file.replace(" ", ".")
             except:
-                output_file = str(audio["index"]) + "." + audio["codec_type"] + ".mka"
-            extractcmd.append("-c")
-            extractcmd.append("copy")
+                try:
+                    output_file = (
+                        os.path.splitext(os.path.basename(path_to_file))[0]
+                        + "."
+                        + str(audio["index"])
+                        + "."
+                        + audio["tags"]["language"]
+                        + "."
+                        + audio["codec_type"]
+                        + ".mp3"
+                    )
+                except:
+                    output_file = (
+                        os.path.splitext(os.path.basename(path_to_file))[0]
+                        + "."
+                        + str(audio["index"])
+                        + "."
+                        + audio["codec_type"]
+                        + ".mp3"
+                    )
+
+            extractcmd.append("-c:a")
+            extractcmd.append("libmp3lame")
+            extractcmd.append("-q:a")
+            extractcmd.append("2")
             extractcmd.append(f"{extract_dir}/{output_file}")
             LOGGER.info(extractcmd)
             subprocess.call(extractcmd)
@@ -356,6 +378,7 @@ async def extractAudios(path_to_file, user_id):
     else:
         LOGGER.warning(f"{extract_dir} is empty")
         return None
+
 
 
 
