@@ -422,7 +422,7 @@ async def extractSubtitles(path_to_file, user_id):
             extractcmd.append("srt")
             extractcmd.append(f"{extract_dir}/{output_file}")
             LOGGER.info(extractcmd)
-            await asyncio.create_subprocess_exec(*extractcmd)
+            subprocess.call(extractcmd)
         except Exception as e:
             LOGGER.error(f"Something went wrong: {e}")
     if get_path_size(extract_dir) > 0:
