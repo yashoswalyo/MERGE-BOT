@@ -369,7 +369,7 @@ async def extractSubtitles(path_to_file, user_id):
         return None
     if not os.path.exists(dir_name + "/extract"):
         os.makedirs(dir_name + "/extract")
-    videoStreamsData = await ffmpeg.probe(path_to_file)
+    videoStreamsData = ffmpeg.probe(path_to_file)
     # with open("data.json",'w') as f:
     #     f.write(json.dumps(videoStreamsData))
     extract_dir = dir_name + "/extract"
