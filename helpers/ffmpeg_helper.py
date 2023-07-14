@@ -358,7 +358,9 @@ async def extractAudios(path_to_file, user_id):
         return None
 
 
-def extractSubtitles(path_to_file, user_id):
+
+
+async def extractSubtitles(path_to_file, user_id):
     """
     docs
     """
@@ -367,7 +369,7 @@ def extractSubtitles(path_to_file, user_id):
         return None
     if not os.path.exists(dir_name + "/extract"):
         os.makedirs(dir_name + "/extract")
-    videoStreamsData = ffmpeg.probe(path_to_file)
+    videoStreamsData = await ffmpeg.probe(path_to_file)
     # with open("data.json",'w') as f:
     #     f.write(json.dumps(videoStreamsData))
     extract_dir = dir_name + "/extract"
@@ -420,7 +422,7 @@ def extractSubtitles(path_to_file, user_id):
             extractcmd.append("srt")
             extractcmd.append(f"{extract_dir}/{output_file}")
             LOGGER.info(extractcmd)
-            subprocess.call(extractcmd)
+            await asyncio.create_subprocess_exec(*extractcmd)
         except Exception as e:
             LOGGER.error(f"Something went wrong: {e}")
     if get_path_size(extract_dir) > 0:
@@ -428,3 +430,4 @@ def extractSubtitles(path_to_file, user_id):
     else:
         LOGGER.warning(f"{extract_dir} is empty")
         return None
+
