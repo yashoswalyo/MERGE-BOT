@@ -390,7 +390,7 @@ async def extractSubtitles(path_to_file, user_id):
             try:
                 output_file: str = (
                     os.path.splitext(os.path.basename(path_to_file))[0]  # Get the video file name without extension
-                    + "_" + subtitle["tags"]["title"]  # Use the subtitle title
+                    + "." + subtitle["tags"]["title"]  # Use the subtitle title
                     + ".srt"
                 )
                 output_file = output_file.replace(" ", ".")
@@ -398,6 +398,7 @@ async def extractSubtitles(path_to_file, user_id):
                 try:
                     output_file = (
                         os.path.splitext(os.path.basename(path_to_file))[0]
+                        + "."
                         + str(subtitle["index"])
                         + "."
                         + subtitle["tags"]["language"]
@@ -407,7 +408,7 @@ async def extractSubtitles(path_to_file, user_id):
                     )
                 except:
                     output_file = (
-                        os.path.splitext(os.path.basename(path_to_file))[0] + str(subtitle["index"]) + "." + subtitle["codec_type"] + ".srt"
+                        os.path.splitext(os.path.basename(path_to_file))[0] + "." + str(subtitle["index"]) + "." + subtitle["codec_type"] + ".srt"
                     )
             extractcmd.append("-c:s")
             extractcmd.append("srt")
