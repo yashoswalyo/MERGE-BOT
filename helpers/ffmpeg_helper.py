@@ -388,7 +388,7 @@ async def extractSubtitles(path_to_file, user_id):
             index = subtitle["index"]
             extractcmd.append(f"0:{index}")
             try:
-               output_file: str = (
+                output_file: str = (
                     os.path.splitext(os.path.basename(path_to_file))[0]  # Get the video file name without extension
                     + "_" + subtitle["tags"]["title"]  # Use the subtitle title
                     + ".srt"
