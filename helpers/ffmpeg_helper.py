@@ -381,9 +381,6 @@ async def extractAudios(path_to_file, user_id):
         LOGGER.warning(f"{extract_dir} is empty")
         return None
 
-
-
-
 async def extractSubtitles(path_to_file, user_id):
     dir_name = os.path.dirname(os.path.dirname(path_to_file))
     if not os.path.exists(path_to_file):
@@ -404,23 +401,47 @@ async def extractSubtitles(path_to_file, user_id):
                 subtitles.append((stream, language_counts[language]))
         except Exception as e:
             LOGGER.warning(e)
-
-    # Let the user select the subtitle
-
-    subtitles_list = []
-
     for subtitle, count in subtitles:
-        subtitles_list.append((subtitle["tags"]["language"], count, f"{extract_dir}/{subtitle['tags']['language']}.srt"))
-
-    selected_subtitle = int(
-        await mergeApp.ask(
-            user_id,
-            "Select the subtitles you want to upload:",
-            reply_markup=ReplyKeyboardMarkup(subtitles_list, one_time_keyboard=True),
-        )
-    ) - 1
-
-    return subtitles_list[selected_subtitle][2]
+        extractcmd = []
+        extractcmd.append("ffmpeg")
+        extractcmd.append("-hide_banner")
+        extractcmd.append("-i")
+        extractcmd.append(path_to_file)
+        extractcmd.append("-map")
+        try:
+            index = subtitle["index"]
+            extractcmd.append(f"0:{index}")
+            try:
+                output_file: str = (
+                    os.path.splitext(os.path.basename(path_to_file))[0]
+                    + f".{count}."  # Add the count to the output file name
+                    + subtitle["tags"]["language"]
+                    + ".srt"
+                )
+                output_file = output_file.replace(" ", ".")
+            except:
+                output_file = (
+                    os.path.splitext(os.path.basename(path_to_file))[0]
+                    + f".{count}."  # Add the count to the output file name
+                    + str(subtitle["index"])
+                    + "."
+                    + subtitle["tags"]["language"]
+                    + "."
+                    + subtitle["codec_type"]
+                    + ".srt"
+                )
+            extractcmd.append("-c:s")
+            extractcmd.append("srt")
+            extractcmd.append(f"{extract_dir}/{output_file}")
+            LOGGER.info(extractcmd)
+            subprocess.call(extractcmd)
+        except Exception as e:
+            LOGGER.error(f"Something went wrong: {e}")
+    if get_path_size(extract_dir) > 0:
+        return extract_dir
+    else:
+        LOGGER.warning(f"{extract_dir} is empty")
+        return None
 
 
 
