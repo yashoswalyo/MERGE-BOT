@@ -11,6 +11,7 @@ from __init__ import LOGGER
 from helpers.utils import get_path_size
 from bot import mergeApp as client
 import pyrogram
+from pyrogram import types
 
 
 
