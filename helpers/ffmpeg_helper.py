@@ -11,7 +11,7 @@ from __init__ import LOGGER
 from helpers.utils import get_path_size
 from bot import mergeApp as client
 import pyrogram
-from pyrogram import types
+from pyrogram.types import ReplyKeyboardMarkup as RKM
 
 
 
@@ -415,7 +415,7 @@ async def extractSubtitles(path_to_file, user_id):
         await client.ask(
             user_id,
             "Select the subtitles you want to upload:",
-            reply_markup=ReplyKeyboardMarkup(subtitles_list, one_time_keyboard=True),
+            reply_markup=RKM(subtitles_list, one_time_keyboard=True),
         )
     ) - 1
 
