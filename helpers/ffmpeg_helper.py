@@ -10,6 +10,7 @@ from pyrogram.types import Message
 from __init__ import LOGGER
 from helpers.utils import get_path_size
 from bot import mergeApp
+import pyrogram
 
 
 
