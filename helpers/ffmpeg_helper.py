@@ -9,9 +9,8 @@ from config import Config
 from pyrogram.types import Message
 from __init__ import LOGGER
 from helpers.utils import get_path_size
-from bot import mergeApp as client
+from bot import mergeApp
 import pyrogram
-from pyrogram.types import ReplyKeyboardMarkup as RKM
 
 
 
@@ -403,28 +402,47 @@ async def extractSubtitles(path_to_file, user_id):
                 subtitles.append((stream, language_counts[language]))
         except Exception as e:
             LOGGER.warning(e)
-
-    # Let the user select the subtitle
-
-    subtitles_list = []
-
     for subtitle, count in subtitles:
-        subtitles_list.append((subtitle["tags"]["language"], count, f"{extract_dir}/{subtitle['tags']['language']}.srt"))
-
-    selected_subtitle = int(
-        await client.ask(
-            user_id,
-            "Select the subtitles you want to upload:",
-            reply_markup=RKM(subtitles_list, one_time_keyboard=True),
-        )
-    ) - 1
-
-    # Upload the selected subtitle
-
-    path_to_subtitle = subtitles_list[selected_subtitle][2]
-    await client.send_file(user_id, path_to_subtitle)
-    return None
-
+        extractcmd = []
+        extractcmd.append("ffmpeg")
+        extractcmd.append("-hide_banner")
+        extractcmd.append("-i")
+        extractcmd.append(path_to_file)
+        extractcmd.append("-map")
+        try:
+            index = subtitle["index"]
+            extractcmd.append(f"0:{index}")
+            try:
+                output_file: str = (
+                    os.path.splitext(os.path.basename(path_to_file))[0]
+                    + f".{count}."  # Add the count to the output file name
+                    + subtitle["tags"]["language"]
+                    + ".srt"
+                )
+                output_file = output_file.replace(" ", ".")
+            except:
+                output_file = (
+                    os.path.splitext(os.path.basename(path_to_file))[0]
+                    + f".{count}."  # Add the count to the output file name
+                    + str(subtitle["index"])
+                    + "."
+                    + subtitle["tags"]["language"]
+                    + "."
+                    + subtitle["codec_type"]
+                    + ".srt"
+                )
+            extractcmd.append("-c:s")
+            extractcmd.append("srt")
+            extractcmd.append(f"{extract_dir}/{output_file}")
+            LOGGER.info(extractcmd)
+            subprocess.call(extractcmd)
+        except Exception as e:
+            LOGGER.error(f"Something went wrong: {e}")
+    if get_path_size(extract_dir) > 0:
+        return extract_dir
+    else:
+        LOGGER.warning(f"{extract_dir} is empty")
+        return None
 
 
 
