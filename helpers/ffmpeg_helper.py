@@ -9,6 +9,7 @@ from config import Config
 from pyrogram.types import Message
 from __init__ import LOGGER
 from helpers.utils import get_path_size
+from bot import mergeApp
 
 
 
@@ -412,7 +413,7 @@ async def extractSubtitles(path_to_file, user_id):
         subtitles_list.append((subtitle["tags"]["language"], count, f"{extract_dir}/{subtitle['tags']['language']}.srt"))
 
     selected_subtitle = int(
-        await client.ask(
+        await mergeApp.ask(
             user_id,
             "Select the subtitles you want to upload:",
             reply_markup=ReplyKeyboardMarkup(subtitles_list, one_time_keyboard=True),
