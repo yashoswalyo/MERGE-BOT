@@ -9,7 +9,7 @@ from config import Config
 from pyrogram.types import Message
 from __init__ import LOGGER
 from helpers.utils import get_path_size
-from bot import mergeApp
+from bot import mergeApp as client
 import pyrogram
 
 
