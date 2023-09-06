@@ -94,21 +94,21 @@ async def loginHandler(c: Client, m: Message):
     if user.user_id == int(Config.OWNER):
         user.allowed = True
     if user.allowed:
-        await m.reply_text(text=f"**Dont Spam**\n  ⚡ You can use me!!", quote=True)
+        await m.reply_text(text=f"**Dont Spam**\nYou can use me!!", quote=True)
     else:
         try:
             passwd = m.text.split(" ", 1)[1]
         except:
-            await m.reply_text("**Command:**\n  `/login <password>`\n\n**Usage:**\n  `password`: Get the password from owner",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
+            await m.reply_text("**Command:**\n`/login <password>`\n\n**Usage:**\n`password`: Get the password from owner",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
         passwd = passwd.strip()
         if passwd == Config.PASSWORD:
             user.allowed = True
             await m.reply_text(
-                text=f"**Login passed ✅,**\n  ⚡ Now you can use me!!", quote=True
+                text=f"**Login passed,**\nNow you can use me!!", quote=True
             )
         else:
             await m.reply_text(
-                text=f"**Login failed ❌,**\n  🛡️ Unfortunately you can't use me\n\nContact: 🈲 @{Config.OWNER_USERNAME}",
+                text=f"**Login failed,**\nUnfortunately you can't use me\n\nContact:@{Config.OWNER_USERNAME}",
                 quote=True,
             )
     user.set()
@@ -185,7 +185,7 @@ async def broadcast_handler(c: Client, m: Message):
         await asyncio.sleep(3)
     await status.edit_text(
         text=BROADCAST_MSG.format(len, success)
-        + f"**Failed: {str(len-success)}**\n\n__🤓 Broadcast completed sucessfully__",
+        + f"**Failed: {str(len-success)}**\n\n__ Broadcast completed sucessfully__",
     )
 
 
@@ -196,7 +196,7 @@ async def start_handler(c: Client, m: Message):
     if m.from_user.id != int(Config.OWNER):
         if user.allowed is False:
             res = await m.reply_text(
-                text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
+                text=f"Hi **{m.from_user.first_name}**\n\nUnfortunately you can't use me\n\n**Contact: @{Config.OWNER_USERNAME}** ",
                 quote=True,
             )
             return
@@ -204,7 +204,7 @@ async def start_handler(c: Client, m: Message):
         user.allowed = True
         user.set()
     res = await m.reply_text(
-        text=f"Hi **{m.from_user.first_name}**\n\n ⚡ I am a file/video merger bot\n\n😎 I can merge Telegram files!, And upload it to telegram\n\n**Owner: 🈲 @{Config.OWNER_USERNAME}** ",
+        text=f"Hi **{m.from_user.first_name}**\n\nI am a file/video merger bot\n\nI can merge Telegram files!, And upload it to telegram\n\n**Owner: @{Config.OWNER_USERNAME}** ",
         quote=True,
     )
     del user
@@ -219,7 +219,7 @@ async def files_handler(c: Client, m: Message):
     if user_id != int(Config.OWNER):
         if user.allowed is False:
             res = await m.reply_text(
-                text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
+                text=f"Hi **{m.from_user.first_name}**\n\nUnfortunately you can't use me\n\n**Contact: @{Config.OWNER_USERNAME}** ",
                 quote=True,
             )
             return
@@ -236,12 +236,12 @@ async def files_handler(c: Client, m: Message):
     currentFileNameExt = media.file_name.rsplit(sep=".")[-1].lower()
     if currentFileNameExt in "conf":
         await m.reply_text(
-            text="**💾 Config file found, Do you want to save it?**",
+            text="**Config file found, Do you want to save it?**",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("✅ Yes", callback_data=f"rclone_save"),
-                        InlineKeyboardButton("❌ No", callback_data="rclone_discard"),
+                        InlineKeyboardButton("Yes", callback_data=f"rclone_save"),
+                        InlineKeyboardButton("No", callback_data="rclone_discard"),
                     ]
                 ]
             ),
@@ -399,7 +399,7 @@ async def photo_handler(c: Client, m: Message):
     # if m.from_user.id != int(Config.OWNER):
     if not user.allowed:
         res = await m.reply_text(
-            text=f"Hi **{m.from_user.first_name}**\n\n 🛡️ Unfortunately you can't use me\n\n**Contact: 🈲 @{Config.OWNER_USERNAME}** ",
+            text=f"Hi **{m.from_user.first_name}**\n\nUnfortunately you can't use me\n\n**Contact: @{Config.OWNER_USERNAME}** ",
             quote=True,
         )
         del user
@@ -411,7 +411,7 @@ async def photo_handler(c: Client, m: Message):
     # await database.saveThumb(m.from_user.id, thumbnail)
     LOCATION = f"downloads/{m.from_user.id}_thumb.jpg"
     await c.download_media(message=m, file_name=LOCATION)
-    await msg.edit_text(text="✅ Custom Thumbnail Saved!")
+    await msg.edit_text(text="Custom Thumbnail Saved!")
     del user
 
 
@@ -470,34 +470,46 @@ async def help_msg(c: Client, m: Message):
 async def about_handler(c: Client, m: Message):
     await m.reply_text(
         text="""
-**ᴡʜᴀᴛ's ɴᴇᴡ:**
-👨‍💻 ʙᴀɴ/ᴜɴʙᴀɴ ᴜsᴇʀs
-👨‍💻 ᴇxᴛʀᴀᴄᴛ ᴀʟʟ ᴀᴜᴅɪᴏs ᴀɴᴅ sᴜʙᴛɪᴛʟᴇs ғʀᴏᴍ ᴛᴇʟᴇɢʀᴀᴍ ᴍᴇᴅɪᴀ
-👨‍💻 ᴍᴇʀɢᴇ ᴠɪᴅᴇᴏ + ᴀᴜᴅɪᴏ 
-👨‍💻 ᴍᴇʀɢᴇ ᴠɪᴅᴇᴏ + sᴜʙᴛɪᴛʟᴇs
-👨‍💻 ᴜᴘʟᴏᴀᴅ ᴛᴏ ᴅʀɪᴠᴇ ᴜsɪɴɢ ʏᴏᴜʀ ᴏᴡɴ ʀᴄʟᴏɴᴇ ᴄᴏɴғɪɢ
-👨‍💻 ᴍᴇʀɢᴇᴅ ᴠɪᴅᴇᴏ ᴘʀᴇsᴇʀᴠᴇs ᴀʟʟ sᴛʀᴇᴀᴍs ᴏғ ᴛʜᴇ ғɪʀsᴛ ᴠɪᴅᴇᴏ ʏᴏᴜ sᴇɴᴅ (ɪ.ᴇ ᴀʟʟ ᴀᴜᴅɪᴏᴛʀᴀᴄᴋs/sᴜʙᴛɪᴛʟᴇs)
-➖➖➖➖➖➖➖➖➖➖➖➖➖
-**ғᴇᴀᴛᴜʀᴇs**
-🔰 ᴍᴇʀɢᴇ ᴜᴘᴛᴏ 𝟷𝟶 ᴠɪᴅᴇᴏ ɪɴ ᴏɴᴇ 
-🔰 ᴜᴘʟᴏᴀᴅ ᴀs ᴅᴏᴄᴜᴍᴇɴᴛs/ᴠɪᴅᴇᴏ
-🔰 ᴄᴜsᴛᴏᴍs ᴛʜᴜᴍʙɴᴀɪʟ sᴜᴘᴘᴏʀᴛ
-🔰 ᴜsᴇʀs ᴄᴀɴ ʟᴏɢɪɴ ᴛᴏ ʙᴏᴛ ᴜsɪɴɢ ᴘᴀssᴡᴏʀᴅ
-🔰 ᴏᴡɴᴇʀ ᴄᴀɴ ʙʀᴏᴀᴅᴄᴀsᴛ ᴍᴇssᴀɢᴇ ᴛᴏ ᴀʟʟ ᴜsᴇʀs
+**What's New:**
+
+🚻Ban/Unban Users
+
+🚹Extract All Audios and Subtitles from Telegram Media
+
+🛗Merge Video + Audio
+
+🛗Merge Video + Subtitles
+
+🛄Upload to Drive Using Your Own Clone Config
+
+🛗Merged Video Preserves All Streams of the First Video (i.e., all audio tracks/subtitles)
+
+────────────────────────
+**Features:**
+
+🛗Merge Up to 10 Videos in One
+
+🛄Upload as Documents/Video
+
+🚼Custom Thumbnail Support
+
+♿Users Can watch ads to use the Bot or they can also purchase premium to use without ads
+
+🛂Owner Can Broadcast Message to All Users
 		""",
         quote=True,
         reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("👨‍💻Developer👨‍💻", url="https://t.me/yashoswalyo")],
+                [InlineKeyboardButton("Developer", url="https://t.me/StupidBoi69")],
                 [
                     InlineKeyboardButton(
-                        "🏘Source Code🏘", url="https://github.com/yashoswalyo/MERGE-BOT"
+                        "Source Code", url="https://github.com/yashoswalyo/MERGE-BOT"
                     ),
                     InlineKeyboardButton(
-                        "🤔Deployed By🤔", url=f"https://t.me/{Config.OWNER_USERNAME}"
+                        "Owner", url=f"https://t.me/{Config.OWNER_USERNAME}"
                     ),
                 ],
-                [InlineKeyboardButton("Close 🔐", callback_data="close")],
+                [InlineKeyboardButton("Close", callback_data="close")],
             ]
         ),
     )
@@ -525,19 +537,19 @@ async def show_thumbnail(c: Client, m: Message):
         LOCATION = f"downloads/{str(m.from_user.id)}_thumb.jpg"
         if os.path.exists(LOCATION):
             await m.reply_photo(
-                photo=LOCATION, caption="🖼️ Your custom thumbnail", quote=True
+                photo=LOCATION, caption="Your custom thumbnail", quote=True
             )
         elif thumb_id is not None :
             await c.download_media(message=str(thumb_id), file_name=LOCATION)
             await m.reply_photo(
-                photo=LOCATION, caption="🖼️ Your custom thumbnail", quote=True
+                photo=LOCATION, caption="Your custom thumbnail", quote=True
             )
         else: 
-            await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
+            await m.reply_text(text="Custom thumbnail not found", quote=True)
         del user
     except Exception as err:
         LOGGER.info(err)
-        await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
+        await m.reply_text(text="Custom thumbnail not found", quote=True)
 
 
 @mergeApp.on_message(filters.command(["deletethumbnail"]) & filters.private)
@@ -548,11 +560,11 @@ async def delete_thumbnail(c: Client, m: Message):
         user.set()
         if os.path.exists(f"downloads/{str(m.from_user.id)}"):
             os.remove(f"downloads/{str(m.from_user.id)}")
-            await m.reply_text("✅ Deleted Sucessfully", quote=True)
+            await m.reply_text("Deleted Sucessfully", quote=True)
             del user
         else: raise Exception("Thumbnail file not found")
     except Exception as err:
-        await m.reply_text(text="❌ Custom thumbnail not found", quote=True)
+        await m.reply_text(text="Custom thumbnail not found", quote=True)
 
 @mergeApp.on_message(filters.command(["ban","unban"]) & filters.private)
 async def ban_user(c:Client,m:Message):
@@ -712,8 +724,8 @@ async def makeButtons(bot: Client, m: Message, db: dict):
                     ]
                 )
 
-    markup.append([InlineKeyboardButton("🔗 Merge Now", callback_data="merge")])
-    markup.append([InlineKeyboardButton("💥 Clear Files", callback_data="cancel")])
+    markup.append([InlineKeyboardButton("Merge Now", callback_data="merge")])
+    markup.append([InlineKeyboardButton("Clear Files", callback_data="cancel")])
     return markup
 
 
