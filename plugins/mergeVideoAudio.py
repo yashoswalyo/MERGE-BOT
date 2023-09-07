@@ -61,7 +61,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
             n+=1
             if gDict[cb.message.chat.id] and cb.message.id in gDict[cb.message.chat.id]:
                 return
-            await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
+            await cb.message.edit(f"Downloaded Sucessfully\n\n`{media.file_name}`")
             LOGGER.info(f"Downloaded Sucessfully\n\n{media.file_name}")
             await asyncio.sleep(4)
         except Exception as downloadErr:
@@ -89,7 +89,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     file_size = os.path.getsize(muxed_video)
     os.rename(muxed_video, new_file_name)
     await cb.message.edit(
-        f"Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
+        f"Renaming Video to\n**{new_file_name.rsplit('/',1)[-1]}**"
     )
     await asyncio.sleep(4)
     merged_video_path = new_file_name
