@@ -21,7 +21,7 @@ from pyrogram.types import CallbackQuery, Message
 async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     omess = cb.message.reply_to_message
     files_list = []
-    await cb.message.edit("⭕ Processing...")
+    await cb.message.edit("Processing")
     duration = 0
     video_mess = queueDB.get(cb.from_user.id)["videos"][0]
     list_message_ids: list = queueDB.get(cb.from_user.id)["audios"]
@@ -40,8 +40,8 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
     )
     for i in msgs:
         media = i.video or i.document or i.audio
-        await cb.message.edit(f"📥 Starting Download of ... `{media.file_name}`")
-        LOGGER.info(f"📥 Starting Download of ... {media.file_name}")
+        await cb.message.edit(f"Starting Download of\n\n`{media.file_name}`")
+        LOGGER.info(f"Starting Download of\n\n{media.file_name}")
         currentFileNameExt = media.file_name.rsplit(sep=".")[-1].lower()
         if currentFileNameExt in VIDEO_EXTENSIONS:
             tmpFileName = "vid.mkv"
@@ -56,18 +56,18 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
                 message=media,
                 file_name=f"downloads/{str(cb.from_user.id)}/{str(i.id)}/{tmpFileName}",
                 progress=prog.progress_for_pyrogram,
-                progress_args=(f"🚀 Downloading: `{media.file_name}`", c_time, f"\n**Downloading: {n}/{all}**"),
+                progress_args=(f"Downloading: `{media.file_name}`", c_time, f"\n**Downloading: {n}/{all}**"),
             )
             n+=1
             if gDict[cb.message.chat.id] and cb.message.id in gDict[cb.message.chat.id]:
                 return
             await cb.message.edit(f"Downloaded Sucessfully ... `{media.file_name}`")
-            LOGGER.info(f"Downloaded Sucessfully ... {media.file_name}")
+            LOGGER.info(f"Downloaded Sucessfully\n\n{media.file_name}")
             await asyncio.sleep(4)
         except Exception as downloadErr:
             LOGGER.warning(f"Failed to download Error: {downloadErr}")
             queueDB.get(cb.from_user.id)["audios"].remove(i.id)
-            await cb.message.edit("❗File Skipped!")
+            await cb.message.edit("File Skipped!")
             await asyncio.sleep(4)
             await cb.message.delete(True)
             continue
@@ -75,21 +75,21 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
 
     muxed_video = MergeAudio(files_list[0], files_list, cb.from_user.id)
     if muxed_video is None:
-        await cb.message.edit("❌ Failed to add audio to video !")
+        await cb.message.edit("Failed to add audio to video !")
         await delete_all(root=f"downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
         return
     try:
-        await cb.message.edit("✅ Sucessfully Muxed Video !")
+        await cb.message.edit("Sucessfully Muxed Video !")
     except MessageNotModified:
-        await cb.message.edit("Sucessfully Muxed Video ! ✅")
+        await cb.message.edit("Sucessfully Muxed Video !")
     LOGGER.info(f"Video muxed for: {cb.from_user.first_name} ")
     await asyncio.sleep(3)
     file_size = os.path.getsize(muxed_video)
     os.rename(muxed_video, new_file_name)
     await cb.message.edit(
-        f"🔄 Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
+        f"Renaming Video to\n **{new_file_name.rsplit('/',1)[-1]}**"
     )
     await asyncio.sleep(4)
     merged_video_path = new_file_name
@@ -118,7 +118,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
         return
-    await cb.message.edit("🎥 Extracting Video Data ...")
+    await cb.message.edit("Extracting Video Data")
 
     duration = 1
     try:
@@ -129,7 +129,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         await delete_all(root=f"downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
-        await cb.message.edit("⭕ Merged Video is corrupted")
+        await cb.message.edit("Merged Video is corrupted")
         return
     try:
         user = UserSettings(cb.from_user.id, cb.from_user.first_name)
@@ -161,7 +161,7 @@ async def mergeAudio(c: Client, cb: CallbackQuery, new_file_name: str):
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
         await cb.message.edit(
-            "⭕ Merged Video is corrupted \n\n<i>Try setting custom thumbnail</i>",
+            "Merged Video is corrupted \n\n<i>Try setting custom thumbnail</i>",
         )
         return
     await uploadVideo(
