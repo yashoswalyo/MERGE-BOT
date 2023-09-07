@@ -35,7 +35,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     # async def cb_handler(c: Client, cb: CallbackQuery):
     if cb.data == "merge":
         await cb.message.edit(
-            text="Where do you want to upload?",
+            text="**Where do you want to upload ?**",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -68,7 +68,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             return
         UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": True})
         await cb.message.edit(
-            text="Okay I'll upload to drive\nDo you want to rename?Default file name is **@AnimeDownloaderChat_Bot.mkv**",
+            text="Okay I'll upload to drive\nDo you want to rename? Default file name is\n@AnimeDownloaderChat_Bot.mkv",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -84,7 +84,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     elif cb.data == "to_telegram":
         UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": False})
         await cb.message.edit(
-            text="How do yo want to upload file",
+            text="**Select your output type !**",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -100,7 +100,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     elif cb.data == "document":
         UPLOAD_AS_DOC.update({f"{cb.from_user.id}": True})
         await cb.message.edit(
-            text="Do you want to rename? Default file name is **@AnimeDownloaderChat_Bot.mkv**",
+            text="Do you want to rename?\nDefault file name is @AnimeDownloaderChat_Bot.mkv",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -116,7 +116,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     elif cb.data == "video":
         UPLOAD_AS_DOC.update({f"{cb.from_user.id}": False})
         await cb.message.edit(
-            text="Do you want to rename? Default file name is **@AnimeDownloaderChat_Bot.mkv**",
+            text="Do you want to rename?\nDefault file name is @AnimeDownloaderChat_Bot.mkv",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -146,7 +146,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         user = UserSettings(cb.from_user.id, cb.from_user.first_name)
         if "YES" in cb.data:
             await cb.message.edit(
-                "Current filename: **@AnimeDownloaderChat_Bot.mkv****\n\nSend me new file name without extension: You have 1 minute"
+                "Current filename: **@AnimeDownloaderChat_Bot.mkv**\n\nSend me new file name without extension: You have 1 minute"
             )
             res: Message = await c.listen(
                 (cb.message.chat.id,None,None), filters=filters.text, timeout=150
@@ -164,7 +164,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             return
         if "NO" in cb.data:
             new_file_name = (
-                f"downloads/{str(cb.from_user.id)}/**@AnimeDownloaderChat_Bot.mkv**"
+                f"downloads/{str(cb.from_user.id)}/@AnimeDownloaderChat_Bot.mkv"
             )
             if user.merge_mode == 1:
                 await mergeNow(c, cb, new_file_name)
