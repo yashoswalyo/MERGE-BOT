@@ -136,7 +136,7 @@ async def uploadFiles(
                 media = sent_.video or sent_.document
                 await sent_.copy(
                     chat_id=int(LOGCHANNEL),
-                    caption=f"`{media.file_name}`\n\nExtracted by: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.mention}</a>\User ID: {cb.from_user.id}",
+                    caption=f"`{media.file_name}`\n\nExtracted by: <a href='tg://user?id={cb.from_user.id}'>{cb.from_user.mention}</a>\nUser ID: {cb.from_user.id}",
                 )
     except:
         1    
