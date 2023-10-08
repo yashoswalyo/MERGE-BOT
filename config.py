@@ -12,5 +12,5 @@ class Config(object):
     LOGCHANNEL = os.environ.get("LOGCHANNEL")  # Add channel id as -100 + Actual ID
     GDRIVE_FOLDER_ID = os.environ.get("GDRIVE_FOLDER_ID","root")
     USER_SESSION_STRING = os.environ.get("USER_SESSION_STRING", None)
-    IS_PREMIUM = False
+    IS_PREMIUM = True
     MODES = ["video-video", "video-audio", "video-subtitle","extract-streams"]
