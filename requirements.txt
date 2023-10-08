@@ -9,3 +9,4 @@ pyromod
 python-dotenv
 requests
 TgCrypto
+pytz
