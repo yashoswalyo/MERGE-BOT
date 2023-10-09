@@ -59,7 +59,7 @@ collection = dkb["tokens"]
 
 def shorten_url(url):
     # SHORTNER KA API AND URL 
-    resp = requests.get(f'http://publicearn.com/api?api=15597af089977d7b56868867823be0b17c76d0f1&url={url}').json()
+    resp = requests.get(f'http://atglinks.com/api?api=b7b566f8bb9e71a4396a935e260ae9b4f01597a4&url={url}').json()
     if resp['status'] == 'success':
         SHORT_LINK = resp['shortenedUrl']
     return SHORT_LINK
@@ -287,8 +287,8 @@ async def files_handler(c: Client, m: Message):
     if PAID_BOT.upper() == "YES":
         result = collection.find_one({"user_id": uid})
         if result is None:
-            ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 3600)}")
-            ad_url = shorten_url(f"https://telegram.me/VideoMerger4GB_Bot?start={ad_code}")
+            ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 36000)}")
+            ad_url = shorten_url(f"https://telegram.me/Videos_converter_bot?start={ad_code}")
             await c.send_message(
                 m.chat.id,
                 f"<b>Hey <u>{m.from_user.mention}</u> \n\nYour Ads token is expired, refresh your token and try again.\n\n__Token Timeout:__ 1 hour\n\n**What is token?**\n\nThis is an ads token. If you pass an ad, you can use the bot for 1 hour after passing the ad.</b>",
@@ -302,8 +302,8 @@ async def files_handler(c: Client, m: Message):
             )
             return
         elif int(result["time_out"]) < get_current_time():
-            ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 3600)}")
-            ad_url = shorten_url(f"https://telegram.me/VideoMerger4GB_Bot?start={ad_code}")
+            ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 36000)}")
+            ad_url = shorten_url(f"https://telegram.me/Videos_converter_bot?start={ad_code}")
             await c.send_message(
                 m.chat.id,
                 f"**Hey __{m.from_user.mention}__ \n\nYour Ads token is expired, refresh your token and try again.\n\n__Token Timeout:__ 1 hour\n\n**What is token?**\n\nThis is an ads token. If you pass 1 ad, you can use the bot for 1 hour after passing the ad.**",
@@ -358,18 +358,18 @@ async def files_handler(c: Client, m: Message):
             user_id, None
         ) is not None and currentFileNameExt != formatDB.get(user_id):
             await m.reply_text(
-                f"🚼 First you sent a {formatDB.get(user_id).upper()} file so now send only that type of file.",
+                f"First you sent a {formatDB.get(user_id).upper()} file so now send only that type of file.",
                 quote=True,
             )
             return
         if currentFileNameExt not in VIDEO_EXTENSIONS:
             await m.reply_text(
-                "🛂 This Video Format not Allowed!\n🛂 Only send MP4 or MKV or WEBM.",
+                "This Video Format not Allowed!\nOnly send MP4 or MKV or WEBM.",
                 quote=True,
             )
             return
-        editable = await m.reply_text("♻️ Please Wait ♻️", quote=True)
-        MessageText = "Okay,\n🛂 Now Send Me Next Video or Press **Merge Now** Button!"
+        editable = await m.reply_text("Please Wait", quote=True)
+        MessageText = "Okay,\nNow Send Me Next Video or Press **Merge Now** Button!"
 
         if queueDB.get(user_id, None) is None:
             queueDB.update({user_id: {"videos": [], "subtitles": [], "audios": []}})
@@ -413,7 +413,7 @@ async def files_handler(c: Client, m: Message):
             )
 
     elif user.merge_mode == 2:
-        editable = await m.reply_text("♻️ Please Wait ♻️", quote=True)
+        editable = await m.reply_text("Please Wait", quote=True)
         MessageText = (
             "Okay,\nNow Send Me Some More <u>Audios</u> or Press **Merge Now** Button!"
         )
@@ -452,7 +452,7 @@ async def files_handler(c: Client, m: Message):
 
     elif user.merge_mode == 3:
 
-        editable = await m.reply_text("♻️ Please Wait ♻️", quote=True)
+        editable = await m.reply_text("Please Wait", quote=True)
         MessageText = "Okay,\nNow Send Me Some More <u>Subtitles</u> or Press **Merge Now** Button!"
         if queueDB.get(user_id, None) is None:
             queueDB.update({user_id: {"videos": [], "subtitles": [], "audios": []}})
@@ -659,8 +659,8 @@ async def ban_user(c:Client,m:Message):
                         udata.set()
                         await m.reply_text(f"Pooof, {user_obj.first_name} has been **BANNED**",quote=True)
                         acknowledgement = f"""
-🚻 Dear {user_obj.first_name},
-🛂 I found your messages annoying and forwarded them to our team of moderators for inspection. The moderators have confirmed the report and your account is now banned.
+Dear {user_obj.first_name},
+I found your messages annoying and forwarded them to our team of moderators for inspection. The moderators have confirmed the report and your account is now banned.
 
 While the account is banned, you will not be able to do certain things, like merging videos/audios/subtitles or extract audios from Telegram media.
 
@@ -695,7 +695,7 @@ Your account can be released only by @{Config.OWNER_USERNAME}."""
                         udata.set()
                         await m.reply_text(f"Pooof, {user_obj.first_name} has been **UN_BANNED**",quote=True)
                         release_notice = f"""
-🛂 Good news {user_obj.first_name}, the ban has been uplifted on your account. You're free as a bird!"""
+Good news {user_obj.first_name}, the ban has been uplifted on your account. You're free as a bird!"""
                         try:
                             await c.send_message(
                                 chat_id=abuser_id,
@@ -828,7 +828,7 @@ if __name__ == "__main__":
         with userBot:
             userBot.send_message(
                 chat_id=int(LOGCHANNEL),
-                text="Bot booted with Premium Account,\n\nThanks for using <a href='https://t.me/VideoMerger4GB_Bot'>This Bot</a>",
+                text="Bot booted with Premium Account,\n\nThanks for using <a href='https://t.me/Videos_converter_bot'>This Bot</a>",
                 disable_web_page_preview=True,
             )
             user = userBot.get_me()
