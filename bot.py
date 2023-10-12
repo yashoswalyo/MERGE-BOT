@@ -1,8 +1,5 @@
 from dotenv import load_dotenv
-from base64 import standard_b64encode, standard_b64decode
-import pytz
-from datetime import datetime
-import requests
+
 load_dotenv(
     "config.env",
     override=True,
@@ -11,7 +8,7 @@ import asyncio
 import os
 import shutil
 import time
-from pymongo import MongoClient
+
 import psutil
 import pyromod
 from PIL import Image
@@ -52,39 +49,6 @@ from helpers.utils import UserSettings, get_readable_file_size, get_readable_tim
 botStartTime = time.time()
 parent_id = Config.GDRIVE_FOLDER_ID
 
-dk = MongoClient(Config.DATABASE_URL)
-dkb = dk["DKBOTZ"]
-collection = dkb["tokens"]
-
-
-def shorten_url(url):
-    # SHORTNER KA API AND URL 
-    resp = requests.get(f'http://atglinks.com/api?api=b7b566f8bb9e71a4396a935e260ae9b4f01597a4&url={url}').json()
-    if resp['status'] == 'success':
-        SHORT_LINK = resp['shortenedUrl']
-    return SHORT_LINK
-
-
-
-def str_to_b64(__str: str) -> str:
-    str_bytes = __str.encode('ascii')
-    bytes_b64 = standard_b64encode(str_bytes)
-    b64 = bytes_b64.decode('ascii')
-    return b64
-
-def b64_to_str(b64: str) -> str:
-    bytes_b64 = b64.encode('ascii')
-    bytes_str = standard_b64decode(bytes_b64)
-    __str = bytes_str.decode('ascii')
-    return __str
-
-def get_current_time():
-    tz = pytz.timezone('Asia/Kolkata')
-    return int(datetime.now(tz).timestamp())
-
-def get_readable_time(seconds):
-    dt = datetime.fromtimestamp(int(seconds))
-    return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 class MergeBot(Client):
     def start(self):
@@ -101,7 +65,7 @@ class MergeBot(Client):
 
 
 mergeApp = MergeBot(
-    name="MERGEBOTNEW",
+    name="merge-bot",
     api_hash=Config.API_HASH,
     api_id=int(Config.TELEGRAM_API),
     bot_token=Config.BOT_TOKEN,
@@ -135,16 +99,16 @@ async def loginHandler(c: Client, m: Message):
         try:
             passwd = m.text.split(" ", 1)[1]
         except:
-            await m.reply_text("**Command:**\n  `/login <password>`\n\n**Usage:**\n  `password`: Get the password from owner",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
+            await m.reply_text("**Command:**\n`/login <password>`\n\n**Usage:**\n`password`: Get the password from owner",quote=True,parse_mode=enums.parse_mode.ParseMode.MARKDOWN)
         passwd = passwd.strip()
         if passwd == Config.PASSWORD:
             user.allowed = True
             await m.reply_text(
-                text=f"**Login passed ,**\nNow you can use me!!", quote=True
+                text=f"**Login passed,**\nNow you can use me!!", quote=True
             )
         else:
             await m.reply_text(
-                text=f"**Login failed,**\nUnfortunately you can't use me\n\nContact: @{Config.OWNER_USERNAME}",
+                text=f"**Login failed,**\nUnfortunately you can't use me\n\nContact:@{Config.OWNER_USERNAME}",
                 quote=True,
             )
     user.set()
@@ -221,102 +185,44 @@ async def broadcast_handler(c: Client, m: Message):
         await asyncio.sleep(3)
     await status.edit_text(
         text=BROADCAST_MSG.format(len, success)
-        + f"**Failed: {str(len-success)}**\n\n__Broadcast completed sucessfully__",
+        + f"**Failed: {str(len-success)}**\n\n__ Broadcast completed sucessfully__",
     )
 
 
 @mergeApp.on_message(filters.command(["start"]) & filters.private)
 async def start_handler(c: Client, m: Message):
-    if m.text.startswith("/start ") and len(m.text) > 7:
-        user_id = m.from_user.id
-        try:
-            ad_msg = b64_to_str(m.text.split("/start ")[1])
-            if int(user_id) != int(ad_msg.split(":")[0]):
-                await c.send_message(
-                    m.chat.id,
-                    "**This is not your token**",
-                    reply_to_message_id=m.id,
-                )
-                return
-            if int(ad_msg.split(":")[1]) < get_current_time():
-                await c.send_message(
-                    m.chat.id,
-                    "**Your Free Plan has Expired!\n\nPlease upgrade to our premium plan or watch ads to continue using our service.**",
-                    reply_to_message_id=m.id,
-                )
-                return
-            if int(ad_msg.split(":")[1]) > int(get_current_time() + 10800):
-                await c.send_message(
-                    m.chat.id,
-                    "**Dont try to be over smart**",
-                    reply_to_message_id=m.id,
-                )
-                return
-            query = {"user_id": user_id}
-            collection.update_one(
-                query, {"$set": {"time_out": int(ad_msg.split(":")[1])}}, upsert=True
-            )
-            await c.send_message(
-                m.chat.id,
-                "**Congratulations!\n\n The Ads token has been successfully refreshed and will expire after 1 hours.**",
-                reply_to_message_id=m.id,
-            )
-            return
-        except BaseException:
-            await c.send_message(
-                m.chat.id,
-                "**Invalid Token**",
-                reply_to_message_id=m.id,
-            )
-            return
+    user = UserSettings(m.from_user.id, m.from_user.first_name)
 
+    if m.from_user.id != int(Config.OWNER):
+        if user.allowed is False:
+            res = await m.reply_text(
+                text=f"Hi **{m.from_user.first_name}**\n\nUnfortunately you can't use me\n\n**Contact: @{Config.OWNER_USERNAME}** ",
+                quote=True,
+            )
+            return
+    else:
+        user.allowed = True
+        user.set()
     res = await m.reply_text(
-        text=f"🛐 जय श्री राम🚩**{m.from_user.mention}**\n\nI am Merger Bot\n\nI can merge (video, audio, and subtitle)\n or i can extract (audio and subtitle) from video\nAnd upload it to telegram\n\n**Owner: @StupidBoi69** ",
+        text=f"🛐 जय श्री राम🚩**{m.from_user.mention}**\n\n🚹 I am a file/video merger bot\n\n🛂 I can merge Telegram files!, And upload it to telegram\n\n**Owner:💭 @{Config.OWNER_USERNAME}** ",
         quote=True,
     )
+    del user
 
-PAID_BOT = "YES"
 
 @mergeApp.on_message(
     (filters.document | filters.video | filters.audio) & filters.private
 )
 async def files_handler(c: Client, m: Message):
     user_id = m.from_user.id
-    uid = m.from_user.id
     user = UserSettings(user_id, m.from_user.first_name)
-    if PAID_BOT.upper() == "YES":
-        result = collection.find_one({"user_id": uid})
-        if result is None:
-            ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 36000)}")
-            ad_url = shorten_url(f"https://telegram.me/Videos_converter_bot?start={ad_code}")
-            await c.send_message(
-                m.chat.id,
-                f"<b>Hey <u>{m.from_user.mention}</u> \n\nYour Ads token is expired, refresh your token and try again.\n\n__Token Timeout:__ 1 hour\n\n**What is token?**\n\nThis is an ads token. If you pass an ad, you can use the bot for 1 hour after passing the ad.</b>",
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup(
-                    [[
-                        InlineKeyboardButton("Click Here To Refresh Token", url=ad_url)
-                    ]]
-                ),
-                reply_to_message_id=m.id,
+    if user_id != int(Config.OWNER):
+        if user.allowed is False:
+            res = await m.reply_text(
+                text=f"Hi **{m.from_user.first_name}**\n\nUnfortunately you can't use me\n\n**Contact: @{Config.OWNER_USERNAME}** ",
+                quote=True,
             )
             return
-        elif int(result["time_out"]) < get_current_time():
-            ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 36000)}")
-            ad_url = shorten_url(f"https://telegram.me/Videos_converter_bot?start={ad_code}")
-            await c.send_message(
-                m.chat.id,
-                f"**Hey __{m.from_user.mention}__ \n\nYour Ads token is expired, refresh your token and try again.\n\n__Token Timeout:__ 1 hour\n\n**What is token?**\n\nThis is an ads token. If you pass 1 ad, you can use the bot for 1 hour after passing the ad.**",
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup(
-                    [[
-                        InlineKeyboardButton("Click Here To Refresh Token", url=ad_url)
-                    ]]
-                ),
-                reply_to_message_id=m.id,
-            )
-            return
-
     if user.merge_mode == 4: # extract_mode
         return
     input_ = f"downloads/{str(user_id)}/input.txt"
@@ -368,14 +274,14 @@ async def files_handler(c: Client, m: Message):
                 quote=True,
             )
             return
-        editable = await m.reply_text("Please Wait", quote=True)
+        editable = await m.reply_text("Please Wait ...", quote=True)
         MessageText = "Okay,\nNow Send Me Next Video or Press **Merge Now** Button!"
 
         if queueDB.get(user_id, None) is None:
             queueDB.update({user_id: {"videos": [], "subtitles": [], "audios": []}})
         if (
             len(queueDB.get(user_id)["videos"]) >= 0
-            and len(queueDB.get(user_id)["videos"]) < 15
+            and len(queueDB.get(user_id)["videos"]) < 10
         ):
             queueDB.get(user_id)["videos"].append(m.id)
             queueDB.get(m.from_user.id)["subtitles"].append(None)
@@ -399,21 +305,21 @@ async def files_handler(c: Client, m: Message):
                 await c.delete_messages(
                     chat_id=m.chat.id, message_ids=replyDB.get(user_id)
                 )
-            if len(queueDB.get(user_id)["videos"]) == 15:
+            if len(queueDB.get(user_id)["videos"]) == 10:
                 MessageText = "Okay, Now Just Press **Merge Now** Button Plox!"
             markup = await makeButtons(c, m, queueDB)
             reply_ = await editable.edit(
                 text=MessageText, reply_markup=InlineKeyboardMarkup(markup)
             )
             replyDB.update({user_id: reply_.id})
-        elif len(queueDB.get(user_id)["videos"]) > 15:
+        elif len(queueDB.get(user_id)["videos"]) > 10:
             markup = await makeButtons(c, m, queueDB)
             await editable.text(
-                "Max 15 videos allowed", reply_markup=InlineKeyboardMarkup(markup)
+                "Max 10 videos allowed", reply_markup=InlineKeyboardMarkup(markup)
             )
 
     elif user.merge_mode == 2:
-        editable = await m.reply_text("Please Wait", quote=True)
+        editable = await m.reply_text("Please Wait ...", quote=True)
         MessageText = (
             "Okay,\nNow Send Me Some More <u>Audios</u> or Press **Merge Now** Button!"
         )
@@ -447,12 +353,12 @@ async def files_handler(c: Client, m: Message):
             )
             replyDB.update({user_id: reply_.id})
         else:
-            await m.reply("This File type is not valid")
+            await m.reply("This Filetype is not valid")
             return
 
     elif user.merge_mode == 3:
 
-        editable = await m.reply_text("Please Wait", quote=True)
+        editable = await m.reply_text("Please Wait ...", quote=True)
         MessageText = "Okay,\nNow Send Me Some More <u>Subtitles</u> or Press **Merge Now** Button!"
         if queueDB.get(user_id, None) is None:
             queueDB.update({user_id: {"videos": [], "subtitles": [], "audios": []}})
@@ -483,7 +389,7 @@ async def files_handler(c: Client, m: Message):
             )
             replyDB.update({user_id: reply_.id})
         else:
-            await m.reply("This File type is not valid")
+            await m.reply("This Filetype is not valid")
             return
 
 
@@ -491,22 +397,29 @@ async def files_handler(c: Client, m: Message):
 async def photo_handler(c: Client, m: Message):
     user = UserSettings(m.chat.id, m.from_user.first_name)
     # if m.from_user.id != int(Config.OWNER):
-
+    if not user.allowed:
+        res = await m.reply_text(
+            text=f"Hi **{m.from_user.first_name}**\n\nUnfortunately you can't use me\n\n**Contact: @{Config.OWNER_USERNAME}** ",
+            quote=True,
+        )
+        del user
+        return
     thumbnail = m.photo.file_id
-    msg = await m.reply_text("**Saving Thumbnail**", quote=True)
+    msg = await m.reply_text("Saving Thumbnail. . . .", quote=True)
     user.thumbnail = thumbnail
     user.set()
     # await database.saveThumb(m.from_user.id, thumbnail)
     LOCATION = f"downloads/{m.from_user.id}_thumb.jpg"
     await c.download_media(message=m, file_name=LOCATION)
-    await msg.edit_text(text="**Custom Thumbnail Saved**")
+    await msg.edit_text(text="Custom Thumbnail Saved!")
     del user
 
 
 @mergeApp.on_message(filters.command(["extract"]) & filters.private)
 async def media_extracter(c: Client, m: Message):
     user = UserSettings(uid=m.from_user.id, name=m.from_user.first_name)
-
+    if not user.allowed:
+        return
     if user.merge_mode == 4:
         if m.reply_to_message is None:
             await m.reply(text="Reply /extract to a video or document file")
@@ -517,7 +430,7 @@ async def media_extracter(c: Client, m: Message):
             mid=rmess.id
             file_name = media.file_name
             if file_name is None:
-                await m.reply("File name not found; go and ask to @StupidBoi69")
+                await m.reply("File name not found; goto @yashoswalyo")
                 return
             markup = bMaker.makebuttons(
                 set1=["Audio", "Subtitle", "Cancel"],
@@ -532,7 +445,7 @@ async def media_extracter(c: Client, m: Message):
             )
     else:
         await m.reply(
-            text="Change Settings And Set Mode To Extract\nThen Use /extract Command"
+            text="Change settings and set mode to extract\nthen use /extract command"
         )
 
 
@@ -548,7 +461,7 @@ async def help_msg(c: Client, m: Message):
 5) Select rename if you want to give custom file name else press default**""",
         quote=True,
         reply_markup=InlineKeyboardMarkup(
-            [[InlineKeyboardButton("Close", callback_data="close")]]
+            [[InlineKeyboardButton("Close 🔐", callback_data="close")]]
         ),
     )
 
@@ -558,19 +471,31 @@ async def about_handler(c: Client, m: Message):
     await m.reply_text(
         text="""
 **What's New:**
-**🚻Ban/Unban Users.**
-**🚹Extract All Audios and Subtitles from Telegram Media.**
-**🛗Merge Video + Audio.**
-**🛗Merge Video + Subtitles.**
-**🛄Upload to Drive Using Your Own Clone Config.**
-**🛗Merged Video Preserves All Streams of the First Video (i.e., all audio tracks/subtitles).**
+
+🚻Ban/Unban Users
+
+🚹Extract All Audios and Subtitles from Telegram Media
+
+🛗Merge Video + Audio
+
+🛗Merge Video + Subtitles
+
+🛄Upload to Drive Using Your Own Clone Config
+
+🛗Merged Video Preserves All Streams of the First Video (i.e., all audio tracks/subtitles)
+
 ────────────────────────
 **Features:**
-**🛗Merge Up to 10 Videos in One.**
-**🛄Upload as Documents/Video.**
-**🚼Custom Thumbnail Support.**
-**♿Users Can watch ads to use the Bot or they can also purchase premium to use bot without ads.**
-**🛂Owner Can Broadcast Message to All Users.**
+
+🛗Merge Up to 10 Videos in One
+
+🛄Upload as Documents/Video
+
+🚼Custom Thumbnail Support
+
+♿Users Can watch ads to use the Bot or they can also purchase premium to use without ads
+
+🛂Owner Can Broadcast Message to All Users
 		""",
         quote=True,
         reply_markup=InlineKeyboardMarkup(
@@ -578,13 +503,13 @@ async def about_handler(c: Client, m: Message):
                 [InlineKeyboardButton("Developer", url="https://t.me/StupidBoi69")],
                 [
                     InlineKeyboardButton(
-                        "Anime Group", url="https://t.me/AnimeDownloaderChat_Bot"
+                        "Source Code", url="https://t.me/StupidBoi69"
                     ),
                     InlineKeyboardButton(
-                        "Source Code", url=f"https://t.me/{Config.OWNER_USERNAME}"
+                        "Owner", url=f"https://t.me/{Config.OWNER_USERNAME}"
                     ),
                 ],
-                [InlineKeyboardButton("CLOSE", callback_data="close")],
+                [InlineKeyboardButton("Close", callback_data="close")],
             ]
         ),
     )
@@ -828,7 +753,7 @@ if __name__ == "__main__":
         with userBot:
             userBot.send_message(
                 chat_id=int(LOGCHANNEL),
-                text="Bot booted with Premium Account,\n\nThanks for using <a href='https://t.me/Videos_converter_bot'>This Bot</a>",
+                text="Bot booted with Premium Account,\n\n  Thanks for using <a href='https://t.me/file_merge_bot'>this bot</a>",
                 disable_web_page_preview=True,
             )
             user = userBot.get_me()
