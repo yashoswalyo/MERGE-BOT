@@ -67,7 +67,7 @@ class MergeBot(Client):
 mergeApp = MergeBot(
     name="merge-bot",
     api_hash=Config.API_HASH,
-    api_id=int(Config.TELEGRAM_API),
+    api_id=Config.TELEGRAM_API,
     bot_token=Config.BOT_TOKEN,
     workers=300,
     plugins=dict(root="plugins"),

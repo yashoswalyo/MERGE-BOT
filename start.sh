@@ -1,1 +1,2 @@
-python3 get_config.py && python3 bot.py
+python=venv/bin/python
+$python get_config.py && $python bot.py
