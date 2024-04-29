@@ -9,6 +9,9 @@ from config import Config
 from pyrogram.types import Message
 from __init__ import LOGGER
 from helpers.utils import get_path_size
+from bot import mergeApp
+import pyrogram
+
 
 
 async def MergeVideo(input_file: str, user_id: int, message: Message, format_: str):
@@ -301,6 +304,7 @@ async def take_screen_shot(video_file, output_directory, ttl):
         return None
 
 
+
 async def extractAudios(path_to_file, user_id):
     """
     docs
@@ -333,19 +337,40 @@ async def extractAudios(path_to_file, user_id):
             extractcmd.append(f"0:{index}")
             try:
                 output_file: str = (
-                    "("
-                    + audio["tags"]["language"]
-                    + ") "
-                    + audio["tags"]["title"]
+                    os.path.splitext(os.path.basename(path_to_file))[
+                        0
+                    ]  # Get the video file name without extension
                     + "."
-                    + audio["codec_type"]
-                    + ".mka"
+                    + audio["tags"]["language"]  # Use the subtitle language
+                    + ".srt"
                 )
                 output_file = output_file.replace(" ", ".")
             except:
-                output_file = str(audio["index"]) + "." + audio["codec_type"] + ".mka"
-            extractcmd.append("-c")
-            extractcmd.append("copy")
+                try:
+                    output_file = (
+                        os.path.splitext(os.path.basename(path_to_file))[0]
+                        + "."
+                        + str(audio["index"])
+                        + "."
+                        + audio["tags"]["language"]
+                        + "."
+                        + audio["codec_type"]
+                        + ".mp3"
+                    )
+                except:
+                    output_file = (
+                        os.path.splitext(os.path.basename(path_to_file))[0]
+                        + "."
+                        + str(audio["index"])
+                        + "."
+                        + audio["codec_type"]
+                        + ".mp3"
+                    )
+
+            extractcmd.append("-c:a")
+            extractcmd.append("libmp3lame")
+            extractcmd.append("-q:a")
+            extractcmd.append("2")
             extractcmd.append(f"{extract_dir}/{output_file}")
             LOGGER.info(extractcmd)
             subprocess.call(extractcmd)
@@ -357,28 +382,27 @@ async def extractAudios(path_to_file, user_id):
         LOGGER.warning(f"{extract_dir} is empty")
         return None
 
-
 async def extractSubtitles(path_to_file, user_id):
-    """
-    docs
-    """
     dir_name = os.path.dirname(os.path.dirname(path_to_file))
     if not os.path.exists(path_to_file):
         return None
     if not os.path.exists(dir_name + "/extract"):
         os.makedirs(dir_name + "/extract")
     videoStreamsData = ffmpeg.probe(path_to_file)
-    # with open("data.json",'w') as f:
-    #     f.write(json.dumps(videoStreamsData))
     extract_dir = dir_name + "/extract"
     subtitles = []
+    language_counts = {}  # Track the number of subtitles for each language
     for stream in videoStreamsData.get("streams"):
         try:
             if stream["codec_type"] == "subtitle":
-                subtitles.append(stream)
+                language = stream["tags"].get("language")
+                if language not in language_counts:
+                    language_counts[language] = 0
+                language_counts[language] += 1
+                subtitles.append((stream, language_counts[language]))
         except Exception as e:
             LOGGER.warning(e)
-    for subtitle in subtitles:
+    for subtitle, count in subtitles:
         extractcmd = []
         extractcmd.append("ffmpeg")
         extractcmd.append("-hide_banner")
@@ -390,31 +414,25 @@ async def extractSubtitles(path_to_file, user_id):
             extractcmd.append(f"0:{index}")
             try:
                 output_file: str = (
-                    "("
+                    os.path.splitext(os.path.basename(path_to_file))[0]
+                    + f".{count}."  # Add the count to the output file name
                     + subtitle["tags"]["language"]
-                    + ") "
-                    + subtitle["tags"]["title"]
-                    + "."
-                    + subtitle["codec_type"]
-                    + ".mka"
+                    + ".srt"
                 )
                 output_file = output_file.replace(" ", ".")
             except:
-                try:
-                    output_file = (
-                        str(subtitle["index"])
-                        + "."
-                        + subtitle["tags"]["language"]
-                        + "."
-                        + subtitle["codec_type"]
-                        + ".mka"
-                    )
-                except:
-                    output_file = (
-                        str(subtitle["index"]) + "." + subtitle["codec_type"] + ".mka"
-                    )
-            extractcmd.append("-c")
-            extractcmd.append("copy")
+                output_file = (
+                    os.path.splitext(os.path.basename(path_to_file))[0]
+                    + f".{count}."  # Add the count to the output file name
+                    + str(subtitle["index"])
+                    + "."
+                    + subtitle["tags"]["language"]
+                    + "."
+                    + subtitle["codec_type"]
+                    + ".srt"
+                )
+            extractcmd.append("-c:s")
+            extractcmd.append("srt")
             extractcmd.append(f"{extract_dir}/{output_file}")
             LOGGER.info(extractcmd)
             subprocess.call(extractcmd)
@@ -425,3 +443,7 @@ async def extractSubtitles(path_to_file, user_id):
     else:
         LOGGER.warning(f"{extract_dir} is empty")
         return None
+
+
+
+
