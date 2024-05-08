@@ -26,7 +26,7 @@ SUBTITLE_EXTENSIONS = ["srt", "ass", "mka", "mks"]
 w = open("mergebotlog.txt", "w")
 w.truncate(0)
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s",
     datefmt="%d-%b-%y %H:%M:%S",
     handlers=[

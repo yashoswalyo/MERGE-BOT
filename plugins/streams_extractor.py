@@ -51,17 +51,18 @@ async def streamsExtractor(c: Client, cb:CallbackQuery ,media_mid, exAudios=Fals
     await asyncio.sleep(3)
     if exAudios:
         await _hold.edit_text("Extracting Audios")
-        extract_dir = await extractAudios(file_dl_path,cb.from_user.id)
+        extract_dir, audios = await extractAudios(file_dl_path,cb.from_user.id, media.file_name.rsplit('.',1)[0])
+        
     if exSubs:
         await _hold.edit_text("Extracting Subtitles")
-        extract_dir = await extractSubtitles(file_dl_path, cb.from_user.id)
+        extract_dir, subtitles = await extractSubtitles(file_dl_path, cb.from_user.id)
 
     if extract_dir is None:
         await cb.message.edit("❌ Failed to Extract Streams !")
         await delete_all(root=f"downloads/{str(cb.from_user.id)}")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
         return
-
+    
     for dirpath, dirnames, filenames in os.walk(extract_dir):
         no_of_files = len(filenames)
         cf=1
@@ -74,11 +75,12 @@ async def streamsExtractor(c: Client, cb:CallbackQuery ,media_mid, exAudios=Fals
                 up_path=up_path,
                 n=cf,
                 all=no_of_files,
+                custom_caption=audios[cf-1].get("tags",{}).get("title",None)
             )
             cf+=1
             LOGGER.info(f"Uploaded: {up_path}")
     await cb.message.delete()
     await delete_all(root=f"downloads/{str(cb.from_user.id)}")
     queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
-    
+
     return
